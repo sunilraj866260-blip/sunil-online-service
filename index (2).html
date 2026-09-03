@@ -1,0 +1,174 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunil Online Service</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Mukta', sans-serif; }
+        body { background: #f4f7f6; padding-bottom: 40px; }
+        header { background: linear-gradient(135deg, #1e3799, #0c2461); color: white; padding: 15px; text-align: center; }
+        .container { max-width: 700px; margin: 20px auto; padding: 0 15px; }
+        .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+        .input-group { flex: 1; min-width: 200px; }
+        label { display: block; font-weight: bold; font-size: 14px; }
+        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; }
+        .qr-box { text-align: center; background: #e8f5e9; padding: 12px; border-radius: 8px; margin: 15px 0; border: 1px dashed #2e7d32; }
+        .btn-submit { background: #25d366; color: white; border: none; padding: 12px; font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
+        
+        #pdfSection { display: none; }
+        .a4-page { width: 210mm; min-height: 297mm; background: white; padding: 20mm 15mm; margin: 20px auto; font-size: 13pt; line-height: 1.8; text-align: justify; border: 1px solid #ccc; }
+        .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 20px 0; }
+        .child-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .child-table th, .child-table td { border: 1px solid #000; padding: 6px 10px; }
+        .bottom-area { display: flex; justify-content: space-between; margin-top: 40px; border-top: 1px solid #000; padding-top: 15px; }
+        .btn-download { background: #007bff; color: white; padding: 12px 25px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; display: block; margin: 20px auto; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Sunil Online Service</h1>
+        <p>रोहिणी-१, रुपन्देही | सम्पर्क: ९८१७४२३८३०</p>
+    </header>
+
+    <div class="container" id="formContainer">
+        <div class="card" id="cardContent">
+            <h2 style="color: #1e3799; text-align: center; margin-bottom: 15px;">👶 जन्म दर्ता सिफारिस निवेदन</h2>
+            
+            <form id="nivedanForm">
+                <div class="row">
+                    <div class="input-group"><label>मिति:</label><input type="text" id="in_today" value="२०८३/०५/१७" required></div>
+                    <div class="input-group"><label>फोन नम्बर:</label><input type="text" id="in_phone" placeholder="98XXXXXXXX" required></div>
+                </div>
+                <div class="row">
+                    <div class="input-group"><label>निवेदकको नाम:</label><input type="text" id="in_name" required></div>
+                    <div class="input-group"><label>बुवाको नाम:</label><input type="text" id="in_father" required></div>
+                    <div class="input-group"><label>बाजेको नाम:</label><input type="text" id="in_grandpa" required></div>
+                </div>
+                <div class="row">
+                    <div class="input-group"><label>विवाह मिति:</label><input type="text" id="in_marriage" required></div>
+                    <div class="input-group"><label>बच्चाको नाम:</label><input type="text" id="in_child" required></div>
+                    <div class="input-group"><label>जन्म मिति:</label><input type="text" id="in_dob" required></div>
+                </div>
+
+                <button type="submit" class="btn-submit">सबमिट गरी भुक्तानी पानामा जानुहोस्</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PDF Area -->
+    <div id="pdfSection">
+        <button class="btn-download" onclick="downloadPDF()">📄 Download PDF</button>
+        <div class="a4-page" id="pdfContent">
+            <div style="text-align: right;">मिति: <span id="p_today"></span></div>
+            <div>श्रीमान् वडा अध्यक्ष ज्यू,<br>रोहिणी गाउँपालिका, वडा नं. १,<br>रुपन्देही।</div>
+            <div class="subject">विषय : जन्म दर्ता गरिपाऊँ।</div>
+            <p>महोदय,</p>
+            <p style="text-indent: 40px;">
+                उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने <strong><span id="p_grandpa"></span></strong> को नाति/नातिनी तथा श्री <strong><span id="p_father"></span></strong> को छोरा/छोरी <strong><span id="p_name"></span></strong> हूँ। मिति <strong><span id="p_marriage"></span></strong> मा विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका मेरो बच्चाको जन्म भएको हुँदा जन्म दर्ता प्रमाणपत्र जारी गरी पाउन यो निवेदन पेश गरेको छु।
+            </p>
+            <table class="child-table">
+                <thead><tr><th>क्र.सं.</th><th>बच्चाको नाम</th><th>जन्म मिति</th><th>जन्मस्थान</th></tr></thead>
+                <tbody>
+                    <tr><td style="text-align:center;">१</td><td><strong id="p_child"></strong></td><td><span id="p_dob"></span></td><td>रोहिणी-१, रुपन्देही</td></tr>
+                </tbody>
+            </table>
+            <div class="bottom-area">
+                <div><strong>संलग्न कागजातहरू:</strong><br>१. नागरिकता प्रतिलिपि<br>२. विवाह दर्ता प्रतिलिपि</div>
+                <div><strong>निवेदक:</strong><br><br>सही: ...........................<br>नाम: <strong id="p_applicant"></strong><br>सम्पर्क: <span id="p_phone"></span><br><small>[Tx Ref: <span id="p_tx"></span>]</small></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let currentFormData = {};
+
+        document.getElementById('nivedanForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // फारम डाटा सेभ गर्ने
+            currentFormData = {
+                today: document.getElementById('in_today').value,
+                phone: document.getElementById('in_phone').value,
+                name: document.getElementById('in_name').value,
+                father: document.getElementById('in_father').value,
+                grandpa: document.getElementById('in_grandpa').value,
+                marriage: document.getElementById('in_marriage').value,
+                child: document.getElementById('in_child').value,
+                dob: document.getElementById('in_dob').value
+            };
+
+            // WhatsApp मा पसलेलाई खबर पठाउने
+            const pasaleNumber = "9779817423830";
+            const message = `*नयाँ सिफारिस निवेदन*%0A*निवेदक:* ${currentFormData.name}%0A*सम्पर्क:* ${currentFormData.phone}%0A*बच्चा:* ${currentFormData.child}`;
+            window.open(`https://wa.me/${pasaleNumber}?text=${message}`, '_blank');
+
+            // QR Code र Tx Code हाल्ने बक्स देखाउने
+            document.getElementById('cardContent').innerHTML = `
+                <div style="text-align:center;">
+                    <div class="qr-box">
+                        <p style="color: #2e7d32; font-size:16px;"><b>📲 eSewa QR Scan गरी रु. १० भुक्तानी गर्नुहोस्</b></p>
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=eSewa_Pay_9817423830" alt="eSewa QR">
+                        <p>eSewa ID: <b>9817423830</b></p>
+                    </div>
+
+                    <p style="margin-bottom: 10px; font-size: 14px;">भुक्तानी गरिसकेपछि प्राप्त भएको <b>eSewa Transaction ID (Tx Code)</b> यहाँ हाल्नुहोस्:</p>
+                    <input type="text" id="userTxCode" placeholder="उदा: 000ABC1" style="width: 220px; text-align: center; font-size: 16px; padding: 8px; margin-bottom: 15px; text-transform: uppercase;">
+                    <br>
+                    <button onclick="checkTxAndOpen()" style="background:#1e3799; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer;">
+                        🔓 Verify & Unlock PDF
+                    </button>
+                </div>
+            `;
+        });
+
+        // ग्राहकले Tx Code हालेर PDF Unlock गर्ने फङ्क्सन
+        function checkTxAndOpen() {
+            const txInput = document.getElementById('userTxCode').value.trim().toUpperCase();
+
+            if (!txInput) {
+                alert("कृपया eSewa Transaction ID हाल्नुहोस्!");
+                return;
+            }
+
+            // डाटाबेसमा पसलेले त्यो Tx Code Verify गरेको छ कि छैन हेर्ने
+            database.ref('verified_codes/' + txInput).once('value').then((snapshot) => {
+                if (snapshot.exists() && snapshot.val().status === 'approved') {
+                    // PDF मा डाटा भर्ने
+                    document.getElementById('p_today').innerText = currentFormData.today;
+                    document.getElementById('p_grandpa').innerText = currentFormData.grandpa;
+                    document.getElementById('p_father').innerText = currentFormData.father;
+                    document.getElementById('p_name').innerText = currentFormData.name;
+                    document.getElementById('p_marriage').innerText = currentFormData.marriage;
+                    document.getElementById('p_child').innerText = currentFormData.child;
+                    document.getElementById('p_dob').innerText = currentFormData.dob;
+                    document.getElementById('p_applicant').innerText = currentFormData.name;
+                    document.getElementById('p_phone').innerText = currentFormData.phone;
+                    document.getElementById('p_tx').innerText = txInput;
+
+                    // PDF देखाउने
+                    document.getElementById('formContainer').style.display = 'none';
+                    document.getElementById('pdfSection').style.display = 'block';
+                } else {
+                    alert("❌ भुक्तानी प्रमाणिकरण भएको छैन! पसलेले तपाईँको भुक्तानी Verify गरेपछि मात्र यो Tx Code ले काम गर्नेछ।");
+                }
+            });
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('pdfContent');
+            html2pdf().set({ margin: 5, filename: 'Nivedan_SunilOnline.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } }).from(element).save();
+        }
+    </script>
+</body>
+</html>
