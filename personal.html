@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>नाता प्रमाणित तथा व्यक्तिगत सिफारिस निवेदन - रोहिणी वडा नं. १</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Kalimati', 'Mangal', 'Noto Sans Devanagari', sans-serif;
+            background-color: #eef2f5;
+            margin: 0;
+            padding: 20px;
+            color: #111;
+        }
+
+        .a4-container {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 18mm 15mm 15mm 15mm;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        input[type="text"], input[type="tel"], select {
+            font-family: inherit;
+            font-size: 11pt;
+            padding: 3px 6px;
+            border: 1px solid #999;
+            border-radius: 3px;
+            background-color: #fcfdff;
+        }
+
+        ::placeholder {
+            color: #555 !important;
+            opacity: 1 !important;
+            font-weight: normal;
+        }
+
+        input[type="text"]:focus, input[type="tel"]:focus, select:focus {
+            outline: none;
+            border-color: #b30000;
+            background-color: #fff;
+        }
+
+        .inline-input {
+            display: inline-block;
+            border: none;
+            border-bottom: 1px dashed #333;
+            border-radius: 0;
+            padding: 0 4px;
+            font-weight: bold;
+            min-width: 60px;
+            width: auto;
+        }
+
+        .top-meta { display: table; width: 100%; margin-bottom: 15px; }
+        .top-meta-left { display: table-cell; text-align: left; vertical-align: top; }
+        .top-meta-right { display: table-cell; text-align: right; vertical-align: top; font-weight: bold; }
+        .subject-box { text-align: center; margin: 12px 0; font-size: 12pt; font-weight: bold; text-decoration: underline; }
+        .salutation { font-weight: bold; margin-bottom: 8px; }
+        .letter-body { text-align: justify; margin-bottom: 12px; line-height: 2; }
+        .declaration-box { font-size: 9.5pt; background-color: #fafafa; border: 1px solid #ddd; padding: 8px 12px; margin: 10px 0; border-radius: 4px; }
+        
+        .section-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background-color: #f0f4f8; 
+            padding: 4px 8px; 
+            border-left: 4px solid #b30000; 
+            margin-top: 12px; 
+            margin-bottom: 6px; 
+        }
+        .section-title { font-size: 10.5pt; font-weight: bold; }
+
+        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+        .data-table th, .data-table td { padding: 5px 8px; border: 1px solid #ccc; font-size: 10pt; text-align: center; }
+        .data-table th { background-color: #f5f5f5; font-weight: bold; }
+        .table-input { width: 100% !important; text-align: center; }
+
+        .footer-signatures { display: table; width: 100%; margin-top: 20px; }
+        .sig-left { display: table-cell; width: 50%; vertical-align: top; font-size: 9.5pt; }
+        .sig-right { display: table-cell; width: 50%; vertical-align: top; font-size: 9.5pt; line-height: 1.8; }
+        .enclosure-list { margin: 5px 0 0 15px; padding: 0; font-size: 9pt; }
+
+        .controls-container {
+            width: 210mm;
+            margin: 0 auto 15px auto;
+            background: #fff;
+            padding: 12px 18px;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 10pt;
+            font-weight: bold;
+        }
+
+        .btn-action { background-color: #28a745; color: #fff; border: none; padding: 3px 10px; font-size: 9pt; font-weight: bold; border-radius: 3px; cursor: pointer; }
+        .btn-action:hover { background-color: #218838; }
+        .btn-delete { background-color: #dc3545; color: #fff; border: none; padding: 2px 6px; font-size: 8pt; border-radius: 3px; cursor: pointer; }
+        .btn-delete:hover { background-color: #c82333; }
+
+        .btn-print { background-color: #b30000; color: #ffffff; border: none; padding: 8px 18px; font-size: 11pt; font-weight: bold; border-radius: 4px; cursor: pointer; }
+        .btn-print:hover { background-color: #800000; }
+
+        .dynamic-field { display: inline-block; }
+        .hidden { display: none !important; }
+
+        @media print {
+            @page { size: A4; margin: 12mm 15mm 12mm 15mm; }
+            body { background: #ffffff; padding: 0; }
+            .a4-container { box-shadow: none; width: 100%; min-height: auto; padding: 0; }
+            .controls-container, .btn-action, .btn-delete, .col-action, #esewaSection { display: none !important; }
+            input[type="text"], input[type="tel"], select {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                font-weight: bold;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+            }
+            .inline-input { border-bottom: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Payment Banner -->
+    <div id="esewaSection" class="max-w-[210mm] mx-auto bg-white p-4 rounded-lg shadow mb-4 border border-green-500">
+        <h2 class="text-lg font-bold text-green-700 mb-2">💳 eSewa भुक्तानी तथा फारम बुझाउने प्रणाली</h2>
+        <div class="flex flex-col md:flex-row items-center gap-4">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=esewa_payment_sunil" alt="eSewa QR" class="w-32 h-32 border p-1 rounded">
+            <div class="text-xs space-y-1 flex-1">
+                <p class="font-bold text-gray-700">शुल्क: रू. ५०/-</p>
+                <p>१. QR Code मा Scan गरी रु. ५० भुक्तानी गर्नुहोस्।</p>
+                <p>२. भुक्तानीपछि पाइने <b>Transaction Code (Tx Code)</b> तल हाल्नुहोस्।</p>
+                <div class="mt-2 flex gap-2">
+                    <input type="text" id="txCode" placeholder="Tx Code (उदा: TX12345)" class="p-2 border rounded font-mono uppercase text-sm flex-1">
+                    <button onclick="submitForm()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded text-sm">फारम पेश गर्नुहोस्</button>
+                </div>
+                <p id="submitMsg" class="text-sm font-bold mt-1"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls-container">
+        <div class="control-group">
+            <label for="purpose_select">सिफारिसको प्रकार:</label>
+            <select id="purpose_select" onchange="updatePurpose()">
+                <option value="201">201 : नाम थर संशोधन सिफारिस</option>
+                <option value="202" selected>202 : नाता प्रमाणित सिफारिस / नाता कायम सिफारिस</option>
+                <option value="203">203 : पारिवारीक विवरण सिफारिस</option>
+                <option value="204">204 : बसोवास प्रमाणित सिफारिस</option>
+                <option value="205">205 : नाबालक सिफारिस / जन्ममिति प्रमाणित सिफारिस</option>
+                <option value="206">206 : वैवाहिक सम्बन्धमा प्रमाणित सिफारिस</option>
+                <option value="207">207 : अविवाहित प्रमाणित सिफारिस</option>
+                <option value="208">208 : व्यक्ति प्रमाणित सिफारिस</option>
+                <option value="209">209 : सम्बन्ध विच्छेद सिफारिस</option>
+                <option value="210">210 : संरक्षण सिफारिस</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label><input type="checkbox" id="chk_grandpa" checked onchange="toggleField('field_grandpa', this.checked)"> बाजेको नाम</label>
+            <label><input type="checkbox" id="chk_father" checked onchange="toggleField('field_father', this.checked)"> बुवाको नाम</label>
+        </div>
+
+        <button id="printBtn" class="btn-print hidden" onclick="window.print()">🖨️ प्रिन्ट (Print)</button>
+    </div>
+
+    <!-- Main A4 Document -->
+    <div class="a4-container">
+
+        <div class="top-meta">
+            <div class="top-meta-left">
+                <strong>श्रीमान् वडा अध्यक्षज्यू,</strong><br>
+                रोहिणी गाउँपालिका, वडा नं. १ को कार्यालय,<br>
+                रूपन्देही।
+            </div>
+            <div class="top-meta-right">
+                मिति: <input type="text" id="docDate" class="auto-resize" style="width: 110px;" value="२०८३/..../....">
+            </div>
+        </div>
+
+        <div class="subject-box" id="display_subject">
+            विषय: नाता प्रमाणित सिफारिस उपलब्ध गराइपाऊँ।
+        </div>
+
+        <div class="salutation">
+            महोदय,
+        </div>
+
+        <div class="letter-body">
+            उपरोक्त सम्बन्धमा म यसै रोहिणी गाउँपालिका वडा नं. १, रुपन्देही निवासी
+            
+            <span id="field_grandpa" class="dynamic-field">
+                श्री <input type="text" id="grandpaName" class="inline-input auto-resize" placeholder="बाजेको नाम"> को नाति/नातिना
+            </span>
+            
+            <span id="field_father" class="dynamic-field">
+                तथा श्री <input type="text" id="fatherName" class="inline-input auto-resize" placeholder="बुवाको नाम"> को छोरा/छोरी
+            </span>
+
+            श्री <input type="text" class="inline-input auto-resize" id="body_applicant_name" placeholder="निवेदकको नाम"> हुँ। मेरो/हाम्रो <span id="purpose_text_body">निम्न बमोजिमका व्यक्तिहरूसँग नाता प्रमाणित सिफारिस</span> आवश्यक परेको हुँदा सम्बन्धित निकायमा पेश गर्नका लागि नियमानुसार सिफारिस पत्र उपलब्ध गराइदिनुहुन विनम्र अनुरोध गर्दछु।
+        </div>
+
+        <div class="declaration-box">
+            निवेदनमा उल्लेख गरिएका सम्पूर्ण विवरण तथा संलग्न कागजातहरू साँचो हुन्। झुठ्ठा ठहरे कानून बमोजिम सहुँला बुझाउँला।
+        </div>
+
+        <!-- Dynamic Table (पारिवारिक / नाता विवरण) -->
+        <div id="table_section">
+            <div class="section-header">
+                <div class="section-title" id="table_title">१. नाता सम्बन्धित व्यक्तिको विवरण (Details)</div>
+                <button class="btn-action" onclick="addRow()">+ नयाँ व्यक्ति थप्नुहोस्</button>
+            </div>
+
+            <table class="data-table" id="relationTable">
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">क्र.सं.</th>
+                        <th style="width: 28%;">नाम, थर</th>
+                        <th style="width: 22%;">नाता (Relationship)</th>
+                        <th style="width: 24%;">नागरिकता/जन्मदर्ता नं.</th>
+                        <th style="width: 12%;">कैफियत</th>
+                        <th class="col-action" style="width: 6%;">कार्य</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="row-sn">१.</td>
+                        <td><input type="text" class="table-input rel-name" placeholder="व्यक्ति/सदस्यको नाम थर"></td>
+                        <td>
+                            <select class="table-input rel-type">
+                                <option value="बुबा">बुबा</option>
+                                <option value="आमा">आमा</option>
+                                <option value="बाजे">बाजे</option>
+                                <option value="बजै">बजै</option>
+                                <option value="श्रीमती">श्रीमती</option>
+                                <option value="श्रीमान्">श्रीमान्</option>
+                                <option value="छोरा">छोरा</option>
+                                <option value="छोरी">छोरी</option>
+                                <option value="भाइ">भाइ</option>
+                                <option value="बहिनी">बहिनी</option>
+                                <option value="दाजु">दाजु</option>
+                                <option value="दिदी">दिदी</option>
+                                <option value="बुहारी">बुहारी</option>
+                                <option value="ज्वाइँ">ज्वाइँ</option>
+                                <option value="अन्य">अन्य</option>
+                            </select>
+                        </td>
+                        <td><input type="text" class="table-input rel-id" placeholder="प्रमाणपत्र नं."></td>
+                        <td><input type="text" class="table-input rel-remarks" placeholder="................"></td>
+                        <td class="col-action"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer-signatures">
+            <div class="sig-left">
+                <strong>संलग्न कागजातहरू:</strong>
+                <ol class="enclosure-list" id="enclosure_list">
+                    <li>निवेदकको नागरिकता प्रमाणपत्रको प्रतिलिपि</li>
+                    <li>नाता सम्बन्धित व्यक्तिहरूको नागरिकता/जन्मदर्ता प्रतिलिपि</li>
+                    <li>चालु आर्थिक वर्षको वडा कर चुक्ता/रसिद</li>
+                    <li>अन्य सम्बन्धित कागजातहरू</li>
+                </ol>
+            </div>
+            <div class="sig-right">
+                <strong>निवेदक:</strong><br>
+                सही: ...........................<br>
+                नाम थर: <input type="text" class="inline-input auto-resize" id="sig_applicant_name" placeholder="................................"><br>
+                नागरिकता नं.: <input type="text" id="applicantCitz" class="inline-input auto-resize" placeholder="................................"><br>
+                ठेगाना: रोहिणी-१, रुपन्देही<br>
+                सम्पर्क नं.: <input type="tel" id="applicantPhone" placeholder="................">
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase Script -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+            databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Nepali Numbers Conversion
+        function toNepaliNumber(n) {
+            const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+            return n.toString().split('').map(x => nepaliDigits[x] || x).join('');
+        }
+
+        function addRow() {
+            const tbody = document.querySelector('#relationTable tbody');
+            const rowCount = tbody.children.length + 1;
+            const nepaliSN = toNepaliNumber(rowCount);
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="row-sn">${nepaliSN}.</td>
+                <td><input type="text" class="table-input rel-name" placeholder="व्यक्ति/सदस्यको नाम थर"></td>
+                <td>
+                    <select class="table-input rel-type">
+                        <option value="बुबा">बुबा</option>
+                        <option value="आमा">आमा</option>
+                        <option value="बाजे">बाजे</option>
+                        <option value="बजै">बजै</option>
+                        <option value="श्रीमती">श्रीमती</option>
+                        <option value="श्रीमान्">श्रीमान्</option>
+                        <option value="छोरा">छोरा</option>
+                        <option value="छोरी">छोरी</option>
+                        <option value="भाइ">भाइ</option>
+                        <option value="बहिनी">बहिनी</option>
+                        <option value="दाजु">दाजु</option>
+                        <option value="दिदी">दिदी</option>
+                        <option value="बुहारी">बुहारी</option>
+                        <option value="ज्वाइँ">ज्वाइँ</option>
+                        <option value="अन्य">अन्य</option>
+                    </select>
+                </td>
+                <td><input type="text" class="table-input rel-id" placeholder="प्रमाणपत्र नं."></td>
+                <td><input type="text" class="table-input rel-remarks" placeholder="................"></td>
+                <td class="col-action"><button class="btn-delete" onclick="deleteRow(this)">❌</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function deleteRow(btn) {
+            const row = btn.closest('tr');
+            row.remove();
+            updateSerialNumbers();
+        }
+
+        function updateSerialNumbers() {
+            const rows = document.querySelectorAll('#relationTable tbody tr');
+            rows.forEach((row, index) => {
+                const snCell = row.querySelector('.row-sn');
+                if (snCell) {
+                    snCell.textContent = toNepaliNumber(index + 1) + '.';
+                }
+            });
+        }
+
+        const purposeMap = {
+            "201": { 
+                subject: "विषय: नाम थर संशोधन सिफारिस उपलब्ध गराइपाऊँ।", 
+                bodyText: "कागजातहरूमा नाम थर फरक परेको हुँदा नाम थर संशोधन सिफारिस", 
+                title: "१. नाम थर संशोधन सम्बन्धी विवरण",
+                enclosures: ["नागरिकता वा जन्मदर्ताको प्रतिलिपि", "नाम/थर फरक परेका सम्बन्धित प्रमाणहरू", "चालु आ.व.को कर चुक्ता/रसिद"] 
+            },
+            "202": { 
+                subject: "विषय: नाता प्रमाणित / नाता कायम सिफारिस उपलब्ध गराइपाऊँ।", 
+                bodyText: "निम्न बमोजिमका व्यक्तिहरूसँग नाता प्रमाणित / नाता कायम सिफारिस", 
+                title: "१. नाता प्रमाणित गरिने व्यक्तिहरूको विवरण",
+                enclosures: ["निवेदकको नागरिकताको प्रतिलिपि", "सम्बन्धित व्यक्तिहरूको नागरिकता/जन्मदर्ता प्रतिलिपि", "पासपोर्ट साइज फोटो", "चालु आ.व.को कर चुक्ता/रसिद"] 
+            },
+            "203": { 
+                subject: "विषय: पारिवारीक विवरण सिफारिस उपलब्ध गराइपाऊँ।", 
+                bodyText: "हाम्रो एकाघर परिवारको पारिवारिक लगत विवरण सिफारिस", 
+                title: "१. एकाघर परिवारको सदस्यहरूको विवरण",
+                enclosures: ["निवेदकको नागरिकता प्रतिलिपि", "परिवारका सदस्यहरूको नागरिकता/जन्मदर्ता", "चालु आ.व.को कर चुक्ता रसिद"] 
+            },
+            "204": { 
+                subject: "विषय: बसोवास प्रमाणित सिफारिस उपलब्ध गराइपाऊँ।", 
+                bodyText: "यस वडा भित्र नियमित बसोवास गर्दै आएको हुँदा बसोवास प्रमाणित सिफारिस", 
+                title: "१. बसोवास सम्बन्धी पारिवारिक विवरण",
+                enclosures: ["नागरिकताको प्रतिलिपि", "जग्गाधनी प्रमाण पुर्जा वा घरबहाल सम्झौता", "बिजुली/खानेपानीको बिल"] 
+            },
+            "205": { 
+                subject: "विषय: नाबालक सिफारिस / जन्ममिति प्रमाणित सिफारिस उपलब्ध गराइपाऊँ।", 
+                bodyText: "नाबालक परिचयपत्र तथा जन्ममिति प्रमाणित सिफारिस", 
+                title: "१. नाबालकको विवरण",
+                enclosures: ["नाबालकको जन्मदर्ता प्रमाणपत्र प्रतिलिपि", "बाबु/आमाको नागरिकता प्रतिलिपि", "फोटो २ प्रति"] 
+            },
+            "206": { 
+                subject: "विषय: वैवाहिक सम्बन्धमा प्रमाणित सिफारिस उपलब्ध गराइपाऊँ।", 
+                bodyText: "पति/पत्नी बीचको वैवाहिक सम्बन्ध प्रमाणित सिफारिस", 
+                title: "१. पति तथा पत्नीको विवरण",
+                enclosures: ["पति-पत्नी दुवैको नागरिकता प्रतिलिपि", "विवाह दर्ता प्रमाणपत्र (भएमा)", "संयुक्त फोटो"] 
+            },
+            "207": { 
+                subject: "विषय: अविवाहित प्रमाणित सिफारिस उपलब्ध गराइपाऊँ।", 
+                bodyText: "हालसम्म अविवाहित रहेको हुनाले सो सम्बन्धी प्रमाणित सिफारिस", 
+                title: "१. निवेदकको व्यक्तिगत विवरण",
+                enclosures: ["नागरिकता प्रमाणपत्रको प्रतिलिपि", "सर्जिमिन मुचुल्का (आवश्यक परेमा)", "पासपोर्ट साइज फोटो"] 
+            },
+            "208": { 
+                subject: "विषय: व्यक्ति प्रमाणित सिफारिस उपलब्ध गराइपाऊँ।", 
+                bodyText: "विभिन्न कागजातहरूमा एकै व्यक्ति भएको पुष्टि गर्न व्यक्ति प्रमाणित सिफारिस", 
+                title: "१. प्रमाणित गरिने व्यक्तिको विवरण",
+                enclosures: ["नागरिकताको प्रतिलिपि", "व्यक्ति फरक/एकै भएको पुष्टि गर्ने कागजातहरू", "फोटो"] 
+            },
+            "209": { 
+                subject: "विषय: सम्बन्ध विच्छेद सिफारिस उपलब्ध गराइपाऊँ।", 
+                bodyText: "सम्बन्ध विच्छेद प्रक्रियाका लागि नियमानुसारको सिफारिस", 
+                title: "१. सम्बन्धित दम्पतिको विवरण",
+                enclosures: ["पति र पत्नीको नागरिकता प्रतिलिपि", "विवाह दर्ता प्रमाणपत्र", "अदालतको निर्णय (भएमा)"] 
+            },
+            "210": { 
+                subject: "विषय: संरक्षण सिफारिस उपलब्ध गराइपाऊँ।", 
+                bodyText: "नाबालक/अशक्त व्यक्तिको संरक्षण सम्बन्धी सिफारिस", 
+                title: "१. संरक्षक तथा संरक्षित व्यक्तिको विवरण",
+                enclosures: ["संरक्षकको नागरिकता प्रतिलिपि", "संरक्षित व्यक्तिको जन्मदर्ता/परिचयपत्र", "नाता प्रमाणित/नाताको प्रमाण"] 
+            }
+        };
+
+        function updatePurpose() {
+            const selectedVal = document.getElementById('purpose_select').value;
+            const data = purposeMap[selectedVal];
+            
+            document.getElementById('display_subject').textContent = data.subject;
+            document.getElementById('purpose_text_body').textContent = data.bodyText;
+            document.getElementById('table_title').textContent = data.title;
+
+            const encList = document.getElementById('enclosure_list');
+            encList.innerHTML = '';
+            data.enclosures.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                encList.appendChild(li);
+            });
+        }
+
+        function toggleField(fieldId, isVisible) {
+            const field = document.getElementById(fieldId);
+            if (isVisible) field.classList.remove('hidden');
+            else field.classList.add('hidden');
+        }
+
+        function adjustWidth(input) {
+            const tempSpan = document.createElement('span');
+            tempSpan.style.visibility = 'hidden';
+            tempSpan.style.position = 'absolute';
+            tempSpan.style.whiteSpace = 'pre';
+            tempSpan.style.font = window.getComputedStyle(input).font;
+            
+            tempSpan.textContent = input.value || input.placeholder || '................';
+            document.body.appendChild(tempSpan);
+            
+            input.style.width = (tempSpan.offsetWidth + 10) + 'px';
+            document.body.removeChild(tempSpan);
+        }
+
+        const autoResizeInputs = document.querySelectorAll('.auto-resize');
+        autoResizeInputs.forEach(input => {
+            adjustWidth(input);
+            input.addEventListener('input', () => adjustWidth(input));
+        });
+
+        document.getElementById('sig_applicant_name').addEventListener('input', function() {
+            const bodyName = document.getElementById('body_applicant_name');
+            bodyName.value = this.value;
+            adjustWidth(bodyName);
+        });
+
+        document.getElementById('body_applicant_name').addEventListener('input', function() {
+            const sigName = document.getElementById('sig_applicant_name');
+            sigName.value = this.value;
+            adjustWidth(sigName);
+        });
+
+        // Submit to Firebase
+        function submitForm() {
+            const txCode = document.getElementById('txCode').value.trim().toUpperCase();
+            const applicantName = document.getElementById('body_applicant_name').value.trim();
+            const msg = document.getElementById('submitMsg');
+
+            if (!txCode) return alert("कृपया eSewa Transaction Code हाल्नुहोस्!");
+            if (!applicantName) return alert("कृपया निवेदकको नाम हाल्नुहोस्!");
+
+            msg.className = "text-sm font-bold mt-1 text-blue-600";
+            msg.innerText = "फारम बुझाउँदैछ...";
+
+            // Gather relation table data
+            const relations = [];
+            document.querySelectorAll('#relationTable tbody tr').forEach(tr => {
+                relations.push({
+                    name: tr.querySelector('.rel-name')?.value || '',
+                    type: tr.querySelector('.rel-type')?.value || '',
+                    idNum: tr.querySelector('.rel-id')?.value || '',
+                    remarks: tr.querySelector('.rel-remarks')?.value || ''
+                });
+            });
+
+            const formData = {
+                type: 'personal',
+                purposeCode: document.getElementById('purpose_select').value,
+                docDate: document.getElementById('docDate').value,
+                grandpaName: document.getElementById('grandpaName').value,
+                fatherName: document.getElementById('fatherName').value,
+                applicantName: applicantName,
+                applicantCitz: document.getElementById('applicantCitz').value,
+                applicantPhone: document.getElementById('applicantPhone').value,
+                relations: relations,
+                status: 'pending',
+                timestamp: new Date().toISOString()
+            };
+
+            database.ref('requests/' + txCode).set(formData).then(() => {
+                msg.className = "text-sm font-bold mt-1 text-green-600";
+                msg.innerText = "✅ निवेदन सफलतापुर्वक पेश भयो! पसलेले Approve गरेपछि प्रिन्ट गर्न सकिनेछ।";
+                alert("तपाईँको Tx Code: " + txCode + " सुरक्षित राख्नुहोस्!");
+            }).catch(err => {
+                msg.className = "text-sm font-bold mt-1 text-red-600";
+                msg.innerText = "❌ त्रुटि: " + err.message;
+            });
+        }
+
+        // Auto load if accessed via Tx Code
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tx = urlParams.get('tx');
+            if (tx) {
+                database.ref('requests/' + tx).once('value').then(snapshot => {
+                    const data = snapshot.val();
+                    if (data && data.status === 'approved') {
+                        document.getElementById('esewaSection').style.display = 'none';
+                        document.getElementById('printBtn').classList.remove('hidden');
+
+                        if(data.purposeCode) {
+                            document.getElementById('purpose_select').value = data.purposeCode;
+                            updatePurpose();
+                        }
+                        if(data.docDate) document.getElementById('docDate').value = data.docDate;
+                        if(data.grandpaName) document.getElementById('grandpaName').value = data.grandpaName;
+                        if(data.fatherName) document.getElementById('fatherName').value = data.fatherName;
+                        if(data.applicantName) {
+                            document.getElementById('body_applicant_name').value = data.applicantName;
+                            document.getElementById('sig_applicant_name').value = data.applicantName;
+                        }
+                        if(data.applicantCitz) document.getElementById('applicantCitz').value = data.applicantCitz;
+                        if(data.applicantPhone) document.getElementById('applicantPhone').value = data.applicantPhone;
+
+                        // Fill table
+                        if(data.relations && data.relations.length > 0) {
+                            const tbody = document.querySelector('#relationTable tbody');
+                            tbody.innerHTML = '';
+                            data.relations.forEach((rel, idx) => {
+                                const tr = document.createElement('tr');
+                                tr.innerHTML = `
+                                    <td class="row-sn">${toNepaliNumber(idx+1)}.</td>
+                                    <td><input type="text" class="table-input rel-name" value="${rel.name}"></td>
+                                    <td>
+                                        <select class="table-input rel-type">
+                                            <option value="${rel.type}" selected>${rel.type}</option>
+                                        </select>
+                                    </td>
+                                    <td><input type="text" class="table-input rel-id" value="${rel.idNum}"></td>
+                                    <td><input type="text" class="table-input rel-remarks" value="${rel.remarks}"></td>
+                                    <td class="col-action"></td>
+                                `;
+                                tbody.appendChild(tr);
+                            });
+                        }
+
+                        // Resize all inputs
+                        document.querySelectorAll('.auto-resize').forEach(adjustWidth);
+                    }
+                });
+            }
+        };
+    </script>
+</body>
+</html>
