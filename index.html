@@ -1,0 +1,314 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>जन्म दर्ता सिफारिस निवेदन - Sunil Online Service</title>
+    <!-- html2pdf JS, FontAwesome & Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Mukta', sans-serif; }
+        body { background: #f0f2f5; color: #333; padding-bottom: 40px; }
+        
+        header { background: linear-gradient(135deg, #1e3799, #0c2461); color: white; padding: 20px 5%; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        header h1 { font-size: 26px; font-weight: 700; }
+        header p { font-size: 15px; opacity: 0.9; margin-top: 5px; }
+
+        .container { max-width: 750px; margin: 30px auto; padding: 0 15px; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        
+        .row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
+        .input-group { flex: 1; min-width: 220px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 15px; color: #2c3e50; }
+        input, select { width: 100%; padding: 11px 14px; border: 1px solid #cccccc; border-radius: 7px; font-size: 15px; outline: none; transition: 0.3s; }
+        input:focus, select:focus { border-color: #1e3799; box-shadow: 0 0 6px rgba(30, 55, 153, 0.3); }
+        
+        .qr-box { text-align: center; background: #e8f5e9; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px dashed #2e7d32; }
+        .qr-box img { border-radius: 6px; margin: 12px 0; border: 1px solid #ddd; width: 160px; height: 160px; }
+        
+        .btn-submit { background: #25d366; color: white; border: none; padding: 13px; font-size: 17px; border-radius: 7px; cursor: pointer; width: 100%; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-submit:hover { background: #128c7e; }
+        
+        /* A4 Print Layout */
+        #pdfSection { display: none; }
+        .a4-page { width: 210mm; min-height: 297mm; background: white; padding: 20mm 18mm; margin: 20px auto; box-sizing: border-box; font-size: 13pt; line-height: 1.8; text-align: justify; color: #000; border: 1px solid #ccc; }
+        .pdf-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+        .pdf-header h2 { font-size: 18pt; color: #000; }
+        .pdf-header p { font-size: 11pt; margin: 0; }
+        .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 20px 0; font-size: 14pt; }
+        .child-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .child-table th, .child-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11pt; text-align: center; }
+        .child-table th { background-color: #f2f2f2; }
+        .bottom-area { display: flex; justify-content: space-between; margin-top: 60px; }
+        .btn-download { background: #007bff; color: white; padding: 12px 28px; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; display: block; margin: 20px auto; }
+        .btn-download:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1><i class="fa-solid fa-laptop-code"></i> Sunil Online Service</h1>
+        <p><i class="fa-solid fa-location-dot"></i> रोहिणी गाउँपालिका वडा नं. १, रुपन्देही | <i class="fa-solid fa-phone"></i> सम्पर्क: ९८१७४२३८३०</p>
+    </header>
+
+    <div class="container" id="formContainer">
+        <div class="card" id="cardContent">
+            <h2 style="color: #1e3799; text-align: center; margin-bottom: 22px;">
+                <i class="fa-solid fa-baby"></i> जन्म दर्ता सिफारिस निवेदन फारम
+            </h2>
+            
+            <form id="nivedanForm">
+                <div class="row">
+                    <div class="input-group">
+                        <label>आवेदन मिति (वि.सं.):</label>
+                        <input type="text" id="in_today" value="२०८३/०५/१७" required>
+                    </div>
+                    <div class="input-group">
+                        <label>निवेदकको फोन नम्बर:</label>
+                        <input type="text" id="in_phone" placeholder="98XXXXXXXX" maxlength="10" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-group">
+                        <label>निवेदक (बुवा/आमा) को नाम:</label>
+                        <input type="text" id="in_applicant" placeholder="रामप्रसाद थारु" required>
+                    </div>
+                    <div class="input-group">
+                        <label>बच्चाको बाजेको नाम:</label>
+                        <input type="text" id="in_grandpa" placeholder="हरिप्रसाद थारु" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-group">
+                        <label>विवाह दर्ता मिति (वि.सं.):</label>
+                        <input type="text" id="in_marriage" placeholder="२०७८/१०/१२" required>
+                    </div>
+                    <div class="input-group">
+                        <label>बच्चाको पूरा नाम:</label>
+                        <input type="text" id="in_child" placeholder="सुजन थारु" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-group">
+                        <label>बच्चाको लिङ्ग:</label>
+                        <select id="in_gender" required>
+                            <option value="छोरा">छोरा</option>
+                            <option value="छोरी">छोरी</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>बच्चाको जन्म मिति (वि.सं.):</label>
+                        <input type="text" id="in_dob" placeholder="२०८०/०२/१५" required>
+                    </div>
+                    <div class="input-group">
+                        <label>जन्मस्थान:</label>
+                        <input type="text" id="in_birthplace" value="रोहिणी-१, रुपन्देही" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fa-brands fa-whatsapp" style="font-size:22px;"></i>
+                    सबमिट गरी भुक्तानी पानामा जानुहोस्
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Printable A4 Document Section -->
+    <div id="pdfSection">
+        <button class="btn-download" onclick="downloadPDF()">
+            <i class="fa-solid fa-file-pdf"></i> Download A4 PDF Certificate
+        </button>
+
+        <div class="a4-page" id="pdfContent">
+            <div class="pdf-header">
+                <h2>रोहिणी गाउँपालिका</h2>
+                <p>१ नं. वडा कार्यालय, रुपन्देही, लुम्बिनी प्रदेश, नेपाल</p>
+            </div>
+
+            <div style="text-align: right;">मिति: <span id="p_today"></span></div>
+            
+            <div style="margin-top: 15px;">
+                श्रीमान् वडा अध्यक्ष ज्यू,<br>
+                रोहिणी गाउँपालिका, वडा नं. १,<br>
+                रुपन्देही।
+            </div>
+            
+            <div class="subject">विषय: जन्म दर्ता सिफारिस गरी पाऊँ।</div>
+            
+            <p>महोदय,</p>
+            <p style="text-indent: 40px;">
+                उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा स्थायी बसोबास गर्ने श्री <strong><span id="p_grandpa"></span></strong> को नाति/नातिनी तथा मेरो मिति <strong><span id="p_marriage"></span></strong> मा विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमको मेरो <strong><span id="p_gender"></span></strong> को जन्म भएको हुँदा निजको जन्म दर्ता प्रमाणपत्र जारी गरी पाउन आवश्यक सिफारिसका लागि यो निवेदन पेश गरेको छु।
+            </p>
+
+            <table class="child-table">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">क्र.सं.</th>
+                        <th style="width: 35%;">बच्चाको नाम</th>
+                        <th style="width: 15%;">लिङ्ग</th>
+                        <th style="width: 20%;">जन्म मिति</th>
+                        <th style="width: 20%;">जन्मस्थान</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>१</td>
+                        <td><strong id="p_child"></strong></td>
+                        <td><span id="p_gender_td"></span></td>
+                        <td><span id="p_dob"></span></td>
+                        <td><span id="p_birthplace"></span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>माथि लेखिएको व्यहोरा साँचो हो, झुठ्ठा ठहरे कानून बमोजिम सहूँला बुझाऊँला।</p>
+
+            <div class="bottom-area">
+                <div>
+                    <strong>संलग्न कागजातहरू:</strong><br>
+                    १. निवेदकको नागरिकता प्रतिलिपि<br>
+                    २. विवाह दर्ता प्रमाण-पत्र प्रतिलिपि<br>
+                    ३. अस्पतालको जन्म प्रमाणपत्र (भएसम्म)
+                </div>
+                <div style="text-align: left;">
+                    <strong>निवेदक:</strong><br><br>
+                    सही: .......................................<br>
+                    नाम: <strong id="p_applicant"></strong><br>
+                    सम्पर्क नं: <span id="p_phone"></span><br>
+                    <small style="color: #555;">[eSewa Tx: <span id="p_tx"></span>]</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // FIREBASE SETUP (आफ्नो Firebase विवरण हाल्नुहोस्)
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let formData = {};
+
+        document.getElementById('nivedanForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            formData = {
+                today: document.getElementById('in_today').value,
+                phone: document.getElementById('in_phone').value,
+                applicant: document.getElementById('in_applicant').value,
+                grandpa: document.getElementById('in_grandpa').value,
+                marriage: document.getElementById('in_marriage').value,
+                child: document.getElementById('in_child').value,
+                gender: document.getElementById('in_gender').value,
+                dob: document.getElementById('in_dob').value,
+                birthplace: document.getElementById('in_birthplace').value
+            };
+
+            const pasaleNumber = "9779817423830";
+            const message = `*नयाँ जन्म दर्ता निवेदन (Sunil Online)*%0A%0A` +
+                `*निवेदक:* ${formData.applicant}%0A` +
+                `*बच्चाको नाम:* ${formData.child}%0A` +
+                `*सम्पर्क:* ${formData.phone}`;
+
+            window.open(`https://wa.me/${pasaleNumber}?text=${message}`, '_blank');
+
+            // Payment View
+            document.getElementById('cardContent').innerHTML = `
+                <div style="text-align:center;">
+                    <div class="qr-box">
+                        <p style="color: #2e7d32; font-size: 16px;"><b>📲 eSewa QR Scan गरी रु. १० भुक्तानी गर्नुहोस्</b></p>
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=eSewa_Pay_9817423830" alt="eSewa QR">
+                        <p>eSewa ID: <b>9817423830</b></p>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 18px; border-radius: 8px; border: 1px solid #dedede; margin-top: 15px;">
+                        <p style="font-size:15px; color:#333; margin-bottom:8px;">eSewa को <b>Transaction Ref ID (Tx Code)</b> हाल्नुहोस्:</p>
+                        <input type="text" id="userTxCode" placeholder="उदा: 000ABC1" style="width: 230px; text-align: center; text-transform: uppercase; margin-bottom: 12px; padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+                        <br>
+                        <button onclick="checkApproval()" style="background:#27ae60; color:white; border:none; padding:11px 25px; border-radius:6px; font-weight:bold; font-size:16px; cursor:pointer;">
+                            🔓 Unlock & Download PDF
+                        </button>
+                        <p id="statusMsg" style="margin-top: 12px; font-weight: bold;"></p>
+                    </div>
+                </div>
+            `;
+        });
+
+        function checkApproval() {
+            const tx = document.getElementById('userTxCode').value.trim().toUpperCase();
+            const statusMsg = document.getElementById('statusMsg');
+
+            if (!tx || tx.length < 4) {
+                alert("कृपया सही eSewa Transaction Ref ID हाल्नुहोस्!");
+                return;
+            }
+
+            statusMsg.innerHTML = "⏳ पसलेले Verify गर्दै हुनुहुन्छ, कृपया १ छिन पर्खिनुहोस्...";
+            statusMsg.style.color = "#d35400";
+
+            // Database मा Live Check
+            database.ref('requests/' + tx).on('value', (snapshot) => {
+                const data = snapshot.val();
+                
+                if (data && data.status === "APPROVED") {
+                    statusMsg.innerHTML = "✅ Verified! PDF अनलक हुँदैछ...";
+                    statusMsg.style.color = "#27ae60";
+
+                    setTimeout(() => {
+                        document.getElementById('p_today').innerText = formData.today;
+                        document.getElementById('p_grandpa').innerText = formData.grandpa;
+                        document.getElementById('p_marriage').innerText = formData.marriage;
+                        document.getElementById('p_gender').innerText = formData.gender;
+                        document.getElementById('p_gender_td').innerText = formData.gender;
+                        document.getElementById('p_child').innerText = formData.child;
+                        document.getElementById('p_dob').innerText = formData.dob;
+                        document.getElementById('p_birthplace').innerText = formData.birthplace;
+                        document.getElementById('p_applicant').innerText = formData.applicant;
+                        document.getElementById('p_phone').innerText = formData.phone;
+                        document.getElementById('p_tx').innerText = tx;
+
+                        document.getElementById('formContainer').style.display = 'none';
+                        document.getElementById('pdfSection').style.display = 'block';
+                    }, 1000);
+
+                } else if (data && data.status === "PENDING") {
+                    statusMsg.innerHTML = "⏳ भुक्तानी पसलेले चेक गर्दै हुनुहुन्छ... (पसलेलाई WhatsApp मा खबर गर्नुहोस्)";
+                    statusMsg.style.color = "#d35400";
+                } else {
+                    // अनुरोध PENDING मा हाल्ने
+                    database.ref('requests/' + tx).set({
+                        applicant: formData.applicant,
+                        child: formData.child,
+                        phone: formData.phone,
+                        status: "PENDING",
+                        time: new Date().toLocaleString()
+                    });
+                }
+            });
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('pdfContent');
+            html2pdf().set({
+                margin: [5, 5, 5, 5],
+                filename: 'Janma_Darta_Nivedan.pdf',
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }).from(element).save();
+        }
+    </script>
+</body>
+</html>
