@@ -20,7 +20,6 @@
 </head>
 <body class="bg-gray-100 min-h-screen py-6 px-4 font-sans">
 
-    <!-- Form & Payment Container -->
     <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6 a4-page">
         
         <!-- Header -->
@@ -29,8 +28,24 @@
             <p class="text-sm text-gray-600">सुनील अनलाइन सेवा - रोहिणी-१, रूपन्देही</p>
         </div>
 
-        <!-- Registration Form -->
+        <!-- SECTION 1: Tx Code बाट पुरानो निवेदन खोज्ने (Track / Print Existing Request) -->
+        <div class="no-print mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 class="text-md font-bold text-blue-900 mb-2">🔍 पहिल्यै आवेदन दिइसक्नुभएको छ? (निवेदन खोज्नुहोस्)</h3>
+            <p class="text-xs text-gray-600 mb-3">आफ्नो eSewa Transaction Code हालेर स्वीकृत फारम हेर्नुहोस् वा प्रिन्ट गर्नुहोस्:</p>
+            <div class="flex gap-2">
+                <input type="text" id="searchTxCode" placeholder="यहाँ Tx Code हाल्नुहोस् (उदा: TX12345)" class="flex-1 p-2 border rounded font-mono uppercase outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="checkExistingStatus()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded text-sm transition">
+                    खोज्नुहोस्
+                </button>
+            </div>
+            <div id="searchResult" class="hidden mt-3 p-2 rounded text-xs font-bold"></div>
+        </div>
+
+        <hr class="no-print my-6 border-gray-300">
+
+        <!-- SECTION 2: नयाँ जन्म दर्ता फारम (Registration Form) -->
         <form id="birthForm" class="space-y-4">
+            <h3 class="no-print text-md font-bold text-gray-800 mb-2">📝 नयाँ फारम भर्नुहोस्</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">बालक/बालिकाको पूरा नाम:</label>
@@ -58,11 +73,11 @@
             </div>
         </form>
 
-        <!-- eSewa Payment Verification Modal / Section -->
+        <!-- SECTION 3: eSewa Payment Section -->
         <div id="paymentModal" class="hidden no-print mt-6 p-6 bg-yellow-50 border border-yellow-300 rounded-lg">
             <h3 class="text-lg font-bold text-yellow-800 mb-2">💳 भुक्तानी तथा अनलक प्रक्रिया</h3>
             <p class="text-sm text-gray-700 mb-4">
-                कृपया eSewa बाट रु. ५० भुक्तानी गरी प्राप्त भएको **Transaction Code (Tx Code)** तल राखेर पठाइदिनुहोस्। पसलेले Approve गरेपछि फारम प्रिन्ट हुनेछ।
+                eSewa बाट रु. ५० भुक्तानी गरी प्राप्त भएको **Transaction Code (Tx Code)** यहाँ राखेर UnLock गर्नुहोस्:
             </p>
 
             <form id="paymentForm" class="space-y-3">
@@ -78,8 +93,11 @@
             <div id="statusMessage" class="hidden mt-4 p-3 rounded text-center text-sm font-bold"></div>
         </div>
 
-        <!-- Print Button (Only shows after approval) -->
+        <!-- SECTION 4: Print Button (Only shows after approval) -->
         <div id="printSection" class="hidden no-print mt-6 text-center">
+            <div class="p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg mb-4 font-bold">
+                🎉 तपाईँको फारम पसलेद्वारा स्वीकृत (Approved) भइसकेको छ!
+            </div>
             <button onclick="window.print()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg transition">
                 🖨️ A4 Size मा Print गर्नुहोस्
             </button>
@@ -95,7 +113,6 @@
             databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
         };
 
-        // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -107,19 +124,20 @@
         const statusMessage = document.getElementById('statusMessage');
         const printSection = document.getElementById('printSection');
         const submitFormBtn = document.getElementById('submitFormBtn');
+        const searchResult = document.getElementById('searchResult');
 
         // 2. Form Submit Handler
         birthForm.addEventListener('submit', function(e) {
-            e.preventDefault(); // रिफ्रेस हुन नदिने
+            e.preventDefault();
             submitFormBtn.disabled = true;
             submitFormBtn.classList.add('bg-gray-400');
             paymentModal.classList.remove('hidden');
             paymentModal.scrollIntoView({ behavior: 'smooth' });
         });
 
-        // 3. Payment Code Submit Handler
+        // 3. Payment Tx Code Submit Handler
         paymentForm.addEventListener('submit', function(e) {
-            e.preventDefault(); // रिडाइरेक्ट वा रिफ्रेस हुन दिँदैन!
+            e.preventDefault();
 
             const txCode = document.getElementById('txCodeInput').value.trim();
 
@@ -128,22 +146,23 @@
                 return;
             }
 
-            // Status message update
             statusMessage.className = "mt-4 p-3 rounded text-center text-sm font-bold bg-blue-100 text-blue-800 border border-blue-300";
             statusMessage.innerText = "अनुरोध पठाउँदैछ... कृपया पर्खनुहोस्।";
             statusMessage.classList.remove('hidden');
 
-            // Save to Firebase Realtime Database
+            // Save details to Firebase Database
             database.ref('requests/' + txCode).set({
                 transactionCode: txCode,
                 childName: document.getElementById('childName').value,
+                fatherName: document.getElementById('fatherName').value,
+                motherName: document.getElementById('motherName').value,
+                dob: document.getElementById('dob').value,
                 status: 'pending',
                 timestamp: Date.now()
             }).then(() => {
                 statusMessage.className = "mt-4 p-3 rounded text-center text-sm font-bold bg-yellow-100 text-yellow-800 border border-yellow-300";
-                statusMessage.innerText = "⏳ अनुरोध पठाइयो! पसलेले Approve गर्दै हुनुहुन्छ, पाना स्वतः खुल्नेछ...";
+                statusMessage.innerText = "⏳ अनुरोध पठाइयो! पसलेले Approve गर्दै हुनुहुन्छ। तपाईँ पछि आएर माथिको 'खोज्नुहोस्' बाकसमा Tx Code हालेर पनि प्रिन्ट गर्न सक्नुहुन्छ।";
                 
-                // Real-time listener for approval status
                 listenForApproval(txCode);
             }).catch((error) => {
                 statusMessage.className = "mt-4 p-3 rounded text-center text-sm font-bold bg-red-100 text-red-800 border border-red-300";
@@ -151,20 +170,61 @@
             });
         });
 
-        // 4. Listen for Approval Status
+        // 4. Real-time Approval Listener
         function listenForApproval(txCode) {
             database.ref('requests/' + txCode).on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data && data.status === 'approved') {
-                    statusMessage.className = "mt-4 p-3 rounded text-center text-sm font-bold bg-green-100 text-green-800 border border-green-300";
-                    statusMessage.innerText = "✅ भुक्तानी स्वीकृत भयो! अब तपाईँ फारम प्रिन्ट गर्न सक्नुहुन्छ।";
-                    
-                    paymentForm.classList.add('hidden');
+                    statusMessage.classList.add('hidden');
+                    paymentModal.classList.add('hidden');
                     printSection.classList.remove('hidden');
                 } else if (data && data.status === 'rejected') {
                     statusMessage.className = "mt-4 p-3 rounded text-center text-sm font-bold bg-red-100 text-red-800 border border-red-300";
                     statusMessage.innerText = "❌ तपाईँको अनुरोध अस्वीकृत (Rejected) भयो। कृपया सही Tx Code हाल्नुहोस्।";
                 }
+            });
+        }
+
+        // 5. Tx Code बाट पुरानो डाटा खोज्ने (Search Functionality)
+        function checkExistingStatus() {
+            const code = document.getElementById('searchTxCode').value.trim();
+            if (!code) {
+                alert("कृपया Transaction Code टाइप गर्नुहोस्!");
+                return;
+            }
+
+            searchResult.className = "mt-3 p-3 rounded text-sm font-bold bg-gray-100 text-gray-700 border";
+            searchResult.innerText = "खोज्दैछ...";
+            searchResult.classList.remove('hidden');
+
+            database.ref('requests/' + code).once('value').then((snapshot) => {
+                const data = snapshot.val();
+                if (!data) {
+                    searchResult.className = "mt-3 p-3 rounded text-sm font-bold bg-red-100 text-red-800 border border-red-300";
+                    searchResult.innerText = "❌ यो Tx Code को कुनै रेकर्ड भेटिएन।";
+                } else if (data.status === 'approved') {
+                    searchResult.className = "mt-3 p-3 rounded text-sm font-bold bg-green-100 text-green-800 border border-green-300";
+                    searchResult.innerText = "✅ स्वीकृत भइसकेको छ! तल फारम तयार छ।";
+
+                    // Form Data Auto-Fill
+                    document.getElementById('childName').value = data.childName || '';
+                    document.getElementById('fatherName').value = data.fatherName || '';
+                    document.getElementById('motherName').value = data.motherName || '';
+                    document.getElementById('dob').value = data.dob || '';
+
+                    // Show Print Button
+                    printSection.classList.remove('hidden');
+                    paymentModal.classList.add('hidden');
+                } else if (data.status === 'pending') {
+                    searchResult.className = "mt-3 p-3 rounded text-sm font-bold bg-yellow-100 text-yellow-800 border border-yellow-300";
+                    searchResult.innerText = "⏳ तपाईँको अनुरोध अझै पेन्डिङ छ, पसलेले Approve गर्न बाँकी छ।";
+                } else if (data.status === 'rejected') {
+                    searchResult.className = "mt-3 p-3 rounded text-sm font-bold bg-red-100 text-red-800 border border-red-300";
+                    searchResult.innerText = "❌ यो अनुरोध पसलेद्वारा अस्वीकृत (Rejected) गरिएको छ।";
+                }
+            }).catch((err) => {
+                searchResult.className = "mt-3 p-3 rounded text-sm font-bold bg-red-100 text-red-800 border border-red-300";
+                searchResult.innerText = "Error: " + err.message;
             });
         }
     </script>
