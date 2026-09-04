@@ -1,8 +1,294 @@
-<!-- Service 5: Personal Recommendation / Nata Pramani -->
-<a href="personal.html" class="bg-white p-6 rounded-lg shadow-md border hover:shadow-xl hover:border-blue-500 transition flex items-center justify-between group">
-    <div>
-        <h3 class="text-lg font-bold text-gray-800 group-hover:text-blue-600">📜 नाता प्रमाणित / व्यक्तिगत सिफारिस</h3>
-        <p class="text-xs text-gray-500 mt-1">नाता प्रमाणित, बसोवास, नाता कायम आदि १० वटा सिफारिसहरू</p>
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>स्थानिय तह अनलाइन सिफारिस प्रणाली</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Kalimati', 'Mangal', 'Noto Sans Devanagari', sans-serif; background-color: #f3f4f6; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; padding: 0; }
+            .a4-page { box-shadow: none !important; margin: 0 !important; width: 100% !important; }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto no-print">
+        
+        <!-- Header & Code Search Section -->
+        <div class="bg-white p-6 rounded-xl shadow-md mb-6 border-t-4 border-blue-600">
+            <h1 class="text-2xl font-bold text-center text-gray-800 mb-4">🏛️ अनलाइन वडा सिफारिस तथा निवेदन प्रणाली</h1>
+            
+            <!-- Code Search & Download Box -->
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <label class="block text-sm font-bold text-blue-900 mb-1">🔍 स्वीकृत (Approved) निवेदन कोडबाट सिफारिस डाउनलोड गर्नुहोस्:</label>
+                <div class="flex gap-2">
+                    <input type="text" id="searchCodeInput" placeholder="तपाईँको कोड हाल्नुहोस् (उदा: RD-5821)" class="p-2 border rounded flex-1 uppercase font-bold text-gray-700">
+                    <button onclick="searchAndDownload()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded font-bold">खोज्नुहोस् / Download</button>
+                </div>
+                <p id="searchMsg" class="text-xs font-bold mt-2"></p>
+            </div>
+        </div>
+
+        <!-- FORM STEP 1: Location Selection -->
+        <div id="step1" class="bg-white p-6 rounded-xl shadow-md mb-6">
+            <h2 class="text-lg font-bold text-gray-800 border-b pb-2 mb-4">चरण १: स्थानिय तह छनोट गर्नुहोस् (Select Location)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-bold mb-1">प्रदेश (Province)</label>
+                    <select id="selProvince" onchange="loadDistricts()" class="w-full p-2 border rounded bg-gray-50">
+                        <option value="">-- प्रदेश छान्नुहोस् --</option>
+                        <option value="कोशी">कोशी प्रदेश</option>
+                        <option value="मधेश">मधेश प्रदेश</option>
+                        <option value="बागमती">बागमती प्रदेश</option>
+                        <option value="गण्डकी">गण्डकी प्रदेश</option>
+                        <option value="लुम्बिनी">लुम्बिनी प्रदेश</option>
+                        <option value="कर्णाली">कर्णाली प्रदेश</option>
+                        <option value="सुदूरपश्चिम">सुदूरपश्चिम प्रदेश</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">जिल्ला (District)</label>
+                    <select id="selDistrict" class="w-full p-2 border rounded bg-gray-50">
+                        <option value="रुपन्देही">रुपन्देही</option>
+                        <option value="कपिलवस्तु">कपिलवस्तु</option>
+                        <option value="पाल्पा">पाल्पा</option>
+                        <option value="काठमाडौँ">काठमाडौँ</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">गाउँपालिका / नगरपालिका</label>
+                    <input type="text" id="inpPalika" value="रोहिणी गाउँपालिका" placeholder="गाउँपालिकाको नाम" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">वडा नं. (Ward No.)</label>
+                    <select id="selWard" class="w-full p-2 border rounded">
+                        <option value="१">वडा नं. १</option>
+                        <option value="२">वडा नं. २</option>
+                        <option value="३">वडा नं. ३</option>
+                        <option value="४">वडा नं. ४</option>
+                        <option value="५">वडा नं. ५</option>
+                        <option value="६">वडा नं. ६</option>
+                        <option value="७">वडा नं. ७</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="goToStep2()" class="mt-4 bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2 rounded float-right">अगाडि बढ्नुहोस् ➔</button>
+            <div class="clear-both"></div>
+        </div>
+
+        <!-- FORM STEP 2: Personal Details & Recommendation Type -->
+        <div id="step2" class="bg-white p-6 rounded-xl shadow-md mb-6 hidden">
+            <h2 class="text-lg font-bold text-gray-800 border-b pb-2 mb-4">चरण २: व्यक्तिगत विवरण र निवेदनको प्रकार</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-bold mb-1">सिफारिस / निवेदनको प्रकार:</label>
+                    <select id="selType" class="w-full p-2 border rounded bg-yellow-50 font-bold">
+                        <option value="नाता प्रमाणित सिफारिस">नाता प्रमाणित सिफारिस</option>
+                        <option value="जन्म दर्ता प्रमाणित">जन्म दर्ता प्रमाणित सिफारिस</option>
+                        <option value="विवाह दर्ता सिफारिस">विवाह दर्ता सिफारिस</option>
+                        <option value="चारकिल्ला प्रमाणित">चारकिल्ला प्रमाणित सिफारिस</option>
+                        <option value="बसोवास प्रमाणित">बसोवास प्रमाणित सिफारिस</option>
+                        <option value="अविवाहित प्रमाणित">अविवाहित प्रमाणित सिफारिस</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">निवेदकको नाम थर:</label>
+                    <input type="text" id="applicantName" placeholder="पूरा नाम थर" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">बुवाको नाम थर:</label>
+                    <input type="text" id="fatherName" placeholder="बुवाको नाम थर" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">बाजेको नाम थर:</label>
+                    <input type="text" id="grandpaName" placeholder="बाजेको नाम थर" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">नागरिकता / जन्मदर्ता नं.:</label>
+                    <input type="text" id="applicantCitz" placeholder="प्रमाणपत्र नं." class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">मोबाइल नं.:</label>
+                    <input type="tel" id="applicantPhone" placeholder="९८........" class="w-full p-2 border rounded">
+                </div>
+            </div>
+
+            <!-- Payment & Code Submission Box -->
+            <div class="border-t pt-4 mt-4 bg-gray-50 p-4 rounded-lg">
+                <h3 class="font-bold text-sm text-gray-700 mb-2">💳 सेवा शुल्क भुक्तानी (रु. ५०/-)</h3>
+                <p class="text-xs text-gray-600 mb-2">QR Scan गरी भुक्तानी गर्नुहोस् वा सिधै Submit गरी Code प्राप्त गर्नुहोस्।</p>
+                <div class="flex items-center gap-4">
+                    <button onclick="submitApplication()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3 rounded text-lg shadow-lg">
+                        📩 निवेदन बुझाउनुहोस् (Submit)
+                    </button>
+                    <button onclick="goToStep1()" class="text-gray-600 underline text-sm">पछाडि फर्कनुहोस्</button>
+                </div>
+                <p id="statusMsg" class="text-sm font-bold mt-2"></p>
+            </div>
+        </div>
+
     </div>
-    <span class="text-2xl">➔</span>
-</a>
+
+    <!-- PRINT / DOWNLOADABLE LETTER TEMPLATE -->
+    <div id="printArea" class="hidden no-print print-only max-w-[210mm] mx-auto bg-white p-10 border shadow-md">
+        <div class="flex justify-between items-center border-b pb-4 mb-4">
+            <div>
+                <h2 class="text-xl font-bold text-red-700" id="pPalika">रोहिणी गाउँपालिका</h2>
+                <p class="text-sm font-bold" id="pWard">वडा नं. १ को कार्यालय</p>
+                <p class="text-xs" id="pAddress">रुपन्देही, लुम्बिनी प्रदेश</p>
+            </div>
+            <div class="text-right text-sm font-bold">
+                <p>कोड नं: <span id="pCode" class="text-red-600">----</span></p>
+                <p>मिति: २०८३/..../....</p>
+            </div>
+        </div>
+
+        <div class="text-center font-bold text-lg underline my-6" id="pSubject">
+            विषय: सिफारिस सम्बन्धमा।
+        </div>
+
+        <div class="text-justify leading-loose my-6 font-medium text-base">
+            श्रीमान् वडा अध्यक्षज्यू,<br><br>
+            उपरोक्त सम्बन्धमा म यस <span id="pBodyAddress">रोहिणी गाउँपालिका वडा नं. १</span> निवासी 
+            श्री <span id="pGrandpa" class="font-bold"></span> को नाति/नातिना तथा 
+            श्री <span id="pFather" class="font-bold"></span> को छोरा/छोरी 
+            श्री <span id="pApplicant" class="font-bold"></span> ले 
+            <b id="pType"></b> आवश्यक परेको हुँदा नियमानुसार सिफारिस पत्र उपलब्ध गराइदिनुहुन अनुरोध गर्दछु।
+        </div>
+
+        <div class="mt-20 flex justify-between items-end">
+            <div>
+                <p class="text-xs font-bold text-green-700">Status: ✅ APPROVED / स्वीकृत</p>
+            </div>
+            <div class="text-center">
+                <p>.......................................</p>
+                <p class="font-bold text-sm">निवेदकको दस्तखत</p>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center no-print">
+            <button onclick="window.print()" class="bg-green-600 text-white font-bold px-6 py-2 rounded">🖨️ प्रिन्ट / PDF Download</button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+            databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        function goToStep2() {
+            const prov = document.getElementById('selProvince').value;
+            if(!prov) return alert("कृपया पहिले प्रदेश छान्नुहोस्!");
+            
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+        }
+
+        function goToStep1() {
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step1').classList.remove('hidden');
+        }
+
+        // Generate Unique Application Code (e.g. RD-4821)
+        function generateCode() {
+            return 'RD-' + Math.floor(1000 + Math.random() * 9000);
+        }
+
+        // SUBMIT APPLICATION
+        function submitApplication() {
+            const name = document.getElementById('applicantName').value.trim();
+            const father = document.getElementById('fatherName').value.trim();
+            const grandpa = document.getElementById('grandpaName').value.trim();
+            const msg = document.getElementById('statusMsg');
+
+            if(!name || !father || !grandpa) {
+                return alert("कृपया निवेदक, बुबा र बाजेको नाम अनिवार्य भर्नुहोस्!");
+            }
+
+            const reqCode = generateCode();
+            msg.className = "text-sm font-bold mt-2 text-blue-600";
+            msg.innerText = "निवदेन पेश हुँदैछ...";
+
+            const appData = {
+                code: reqCode,
+                province: document.getElementById('selProvince').value,
+                district: document.getElementById('selDistrict').value,
+                palika: document.getElementById('inpPalika').value,
+                ward: document.getElementById('selWard').value,
+                type: document.getElementById('selType').value,
+                applicantName: name,
+                fatherName: father,
+                grandpaName: grandpa,
+                citzNum: document.getElementById('applicantCitz').value,
+                phone: document.getElementById('applicantPhone').value,
+                status: 'pending', // Pending for Admin approval
+                timestamp: new Date().toISOString()
+            };
+
+            database.ref('requests/' + reqCode).set(appData).then(() => {
+                msg.className = "text-sm font-bold mt-2 text-green-600";
+                msg.innerHTML = `✅ सफलतापुर्वक दर्ता भयो!<br>तपाईँको कोड: <b class="text-lg text-red-600">${reqCode}</b> हो। यो कोड सुरक्षित राख्नुहोस्। पसलेले Approve गरेपछि यही कोडबाट डाउनलोड गर्न सक्नुहुनेछ।`;
+            }).catch(err => {
+                msg.className = "text-sm font-bold mt-2 text-red-600";
+                msg.innerText = "त्रुटि: " + err.message;
+            });
+        }
+
+        // SEARCH AND DOWNLOAD APPROVED FORM
+        function searchAndDownload() {
+            const code = document.getElementById('searchCodeInput').value.trim().toUpperCase();
+            const msg = document.getElementById('searchMsg');
+
+            if(!code) return alert("कृपया कोड हाल्नुहोस्!");
+
+            msg.className = "text-xs font-bold text-blue-600";
+            msg.innerText = "खोज्दैछ...";
+
+            database.ref('requests/' + code).once('value').then(snapshot => {
+                const data = snapshot.val();
+                if(!data) {
+                    msg.className = "text-xs font-bold text-red-600";
+                    msg.innerText = "❌ यो कोड भेटिएन। कृपया कोड दोहोर्‍याएर जाँच गर्नुहोस्।";
+                    return;
+                }
+
+                if(data.status !== 'approved') {
+                    msg.className = "text-xs font-bold text-yellow-600";
+                    msg.innerText = "⏳ तपाईँको निवेदन अझै स्वीकृत (Approve) भएको छैन। कृपया पसल/एडमिनको स्वीकृतिको पर्खाइ गर्नुहोस्।";
+                    return;
+                }
+
+                // Render Data to Print Area
+                document.getElementById('pPalika').innerText = data.palika;
+                document.getElementById('pWard').innerText = "वडा नं. " + data.ward + " को कार्यालय";
+                document.getElementById('pAddress').innerText = data.district + ", " + data.province;
+                document.getElementById('pCode').innerText = data.code;
+                document.getElementById('pSubject').innerText = "विषय: " + data.type + " उपलब्ध गराइपाऊँ।";
+                document.getElementById('pBodyAddress').innerText = data.palika + " वडा नं. " + data.ward;
+                document.getElementById('pGrandpa').innerText = data.grandpaName;
+                document.getElementById('pFather').innerText = data.fatherName;
+                document.getElementById('pApplicant').innerText = data.applicantName;
+                document.getElementById('pType').innerText = data.type;
+
+                // Display Print Area
+                document.getElementById('printArea').classList.remove('hidden');
+                document.getElementById('printArea').classList.remove('no-print');
+                msg.className = "text-xs font-bold text-green-600";
+                msg.innerText = "✅ सिफारिस पत्र तयार छ! तल प्रिन्ट वा डाउनलोड गर्नुहोस्।";
+            });
+        }
+    </script>
+</body>
+</html>
