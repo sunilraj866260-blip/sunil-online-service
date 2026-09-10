@@ -3,54 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>सिफारिस प्रणाली - रोहिणी-१</title>
+    <title>रोहिणी वडा नं. १ - अनलाइन सिफारिस प्रणाली</title>
     
     <!-- Firebase SDK (v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; padding: 20px; margin: 0; }
-        .entry-form { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #1e3799; border-bottom: 2px solid #1e3799; padding-bottom: 10px; margin-top: 0; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: auto; }
         
-        .row { display: flex; gap: 20px; }
-        .row .input-group { flex: 1; }
-        
-        @media (max-width: 600px) {
-            body { padding: 10px; }
-            .entry-form { padding: 15px; }
-            .row { flex-direction: column; gap: 0; }
-            button { padding: 14px; font-size: 18px; }
-        }
+        .header { background: #1e3799; color: white; padding: 25px; border-radius: 10px; text-align: center; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .header h1 { margin: 0 0 5px 0; font-size: 26px; }
+        .header p { margin: 0; opacity: 0.9; }
 
-        button { width: 100%; padding: 16px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; margin-top: 10px; }
-        button:hover { background: #219150; }
-        
-        .section-title { background: #e8ecef; padding: 10px; margin: 20px 0 10px 0; font-weight: bold; border-left: 6px solid #1e3799; }
-        
-        .btn-add { background: #1e3799; padding: 12px 20px; font-size: 15px; margin-bottom: 20px; width: auto; border-radius: 5px; }
-        .btn-add:hover { background: #0c2461; }
-        
-        .btn-danger { background: #c0392b; padding: 8px 14px; font-size: 14px; width: auto; margin-top: 5px; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .child-box { border: 1px dashed #1e3799; padding: 15px; margin-bottom: 15px; background: #f9fbfd; border-radius: 6px; }
-        
-        .esewa-box { background: #e8f5e9; border: 2px solid #2e7d32; padding: 15px; border-radius: 8px; margin: 20px 0; }
-        .esewa-box h4 { margin: 0 0 10px 0; color: #2e7d32; }
+        /* Universal eSewa Verification & Print Box */
+        .search-card { background: white; padding: 20px; border-radius: 10px; border-left: 6px solid #27ae60; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 30px; }
+        .search-card h3 { margin: 0 0 10px 0; color: #27ae60; display: flex; align-items: center; gap: 10px; }
+        .search-row { display: flex; gap: 10px; }
+        .search-row input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+        .search-row button { background: #27ae60; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .search-row button:hover { background: #219150; }
 
-        .search-box { background: #e3f2fd; border: 1px solid #2196f3; padding: 15px; border-radius: 8px; margin-bottom: 25px; }
+        /* Grid Services Menu */
+        .services-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #1e3799; padding-bottom: 5px; color: #1e3799; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        
+        .service-card { background: white; padding: 20px; border-radius: 10px; text-decoration: none; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: 0.2s ease; border: 1px solid #e1e8ed; display: flex; align-items: center; gap: 15px; }
+        .service-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.12); border-color: #1e3799; }
+        .service-card i { font-size: 30px; color: #1e3799; background: #e8ecef; padding: 15px; border-radius: 50%; }
+        .service-card div h4 { margin: 0 0 5px 0; font-size: 17px; color: #1e3799; }
+        .service-card div p { margin: 0; font-size: 13px; color: #666; }
 
-        .status-msg { text-align: center; font-size: 18px; font-weight: bold; margin-top: 15px; }
+        .status-msg { margin-top: 10px; font-weight: bold; }
 
         /* Perfect A4 Print Styling */
         @media print {
-            @page { size: A4 portrait; margin: 15mm 15mm 15mm 15mm; }
+            @page { size: A4 portrait; margin: 15mm; }
             html, body { width: 210mm; height: 297mm; background: #fff !important; padding: 0 !important; margin: 0 !important; font-size: 12pt; line-height: 1.8; }
-            .entry-form, .search-box, button, .btn-add, .btn-danger { display: none !important; }
+            .container, .header, .search-card, .grid-container, .services-title { display: none !important; }
             #print-area { display: block !important; width: 100%; box-sizing: border-box; }
             .date { text-align: right; margin-bottom: 15px; }
             .recipient { line-height: 1.5; margin-bottom: 15px; }
@@ -65,117 +59,71 @@
         }
     </style>
 </head>
-<body onload="setInitialDate()">
+<body>
 
-<div class="entry-form">
-    <!-- Verification and Print Section for Users -->
-    <div class="search-box">
-        <h3><i class="fa-solid fa-print"></i> अनुरोध स्थिति जाँच र प्रिन्ट गर्नुहोस्</h3>
-        <div class="row">
-            <div class="input-group">
-                <input type="text" id="check_esewa_code" placeholder="तपाईँको eSewa Code (Transaction ID) राख्नुहोस्">
+<div class="container">
+    <div class="header">
+        <h1>रोहिणी गाउँपालिका, वडा नं. १</h1>
+        <p>रुपन्देही, लुम्बिनी प्रदेश - डिजिटल सिफारिस सेवा पोर्टल</p>
+    </div>
+
+    <!-- Check Status & Print Form -->
+    <div class="search-card">
+        <h3><i class="fa-solid fa-print"></i> eSewa Code हालेर निवेदन प्रिन्ट गर्नुहोस्</h3>
+        <div class="search-row">
+            <input type="text" id="check_esewa_code" placeholder="तपाईँको eSewa Code (Transaction ID) हाल्नुहोस्...">
+            <button type="button" onclick="checkAndPrint()">जाँच / A4 प्रिन्ट</button>
+        </div>
+        <div id="check_status_msg" class="status-msg"></div>
+    </div>
+
+    <div class="services-title">उपलब्ध निवेदन तथा सिफारिस फारमहरू</div>
+    
+    <div class="grid-container">
+        <!-- Link to Janamdarta File -->
+        <a href="janamdarta.html" class="service-card">
+            <i class="fa-solid fa-baby"></i>
+            <div>
+                <h4>जन्म दर्ता सिफारिस</h4>
+                <p>नयाँ जन्मिएका शिशुको दर्ता निवेदन</p>
             </div>
-            <div class="input-group" style="flex: 0.4;">
-                <button type="button" style="margin-top:0; background:#1e3799; padding: 12px;" onclick="checkAndPrint()">जाँच / प्रिन्ट</button>
+        </a>
+
+        <a href="vivah_darta.html" class="service-card">
+            <i class="fa-solid fa-rings-wedding"></i>
+            <div>
+                <h4>विवाह दर्ता सिफारिस</h4>
+                <p>विवाह दर्ता प्रमाणपत्र सिफारिस</p>
             </div>
-        </div>
-        <div id="check_status_msg" style="font-weight: bold; margin-top: 5px;"></div>
-    </div>
+        </a>
 
-    <h2>वडा सिफारिस प्रणाली (रोहिणी-१)</h2>
-    
-    <div class="input-group">
-        <label>सिफारिसको प्रकार छान्नुहोस्:</label>
-        <select id="n_type">
-            <option value="nabalak">जन्म दर्ता गरिपाऊँ।</option>
-        </select>
-    </div>
-
-    <div class="row">
-        <div class="input-group"><label>मिति (वि.सं.):</label><input type="text" id="in_today"></div>
-        <div class="input-group"><label>फोन नं.:</label><input type="text" id="in_phone" value="9817423830"></div>
-    </div>
-
-    <div class="section-title">मुख्य विवरण</div>
-    
-    <div class="row">
-        <div class="input-group">
-            <label>निवेदक बच्चाको को हुनुहुन्छ ?</label>
-            <select id="in_applicant_role">
-                <option value="बुवा">बुवा (पिता)</option>
-                <option value="आमा">आमा (माता)</option>
-            </select>
-        </div>
-        <div class="input-group"><label>निवेदकको नाम:</label><input type="text" id="in_name" placeholder="निवेदकको नाम"></div>
-    </div>
-
-    <div class="row">
-        <div class="input-group"><label>बच्चाको बुवाको नाम:</label><input type="text" id="in_father" placeholder="बुवाको नाम"></div>
-        <div class="input-group"><label>बाजेको नाम:</label><input type="text" id="in_grandpa" placeholder="बाजेको नाम"></div>
-    </div>
-    
-    <div class="row">
-        <div class="input-group">
-            <label>निवेदक (बाजेको के हो?):</label>
-            <select id="in_grandpa_rel">
-                <option value="नाति">नाति</option>
-                <option value="नातिनी">नातिनी</option>
-                <option value="बुहारी">बुहारी</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <label>निवेदक (बुवाको के हो?):</label>
-            <select id="in_father_rel">
-                <option value="छोरा">छोरा</option>
-                <option value="छोरी">छोरी</option>
-                <option value="श्रीमती">श्रीमती</option>
-            </select>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="input-group"><label>माता-पिताको विवाह भएको मिति:</label><input type="text" id="in_marriage_date" placeholder="२०७८/१०/१२"></div>
-        <div class="input-group"></div>
-    </div>
-
-    <div class="section-title">बच्चा(हरू)को विवरण</div>
-    <div id="children_container">
-        <div class="child-box" id="child_block_1">
-            <div class="row">
-                <div class="input-group"><label>बच्चाको नाम:</label><input type="text" class="child-name"></div>
-                <div class="input-group">
-                    <label>बच्चाको लिङ्ग (छोरा/छोरी):</label>
-                    <select class="child-gender">
-                        <option value="छोरा">छोरा</option>
-                        <option value="छोरी">छोरी</option>
-                    </select>
-                </div>
-                <div class="input-group"><label>बच्चाको जन्म मिति:</label><input type="text" class="child-dob"></div>
+        <a href="mrityu_darta.html" class="service-card">
+            <i class="fa-solid fa-book-dead"></i>
+            <div>
+                <h4>मृत्यु दर्ता सिफारिस</h4>
+                <p>मृत्यु दर्ता प्रमाणपत्र सिफारिस</p>
             </div>
-            <div class="row">
-                <div class="input-group"><label>जन्मस्थान:</label><input type="text" class="child-birthplace" placeholder="उदाहरन: रोहिणी-१, रुपन्देही"></div>
-                <div class="input-group"><label>टोकन नम्बर:</label><input type="text" class="child-token" placeholder="टोकन नं."></div>
+        </a>
+
+        <a href="charitra_pramanit.html" class="service-card">
+            <i class="fa-solid fa-user-check"></i>
+            <div>
+                <h4>चारित्रिक सिफारिस</h4>
+                <p>चारित्रिक प्रमाणपत्रको निवेदन</p>
             </div>
-        </div>
-    </div>
-    
-    <button type="button" class="btn-add" onclick="addChildBox()">+ थप बच्चा थप्नुहोस् (Add Child)</button>
+        </a>
 
-    <!-- eSewa Payment Section -->
-    <div class="esewa-box">
-        <h4><i class="fa-solid fa-wallet"></i> eSewa भुक्तानी विवरण</h4>
-        <p style="margin: 5px 0;">eSewa Number: <strong>9817423830</strong> (Sunil Online Service)</p>
-        <div class="input-group" style="margin-bottom: 0;">
-            <label>eSewa Transaction ID / Code (अनिवार्य):</label>
-            <input type="text" id="in_esewa_code" placeholder="उदा: 0000XXXX">
-        </div>
+        <a href="ghar_jagga.html" class="service-card">
+            <i class="fa-solid fa-house-chimney"></i>
+            <div>
+                <h4>घर-जग्गा नामसारी</h4>
+                <p>नामसारी तथा हकदाबी सिफारिस</p>
+            </div>
+        </a>
     </div>
-
-    <button id="btnSubmit" onclick="sendRequest()">अनुरोध पठाउनुहोस् (Send Request)</button>
-    <div id="statusMsg" class="status-msg"></div>
 </div>
 
-<!-- Printable Area -->
+<!-- Dynamic Printable Document Section -->
 <div id="print-area" style="display:none;">
     <div class="date">मिति: <span id="p_today"></span></div>
     <div class="recipient">श्रीमान् वडा अध्यक्ष ज्यू,<br>रोहिणी गाउँपालिका, वडा नं. १,<br>रुपन्देही, नेपाल।</div>
@@ -186,7 +134,7 @@
     <div id="p_children_table_wrapper"></div>
 
     <div class="bottom-container">
-        <div class="attachment-part" id="p_attachment">
+        <div class="attachment-part">
             <strong>संलग्न कागजातहरू:</strong><br>
             १. बाबु-आमाको नागरिकता प्रतिलिपि<br>
             २. अस्पतालको जन्म डिस्चार्ज पुर्जी<br>
@@ -210,122 +158,11 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    let childCount = 1;
-
-    function setInitialDate() {
-        try {
-            const options = { year: 'numeric', month: 'numeric', day: 'numeric', calendar: 'nepali' };
-            document.getElementById('in_today').value = new Intl.DateTimeFormat('ne-NP-u-ca-nepali', options).format(new Date());
-        } catch (e) { 
-            document.getElementById('in_today').value = "२०८३/०६/२५"; 
-        }
-    }
-
-    function addChildBox() {
-        childCount++;
-        const container = document.getElementById('children_container');
-        const html = `
-            <div class="child-box" id="child_block_${childCount}">
-                <div class="row">
-                    <div class="input-group"><label>बच्चाको नाम:</label><input type="text" class="child-name"></div>
-                    <div class="input-group">
-                        <label>बच्चाको लिङ्ग (छोरा/छोरी):</label>
-                        <select class="child-gender">
-                            <option value="छोरा">छोरा</option>
-                            <option value="छोरी">छोरी</option>
-                        </select>
-                    </div>
-                    <div class="input-group"><label>बच्चाको जन्म मिति:</label><input type="text" class="child-dob"></div>
-                </div>
-                <div class="row">
-                    <div class="input-group"><label>जन्मस्थान:</label><input type="text" class="child-birthplace" placeholder="उदाहरन: रोहिणी-१, रुपन्देही"></div>
-                    <div class="input-group"><label>टोकन नम्बर:</label><input type="text" class="child-token" placeholder="टोकन नं."></div>
-                </div>
-                <button type="button" class="btn-danger" onclick="removeChildBox(${childCount})">यो बच्चा हटाउनुहोस्</button>
-            </div>
-        `;
-        container.insertAdjacentHTML('beforeend', html);
-    }
-
-    function removeChildBox(id) {
-        const block = document.getElementById(`child_block_${id}`);
-        if(block) block.remove();
-    }
-
-    function sendRequest() {
-        const name = document.getElementById('in_name').value.trim();
-        const esewaCode = document.getElementById('in_esewa_code').value.trim();
-        const statusMsg = document.getElementById('statusMsg');
-        const btnSubmit = document.getElementById('btnSubmit');
-
-        if (!name) {
-            alert("कृपया निवेदकको नाम भर्नुहोस्!");
-            return;
-        }
-        if (!esewaCode) {
-            alert("कृपया eSewa Code (Transaction ID) राख्नुहोस्!");
-            return;
-        }
-
-        btnSubmit.disabled = true;
-        btnSubmit.innerText = "अनुरोध पठाउँदैछ...";
-
-        const names = document.querySelectorAll('.child-name');
-        const genders = document.querySelectorAll('.child-gender');
-        const dobs = document.querySelectorAll('.child-dob');
-        const birthplaces = document.querySelectorAll('.child-birthplace');
-        const tokens = document.querySelectorAll('.child-token');
-
-        let childrenList = [];
-        for (let i = 0; i < names.length; i++) {
-            childrenList.push({
-                name: names[i].value.trim(),
-                gender: genders[i].value,
-                dob: dobs[i].value.trim(),
-                birthplace: birthplaces[i].value.trim(),
-                token: tokens[i].value.trim()
-            });
-        }
-
-        const requestData = {
-            today: document.getElementById('in_today').value,
-            phone: document.getElementById('in_phone').value,
-            applicant_name: name,
-            father_name: document.getElementById('in_father').value.trim(),
-            grandpa_name: document.getElementById('in_grandpa').value.trim(),
-            grandpa_rel: document.getElementById('in_grandpa_rel').value,
-            father_rel: document.getElementById('in_father_rel').value,
-            marriage_date: document.getElementById('in_marriage_date').value.trim(),
-            applicant_role: document.getElementById('in_applicant_role').value,
-            esewa_code: esewaCode,
-            children: childrenList,
-            status: "PENDING",
-            timestamp: new Date().toLocaleString()
-        };
-
-        database.ref('requests').push(requestData)
-            .then(() => {
-                statusMsg.style.color = "#27ae60";
-                statusMsg.innerText = "✅ अनुरोध पठाइयो! एडमिनले eSewa भुक्तानी रुजु गरेपछि तपाईँले प्रिन्ट गर्न सक्नुहुनेछ।";
-                btnSubmit.disabled = false;
-                btnSubmit.innerText = "अनुरोध पठाउनुहोस् (Send Request)";
-            })
-            .catch((error) => {
-                statusMsg.style.color = "#c0392b";
-                statusMsg.innerText = "❌ त्रुटि आयो! पुनः प्रयास गर्नुहोस्।";
-                btnSubmit.disabled = false;
-            });
-    }
-
-    // Check Status & Print Function
     function checkAndPrint() {
         const code = document.getElementById('check_esewa_code').value.trim();
         const msg = document.getElementById('check_status_msg');
         
-        if (!code) {
-            alert("कृपया eSewa Code राख्नुहोस्!");
-            return;
-        }
+        if (!code) { alert("कृपया eSewa Code हाल्नुहोस्!"); return; }
 
         msg.style.color = "#d35400";
         msg.innerText = "🔍 खोजी हुँदैछ...";
@@ -347,7 +184,6 @@
                     msg.style.color = "#27ae60";
                     msg.innerText = "✅ स्वीकृत भयो! प्रिन्ट विन्डो खुल्दैछ...";
 
-                    // Populate Print Data
                     document.getElementById('p_today').innerText = req.today || '';
                     document.getElementById('p_f_name').innerText = req.applicant_name || '';
                     document.getElementById('p_phone').innerText = req.phone || '';
