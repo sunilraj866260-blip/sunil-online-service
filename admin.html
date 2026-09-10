@@ -3,140 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sunil Online Service - Admin Panel</title>
-    <!-- Tailwind CSS for Styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase Compatibility SDKs -->
+    <title>एडमिन प्यानल - रोहिणी वडा सिफारिस</title>
+    
+    <!-- Firebase SDK (v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f2f5; margin: 0; padding: 20px; }
+        
+        .header { background: #1e3799; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header p { margin: 5px 0 0 0; opacity: 0.9; }
+
+        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        
+        .table-responsive { overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #ddd; }
+        th { background-color: #1e3799; color: white; font-weight: 600; white-space: nowrap; }
+        tr:hover { background-color: #f8f9fa; }
+
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
+        .badge-pending { background-color: #ffeaa7; color: #d35400; }
+        .badge-approved { background-color: #badc58; color: #27ae60; }
+        .badge-rejected { background-color: #ff7675; color: #c0392b; }
+
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-right: 4px; transition: 0.2s; }
+        .btn-approve { background: #27ae60; color: white; }
+        .btn-approve:hover { background: #219150; }
+        .btn-delete { background: #e74c3c; color: white; }
+        .btn-delete:hover { background: #c0392b; }
+        .btn-print { background: #2980b9; color: white; }
+        .btn-print:hover { background: #1f618d; }
+
+        .children-list { font-size: 13px; line-height: 1.5; background: #eef2f5; padding: 6px; border-radius: 4px; }
+        
+        /* Print Rules */
+        @media print {
+            body { background: white; padding: 0; }
+            .container, .header { display: none; }
+            #print-area { display: block !important; font-size: 14pt; line-height: 2; padding: 20mm; text-align: justify; }
+            .date { text-align: right; margin-bottom: 20px; }
+            .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 30px 0; font-size: 16pt; }
+            .child-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .child-table th, .child-table td { border: 1px solid #000; padding: 8px; text-align: left; }
+            .bottom-container { display: flex; justify-content: space-between; margin-top: 50px; }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-4 md:p-8 font-sans">
+<body>
 
-    <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
-        <!-- Header -->
-        <div class="bg-blue-800 text-white p-4 rounded-lg mb-6 text-center">
-            <h1 class="text-xl md:text-2xl font-bold">🔐 Sunil Online Service - Payment Approval Panel</h1>
-            <p class="text-sm text-blue-200 mt-1">Real-time Transaction Verification</p>
+<div class="header">
+    <h1><i class="fa-solid fa-user-shield"></i> एडमिन प्यानल (Admin Dashboard)</h1>
+    <p>रोहिणी गाउँपालिका वडा नं. १ - प्राप्त सिफारिस अनुरोधहरू</p>
+</div>
+
+<div class="container">
+    <h2><i class="fa-solid fa-list-check"></i> अनुरोधहरूको सूची</h2>
+    
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>मिति</th>
+                    <th>निवेदकको नाम</th>
+                    <th>फोन नं.</th>
+                    <th>बुवा/बाजेको नाम</th>
+                    <th>बच्चा(हरू) विवरण</th>
+                    <th>अवस्था (Status)</th>
+                    <th>कार्य (Action)</th>
+                </tr>
+            </thead>
+            <tbody id="requestTableBody">
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #777; padding: 20px;">
+                        ⏳ अनुरोधहरू लोड हुँदैछन्...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Hidden Print Area -->
+<div id="print-area" style="display:none;">
+    <div class="date">मिति: <span id="p_today"></span></div>
+    <div>श्रीमान् वडा अध्यक्ष ज्यू,<br>रोहिणी गाउँपालिका, वडा नं. १,<br>रुपन्देही, नेपाल।</div>
+    <div class="subject">विषय : जन्म दर्ता गरिपाऊँ।</div>
+    <p>महोदय,</p>
+    <div id="p_content"></div>
+    <div id="p_children_table_wrapper"></div>
+    <div class="bottom-container">
+        <div>
+            <strong>संलग्न कागजातहरू:</strong><br>
+            १. बाबु-आमाको नागरिकता प्रतिलिपि<br>
+            २. अस्पतालको जन्म डिस्चार्ज पुर्जी<br>
+            ३. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि
         </div>
-
-        <!-- Section Title -->
-        <h2 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-            📥 आएका अनुरोधहरू (Pending Requests)
-        </h2>
-
-        <!-- Loading / Status Container -->
-        <div id="loadingStatus" class="text-center py-6 text-gray-500 font-medium">
-            लोड हुँदैछ...
-        </div>
-
-        <!-- Requests List Container -->
-        <div id="requestsList" class="space-y-4 hidden">
-            <!-- Dynamic Data Will Appear Here -->
+        <div>
+            <strong>निवेदक:</strong><br><br>
+            सही: ...........................<br>
+            नाम: <strong id="p_f_name"></strong><br>
+            ठेगाना: रोहिणी-१, रुपन्देही<br>
+            फोन: <span id="p_phone"></span>
         </div>
     </div>
+</div>
 
-    <!-- Firebase Script Logic -->
-    <script>
-        // Firebase Configuration with Your Exact Keys
-        const firebaseConfig = {
-            apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-            databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
-        };
+<script>
+    // FIREBASE SETUP
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+    // Read Requests Realtime
+    database.ref('requests').on('value', (snapshot) => {
+        const tableBody = document.getElementById('requestTableBody');
+        tableBody.innerHTML = '';
+
+        if (!snapshot.exists()) {
+            tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px;">कुनै पनि अनुरोधहरू भेटिएनन्।</td></tr>`;
+            return;
         }
-        const database = firebase.database();
 
-        const loadingStatus = document.getElementById('loadingStatus');
-        const requestsList = document.getElementById('requestsList');
+        const data = snapshot.val();
+        const keys = Object.keys(data).reverse();
 
-        // Real-time Listening for Requests
-        database.ref('requests').on('value', (snapshot) => {
-            const data = snapshot.val();
-            requestsList.innerHTML = '';
-            loadingStatus.classList.add('hidden');
-            requestsList.classList.remove('hidden');
+        keys.forEach((key) => {
+            const req = data[key];
+            
+            let childrenInfo = '<div class="children-list">';
+            if (req.children && req.children.length > 0) {
+                req.children.forEach((c, idx) => {
+                    childrenInfo += `<b>${idx + 1}.</b> ${c.name || 'N/A'} (${c.gender || ''}, ${c.dob || ''}) - टोकन: ${c.token || '-'}<br>`;
+                });
+            } else {
+                childrenInfo += 'कुनै विवरण छैन';
+            }
+            childrenInfo += '</div>';
 
-            if (!data) {
-                requestsList.innerHTML = `
-                    <div class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                        कुनै पनि नयाँ अनुरोध (Pending Request) आएको छैन।
-                    </div>`;
-                return;
+            let statusBadge = '<span class="badge badge-pending">PENDING</span>';
+            if (req.status === 'APPROVED') {
+                statusBadge = '<span class="badge badge-approved">APPROVED</span>';
+            } else if (req.status === 'REJECTED') {
+                statusBadge = '<span class="badge badge-rejected">REJECTED</span>';
             }
 
-            let hasPending = false;
-
-            // Loop through all transaction requests
-            Object.keys(data).forEach((key) => {
-                const item = data[key];
-
-                // Only show pending requests
-                if (item.status === 'pending') {
-                    hasPending = true;
-                    const dateStr = item.timestamp ? new Date(item.timestamp).toLocaleString('ne-NP') : 'N/A';
-
-                    const card = document.createElement('div');
-                    card.className = "flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm gap-4";
-                    card.innerHTML = `
-                        <div>
-                            <p class="text-xs text-gray-500 font-mono">Tx Code / ID:</p>
-                            <p class="text-lg font-bold text-gray-800 font-mono">${item.transactionCode || key}</p>
-                            <p class="text-xs text-gray-400 mt-1">समय: ${dateStr}</p>
-                        </div>
-                        <div class="flex gap-2 w-full sm:w-auto">
-                            <button onclick="approveTx('${key}')" class="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-semibold transition">
-                                ✓ Approve
-                            </button>
-                            <button onclick="rejectTx('${key}')" class="flex-1 sm:flex-none bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-semibold transition">
-                                ✕ Reject
-                            </button>
-                        </div>
-                    `;
-                    requestsList.appendChild(card);
-                }
-            });
-
-            if (!hasPending) {
-                requestsList.innerHTML = `
-                    <div class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                        सबै अनुरोधहरू Approve/Reject भइसकेका छन्।
-                    </div>`;
-            }
-        }, (error) => {
-            loadingStatus.classList.remove('hidden');
-            loadingStatus.innerHTML = `<span class="text-red-500">डेटा लोड गर्न सकिएन: ${error.message}</span>`;
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><small>${req.today || req.timestamp || ''}</small></td>
+                <td><b>${req.applicant_name || 'N/A'}</b> (${req.applicant_role || ''})</td>
+                <td>${req.phone || ''}</td>
+                <td>बुवा: ${req.father_name || '-'}<br>बाजे: ${req.grandpa_name || '-'}</td>
+                <td>${childrenInfo}</td>
+                <td>${statusBadge}</td>
+                <td style="white-space: nowrap;">
+                    <button class="btn btn-approve" onclick="updateStatus('${key}', 'APPROVED')" title="Approve"><i class="fa-solid fa-check"></i></button>
+                    <button class="btn btn-print" onclick="printCertificate('${key}')" title="Print"><i class="fa-solid fa-print"></i></button>
+                    <button class="btn btn-delete" onclick="deleteRequest('${key}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            `;
+            tableBody.appendChild(row);
         });
+    });
 
-        // Approve Functionality
-        function approveTx(key) {
-            if (confirm("के तपाईँ यो भुक्तानी Approve गर्न चाहनुहुन्छ?")) {
-                database.ref('requests/' + key).update({
-                    status: 'approved',
-                    approvedAt: Date.now()
-                }).then(() => {
-                    alert("सफलतापूर्वक Approve भयो!");
-                }).catch((err) => {
-                    alert("Error: " + err.message);
+    function updateStatus(key, status) {
+        database.ref('requests/' + key).update({ status: status })
+            .then(() => alert('स्ट्याटस स्वीकृत (APPROVED) गरियो!'))
+            .catch(err => alert('Error: ' + err.message));
+    }
+
+    function deleteRequest(key) {
+        if (confirm('के तपाईँ यो अनुरोध मेटाउन चाहनुहुन्छ?')) {
+            database.ref('requests/' + key).remove()
+                .catch(err => alert('Error: ' + err.message));
+        }
+    }
+
+    function printCertificate(key) {
+        database.ref('requests/' + key).once('value').then((snapshot) => {
+            const req = snapshot.val();
+            if (!req) return;
+
+            document.getElementById('p_today').innerText = req.today || '';
+            document.getElementById('p_f_name').innerText = req.applicant_name || '';
+            document.getElementById('p_phone').innerText = req.phone || '';
+
+            let content = `उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने <strong>${req.grandpa_name || '…………'}</strong> को ${req.grandpa_rel || 'नाति'}, तथा श्री <strong>${req.father_name || '…………'}</strong> को ${req.father_rel || 'छोरा'} <strong>${req.applicant_name || '…………'}</strong> हूँ। मिति <strong>${req.marriage_date || '…………'}</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।`;
+            document.getElementById('p_content').innerHTML = content;
+
+            let tableHtml = `<table class="child-table">
+                <thead>
+                    <tr><th>क्र.सं.</th><th>बच्चाको नाम</th><th>लिङ्ग</th><th>जन्म मिति</th><th>जन्मस्थान</th><th>टोकन नम्बर</th></tr>
+                </thead><tbody>`;
+
+            if (req.children) {
+                req.children.forEach((c, i) => {
+                    tableHtml += `<tr>
+                        <td>${i + 1}</td>
+                        <td><strong>${c.name || ''}</strong></td>
+                        <td>${c.gender || ''}</td>
+                        <td>${c.dob || ''}</td>
+                        <td>${c.birthplace || ''}</td>
+                        <td><strong>${c.token || ''}</strong></td>
+                    </tr>`;
                 });
             }
-        }
+            tableHtml += `</tbody></table>`;
+            document.getElementById('p_children_table_wrapper').innerHTML = tableHtml;
 
-        // Reject Functionality
-        function rejectTx(key) {
-            if (confirm("के तपाईँ यो अनुरोध अस्वीकार (Reject) गर्न चाहनुहुन्छ?")) {
-                database.ref('requests/' + key).update({
-                    status: 'rejected',
-                    rejectedAt: Date.now()
-                }).then(() => {
-                    alert("अनुरोध Reject गरियो!");
-                }).catch((err) => {
-                    alert("Error: " + err.message);
-                });
-            }
-        }
-    </script>
+            window.print();
+        });
+    }
+</script>
 </body>
 </html>
