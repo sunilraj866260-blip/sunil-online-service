@@ -1,1 +1,87 @@
 
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <title>एडमिन ड्यासबोर्ड - रोहिणी १</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f6f9; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .nav-links a { margin-left: 15px; text-decoration: none; color: #1e3799; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; border-radius: 8px; overflow: hidden; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 14px; }
+        th { background: #2c3e50; color: white; }
+        .btn-action { padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: bold; color: white; margin-right: 5px; }
+        .btn-print { background: #17a2b8; }
+        .btn-approve { background: #28a745; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <h2>वडा कार्यालय - निवेदन ड्यासबोर्ड</h2>
+        <div class="nav-links">
+            <a href="pending.html">Pending निवेदनहरू</a>
+            <a href="#" onclick="logout()" style="color: red;">लगआउट</a>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>सेवा</th>
+                <th>निवेदक</th>
+                <th>फोन</th>
+                <th>eSewa ID</th>
+                <th>कागजात</th>
+                <th>अवस्था</th>
+                <th>कार्य (Action)</th>
+            </tr>
+        </thead>
+        <tbody id="requestTable"></tbody>
+    </table>
+
+<script>
+    const firebaseConfig = { apiKey: "YOUR_API_KEY", projectId: "YOUR_PROJECT_ID" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Check Auth
+    firebase.auth().onAuthStateChanged(user => {
+        if (!user) window.location.href = "login.html";
+    });
+
+    db.collection('requests').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+        let html = '';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const fileBtn = data.file_url ? `<a href="${data.file_url}" target="_blank">हेरौँ</a>` : 'छैन';
+            
+            html += `<tr>
+                <td><strong>${data.service_type || ''}</strong></td>
+                <td>${data.applicant_name || ''}</td>
+                <td>${data.phone || ''}</td>
+                <td>${data.esewa_code || ''}</td>
+                <td>${fileBtn}</td>
+                <td><span style="color:${data.status==='APPROVED'?'green':'orange'}; font-weight:bold;">${data.status || 'PENDING'}</span></td>
+                <td>
+                    <button class="btn-action btn-approve" onclick="approveData('${doc.id}')">Approve</button>
+                    <a href="print.html?id=${doc.id}" target="_blank" class="btn-action btn-print">🖨️ Print</a>
+                </td>
+            </tr>`;
+        });
+        document.getElementById('requestTable').innerHTML = html;
+    });
+
+    function approveData(id) {
+        db.collection('requests').doc(id).update({ status: 'APPROVED' });
+    }
+
+    function logout() {
+        firebase.auth().signOut().then(() => window.location.href = "login.html");
+    }
+</script>
+</body>
+</html>
