@@ -1,38 +1,114 @@
-
 <!DOCTYPE html>
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>रोहिणी १ - इ-सिफारिस प्रणाली</title>
+    <title>नागरिकता सिफारिस फारम</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background: #f4f6f9; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .header { text-align: center; border-bottom: 3px solid #b71515; padding-bottom: 15px; margin-bottom: 25px; }
-        .header h1 { color: #b71515; margin: 0 0 5px 0; font-size: 24px; }
-        .header p { margin: 0; color: #555; font-weight: bold; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
-        .card { background: #fff; border: 2px solid #e0e0e0; padding: 20px; border-radius: 8px; text-decoration: none; color: #333; text-align: center; font-weight: bold; font-size: 16px; transition: 0.3s; }
-        .card:hover { border-color: #b71515; background: #fff5f5; transform: translateY(-3px); }
-        .footer-link { display: block; text-align: center; margin-top: 30px; text-decoration: none; color: #1e3799; font-weight: bold; }
+        body { font-family: Arial, sans-serif; background: #f8f9fa; padding: 20px; }
+        .card { max-width: 650px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #b71515; text-align: center; margin-top: 0; }
+        .group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 14px; background: #28a745; color: white; border: none; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        .btn:disabled { background: #888; cursor: not-allowed; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>रोहिणी गाउँपालिका, १ नं. वडा कार्यालय</h1>
-            <p>इलेक्ट्रोनिक सिफारिस तथा निवेदन सङ्कलन पोर्टल</p>
+<div class="card">
+    <h2>नागरिकता सिफारिसको लागि निवेदन</h2>
+    <form id="nivedanForm">
+        <div class="group">
+            <label>निवेदकको नाम थर (अनिवार्य):</label>
+            <input type="text" id="applicant_name" required>
         </div>
-        <div class="grid">
-            <a href="forms/nagarikata.html" class="card">📝 नागरिकता सिफारिस</a>
-            <a href="forms/charKilla.html" class="card">🏠 चार किल्ला प्रमाणित</a>
-            <a href="forms/nata.html" class="card">👨‍👩‍👧‍👦 नाता प्रमाणित</a>
-            <a href="forms/janma.html" class="card">👶 जन्म दर्ता सिफारिस</a>
-            <a href="forms/bibaha.html" class="card">💍 विवाह दर्ता सिफारिस</a>
-            <a href="forms/basaiSarai.html" class="card">🚚 बसाइँसराइ सिफारिस</a>
+        <div class="group">
+            <label>मोबाइल नम्बर (अनिवार्य):</label>
+            <input type="text" id="phone" value="9817423830" required>
         </div>
-        <a href="admin/login.html" class="footer-link">🔒 वडा कार्यालय एडमिन लगइन</a>
-    </div>
+        <div class="group">
+            <label>टोलको नाम:</label>
+            <input type="text" id="toll" placeholder="उदा: पिप्रहवा" required>
+        </div>
+        <div class="group">
+            <label>बाबुको नाम थर:</label>
+            <input type="text" id="father_name" required>
+        </div>
+        <div class="group">
+            <label>बाजेको नाम थर:</label>
+            <input type="text" id="grand_name" required>
+        </div>
+        <div class="group">
+            <label>जन्म मिति (वि.सं.):</label>
+            <input type="text" id="dob" placeholder="२०६०/०१/०१" required>
+        </div>
+        <div class="group">
+            <label>कागजात/फोटो अपलोड गर्नुहोस् (नागरिकता/जन्मदर्ता):</label>
+            <input type="file" id="document_file" accept="image/*,application/pdf">
+        </div>
+        <div class="group" style="background: #e8f5e9; padding: 12px; border-radius: 5px;">
+            <label style="color: #2e7d32;">eSewa Transaction Code (ID):</label>
+            <input type="text" id="esewa_code" placeholder="उदा: 0000XXXX" required>
+        </div>
+        <button type="submit" class="btn" id="btnSubmit">निवेदन पेश गर्नुहोस्</button>
+    </form>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    const SERVICE_TYPE = "नागरिकता सिफारिस";
+
+    document.getElementById('nivedanForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnSubmit');
+        btn.disabled = true;
+        btn.innerText = "प्रक्रियामा छ...";
+
+        try {
+            let fileUrl = "";
+            const fileInput = document.getElementById('document_file').files[0];
+            
+            // File upload inside Firebase Storage
+            if (fileInput) {
+                const storageRef = storage.ref(`documents/${Date.now()}_${fileInput.name}`);
+                const snapshot = await storageRef.put(fileInput);
+                fileUrl = await snapshot.ref.getDownloadURL();
+            }
+
+            // Save data in Firestore
+            const docRef = await db.collection('requests').add({
+                service_type: SERVICE_TYPE,
+                applicant_name: document.getElementById('applicant_name').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                toll: document.getElementById('toll').value.trim(),
+                father_name: document.getElementById('father_name').value.trim(),
+                grand_name: document.getElementById('grand_name').value.trim(),
+                dob: document.getElementById('dob').value.trim(),
+                esewa_code: document.getElementById('esewa_code').value.trim(),
+                file_url: fileUrl,
+                status: "PENDING",
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            window.location.href = "../customer/submit.html?id=" + docRef.id;
+        } catch (err) {
+            alert("त्रुटि भयो: " + err.message);
+            btn.disabled = false;
+            btn.innerText = "निवेदन पेश गर्नुहोस्";
+        }
+    });
+</script>
 </body>
 </html>
