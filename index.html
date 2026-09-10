@@ -3,219 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>रोहिणी वडा नं. १ - अनलाइन सिफारिस प्रणाली</title>
-    
-    <!-- Firebase SDK (v8) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <title>रोहिणी १ - इ-सिफारिस प्रणाली</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 1000px; margin: auto; }
-        
-        .header { background: #1e3799; color: white; padding: 25px; border-radius: 10px; text-align: center; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .header h1 { margin: 0 0 5px 0; font-size: 26px; }
-        .header p { margin: 0; opacity: 0.9; }
-
-        /* Universal eSewa Verification & Print Box */
-        .search-card { background: white; padding: 20px; border-radius: 10px; border-left: 6px solid #27ae60; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 30px; }
-        .search-card h3 { margin: 0 0 10px 0; color: #27ae60; display: flex; align-items: center; gap: 10px; }
-        .search-row { display: flex; gap: 10px; }
-        .search-row input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
-        .search-row button { background: #27ae60; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .search-row button:hover { background: #219150; }
-
-        /* Grid Services Menu */
-        .services-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #1e3799; padding-bottom: 5px; color: #1e3799; }
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        
-        .service-card { background: white; padding: 20px; border-radius: 10px; text-decoration: none; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: 0.2s ease; border: 1px solid #e1e8ed; display: flex; align-items: center; gap: 15px; }
-        .service-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.12); border-color: #1e3799; }
-        .service-card i { font-size: 30px; color: #1e3799; background: #e8ecef; padding: 15px; border-radius: 50%; }
-        .service-card div h4 { margin: 0 0 5px 0; font-size: 17px; color: #1e3799; }
-        .service-card div p { margin: 0; font-size: 13px; color: #666; }
-
-        .status-msg { margin-top: 10px; font-weight: bold; }
-
-        /* Perfect A4 Print Styling */
-        @media print {
-            @page { size: A4 portrait; margin: 15mm; }
-            html, body { width: 210mm; height: 297mm; background: #fff !important; padding: 0 !important; margin: 0 !important; font-size: 12pt; line-height: 1.8; }
-            .container, .header, .search-card, .grid-container, .services-title { display: none !important; }
-            #print-area { display: block !important; width: 100%; box-sizing: border-box; }
-            .date { text-align: right; margin-bottom: 15px; }
-            .recipient { line-height: 1.5; margin-bottom: 15px; }
-            .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 20px 0; font-size: 15pt; }
-            .content { text-indent: 50px; margin-bottom: 15px; text-align: justify; }
-            .child-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-            .child-table th, .child-table td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 11pt; }
-            .child-table th { background-color: #f2f2f2; }
-            .bottom-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; page-break-inside: avoid; }
-            .attachment-part { width: 55%; font-size: 11pt; line-height: 1.6; }
-            .applicant-part { width: 40%; line-height: 1.6; }
-        }
+        body { background: #f4f6f9; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header { text-align: center; border-bottom: 3px solid #b71515; padding-bottom: 15px; margin-bottom: 25px; }
+        .header h1 { color: #b71515; margin: 0 0 5px 0; font-size: 24px; }
+        .header p { margin: 0; color: #555; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .card { background: #fff; border: 2px solid #e0e0e0; padding: 20px; border-radius: 8px; text-decoration: none; color: #333; text-align: center; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .card:hover { border-color: #b71515; background: #fff5f5; transform: translateY(-3px); }
+        .footer-link { display: block; text-align: center; margin-top: 30px; text-decoration: none; color: #1e3799; font-weight: bold; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div class="header">
-        <h1>रोहिणी गाउँपालिका, वडा नं. १</h1>
-        <p>रुपन्देही, लुम्बिनी प्रदेश - डिजिटल सिफारिस सेवा पोर्टल</p>
-    </div>
-
-    <!-- Check Status & Print Form -->
-    <div class="search-card">
-        <h3><i class="fa-solid fa-print"></i> eSewa Code हालेर निवेदन प्रिन्ट गर्नुहोस्</h3>
-        <div class="search-row">
-            <input type="text" id="check_esewa_code" placeholder="तपाईँको eSewa Code (Transaction ID) हाल्नुहोस्...">
-            <button type="button" onclick="checkAndPrint()">जाँच / A4 प्रिन्ट</button>
+    <div class="container">
+        <div class="header">
+            <h1>रोहिणी गाउँपालिका, १ नं. वडा कार्यालय</h1>
+            <p>इलेक्ट्रोनिक सिफारिस तथा निवेदन सङ्कलन पोर्टल</p>
         </div>
-        <div id="check_status_msg" class="status-msg"></div>
-    </div>
-
-    <div class="services-title">उपलब्ध निवेदन तथा सिफारिस फारमहरू</div>
-    
-    <div class="grid-container">
-        <!-- Link to Janamdarta File -->
-        <a href="janamdarta.html" class="service-card">
-            <i class="fa-solid fa-baby"></i>
-            <div>
-                <h4>जन्म दर्ता सिफारिस</h4>
-                <p>नयाँ जन्मिएका शिशुको दर्ता निवेदन</p>
-            </div>
-        </a>
-
-        <a href="vivah_darta.html" class="service-card">
-            <i class="fa-solid fa-rings-wedding"></i>
-            <div>
-                <h4>विवाह दर्ता सिफारिस</h4>
-                <p>विवाह दर्ता प्रमाणपत्र सिफारिस</p>
-            </div>
-        </a>
-
-        <a href="mrityu_darta.html" class="service-card">
-            <i class="fa-solid fa-book-dead"></i>
-            <div>
-                <h4>मृत्यु दर्ता सिफारिस</h4>
-                <p>मृत्यु दर्ता प्रमाणपत्र सिफारिस</p>
-            </div>
-        </a>
-
-        <a href="charitra_pramanit.html" class="service-card">
-            <i class="fa-solid fa-user-check"></i>
-            <div>
-                <h4>चारित्रिक सिफारिस</h4>
-                <p>चारित्रिक प्रमाणपत्रको निवेदन</p>
-            </div>
-        </a>
-
-        <a href="ghar_jagga.html" class="service-card">
-            <i class="fa-solid fa-house-chimney"></i>
-            <div>
-                <h4>घर-जग्गा नामसारी</h4>
-                <p>नामसारी तथा हकदाबी सिफारिस</p>
-            </div>
-        </a>
-    </div>
-</div>
-
-<!-- Dynamic Printable Document Section -->
-<div id="print-area" style="display:none;">
-    <div class="date">मिति: <span id="p_today"></span></div>
-    <div class="recipient">श्रीमान् वडा अध्यक्ष ज्यू,<br>रोहिणी गाउँपालिका, वडा नं. १,<br>रुपन्देही, नेपाल।</div>
-    <div id="p_subject" class="subject">विषय : जन्म दर्ता गरिपाऊँ।</div>
-    <p>महोदय,</p>
-    <div id="p_content" class="content"></div>
-    
-    <div id="p_children_table_wrapper"></div>
-
-    <div class="bottom-container">
-        <div class="attachment-part">
-            <strong>संलग्न कागजातहरू:</strong><br>
-            १. बाबु-आमाको नागरिकता प्रतिलिपि<br>
-            २. अस्पतालको जन्म डिस्चार्ज पुर्जी<br>
-            ३. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि
+        <div class="grid">
+            <a href="forms/nagarikata.html" class="card">📝 नागरिकता सिफारिस</a>
+            <a href="forms/charKilla.html" class="card">🏠 चार किल्ला प्रमाणित</a>
+            <a href="forms/nata.html" class="card">👨‍👩‍👧‍👦 नाता प्रमाणित</a>
+            <a href="forms/janma.html" class="card">👶 जन्म दर्ता सिफारिस</a>
+            <a href="forms/bibaha.html" class="card">💍 विवाह दर्ता सिफारिस</a>
+            <a href="forms/basaiSarai.html" class="card">🚚 बसाइँसराइ सिफारिस</a>
         </div>
-        <div class="applicant-part">
-            <strong>निवेदक:</strong><br><br>
-            सही: ...........................<br>
-            नाम: <strong id="p_f_name">………………</strong><br>
-            ठेगाना: रोहिणी-१, रुपन्देही<br>
-            फोन: <span id="p_phone">9817423830</span>
-        </div>
+        <a href="admin/login.html" class="footer-link">🔒 वडा कार्यालय एडमिन लगइन</a>
     </div>
-</div>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    function checkAndPrint() {
-        const code = document.getElementById('check_esewa_code').value.trim();
-        const msg = document.getElementById('check_status_msg');
-        
-        if (!code) { alert("कृपया eSewa Code हाल्नुहोस्!"); return; }
-
-        msg.style.color = "#d35400";
-        msg.innerText = "🔍 खोजी हुँदैछ...";
-
-        database.ref('requests').orderByChild('esewa_code').equalTo(code).once('value', (snapshot) => {
-            if (!snapshot.exists()) {
-                msg.style.color = "#c0392b";
-                msg.innerText = "❌ यो eSewa Code सँग मिल्दो अनुरोध भेटिएन!";
-                return;
-            }
-
-            snapshot.forEach((childSnapshot) => {
-                const req = childSnapshot.val();
-
-                if (req.status !== 'APPROVED') {
-                    msg.style.color = "#e67e22";
-                    msg.innerText = "⏳ भुक्तानी अझै रुजु (Verify) भएको छैन। कृपया केही बेर पर्खनुहोस्।";
-                } else {
-                    msg.style.color = "#27ae60";
-                    msg.innerText = "✅ स्वीकृत भयो! प्रिन्ट विन्डो खुल्दैछ...";
-
-                    document.getElementById('p_today').innerText = req.today || '';
-                    document.getElementById('p_f_name').innerText = req.applicant_name || '';
-                    document.getElementById('p_phone').innerText = req.phone || '';
-
-                    let content = `उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने <strong>${req.grandpa_name || '…………'}</strong> को ${req.grandpa_rel || 'नाति'}, तथा श्री <strong>${req.father_name || '…………'}</strong> को ${req.father_rel || 'छोरा'} <strong>${req.applicant_name || '…………'}</strong> हूँ। मिति <strong>${req.marriage_date || '…………'}</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।`;
-                    document.getElementById('p_content').innerHTML = content;
-
-                    let tableHtml = `<table class="child-table">
-                        <thead>
-                            <tr><th>क्र.सं.</th><th>बच्चाको नाम</th><th>लिङ्ग</th><th>जन्म मिति</th><th>जन्मस्थान</th><th>टोकन नम्बर</th></tr>
-                        </thead><tbody>`;
-
-                    if (req.children) {
-                        req.children.forEach((c, i) => {
-                            tableHtml += `<tr>
-                                <td>${i + 1}</td>
-                                <td><strong>${c.name || ''}</strong></td>
-                                <td>${c.gender || ''}</td>
-                                <td>${c.dob || ''}</td>
-                                <td>${c.birthplace || ''}</td>
-                                <td><strong>${c.token || ''}</strong></td>
-                            </tr>`;
-                        });
-                    }
-                    tableHtml += `</tbody></table>`;
-                    document.getElementById('p_children_table_wrapper').innerHTML = tableHtml;
-
-                    setTimeout(() => { window.print(); }, 500);
-                }
-            });
-        });
-    }
-</script>
 </body>
 </html>
