@@ -1,1 +1,90 @@
 
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <title>निवेदन प्रिन्ट - रोहिणी १</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <style>
+        body { font-family: 'Times New Roman', Times, serif; background: #ccc; margin: 0; padding: 20px; }
+        
+        .page { 
+            background: white; 
+            width: 21cm; 
+            min-height: 29.7cm; 
+            padding: 2cm; 
+            margin: auto; 
+            box-sizing: border-box; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            font-size: 13pt;
+            line-height: 1.8;
+        }
+        
+        .date { text-align: right; margin-bottom: 10px; }
+        .subject { text-align: center; font-weight: bold; font-size: 15pt; text-decoration: underline; margin: 25px 0; }
+        .content { text-indent: 50px; text-align: justify; }
+        .footer { margin-top: 100px; float: right; text-align: center; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .page { box-shadow: none; width: 100%; min-height: auto; padding: 1.5cm; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <div class="date">मिति :- <span id="p_date">२०८३/--/--</span></div>
+
+    <div>
+        <strong>श्रीमान् अध्यक्ष ज्यु,</strong><br>
+        <strong>रोहिणी गाउँपालिका, १ नं. वडा कार्यालय</strong><br>
+        <strong>रुपन्देही, लुम्बिनी प्रदेश, नेपाल।</strong>
+    </div>
+
+    <div class="subject">विषय :- <span id="p_subject">सिफारिस सम्बन्धमा</span>।</div>
+
+    <p>महोदय,</p>
+
+    <div class="content">
+        सविनय निवेदन यो छ कि जिल्ला रुपन्देही, रोहिणी गाउँपालिका वडा नं. १ <strong id="p_toll">..................</strong> बस्ने श्री <strong id="p_grand">..................</strong> को नाति/नातिनी, श्री <strong id="p_father">..................</strong> को छोरा/छोरी जन्म मिति <strong id="p_dob">..................</strong> भएको श्री <strong id="p_name">..................</strong> ले <strong id="p_service">..................</strong> को लागि यो निवेदन पेश गर्नुभएको छ।
+        <br>
+        उल्लेखित व्यहोरा साँचो हो, झुठ्ठा ठहरे कानून बमोजिम सहूँला बुझाउँला।
+    </div>
+
+    <div class="footer">
+        ...........................................<br>
+        <strong>निवेदकको हस्ताक्षर</strong>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = { apiKey: "YOUR_API_KEY", projectId: "YOUR_PROJECT_ID" };
+    firebase.initializeApp(firebaseConfig);
+
+    const docId = new URLSearchParams(window.location.search).get('id');
+
+    if (docId) {
+        firebase.firestore().collection('requests').doc(docId).get().then(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                document.getElementById('p_subject').innerText = (data.service_type || "सिफारिस") + " पाउँ";
+                document.getElementById('p_name').innerText = data.applicant_name || '..................';
+                document.getElementById('p_father').innerText = data.father_name || '..................';
+                document.getElementById('p_grand').innerText = data.grand_name || '..................';
+                document.getElementById('p_toll').innerText = data.toll || '..................';
+                document.getElementById('p_dob').innerText = data.dob || '..................';
+                document.getElementById('p_service').innerText = data.service_type || '..................';
+                
+                // आजको मिति नेपाली ढाँचामा हाल्ने
+                const options = { year: 'numeric', month: 'numeric', day: 'numeric', calendar: 'nepali' };
+                try {
+                    document.getElementById('p_date').innerText = new Intl.DateTimeFormat('ne-NP-u-ca-nepali', options).format(new Date());
+                } catch(e){}
+            }
+        });
+    }
+</script>
+</body>
+</html>
