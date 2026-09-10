@@ -1,1 +1,38 @@
 
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <title>कार्यालय लगइन - रोहिणी १</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #2c3e50; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: white; padding: 30px; border-radius: 8px; width: 320px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        h3 { text-align: center; color: #b71515; margin-top: 0; }
+        input { width: 100%; padding: 10px; margin: 10px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 11px; background: #b71515; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h3>वडा एडमिन लगइन</h3>
+    <input type="email" id="email" placeholder="इमेल (Email)" required>
+    <input type="password" id="password" placeholder="पासवर्ड (Password)" required>
+    <button onclick="login()">लगइन गर्नुहोस्</button>
+</div>
+
+<script>
+    const firebaseConfig = { apiKey: "YOUR_API_KEY", projectId: "YOUR_PROJECT_ID" };
+    firebase.initializeApp(firebaseConfig);
+
+    function login() {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+        firebase.auth().signInWithEmailAndPassword(email, pass)
+            .then(() => window.location.href = "dashboard.html")
+            .catch(err => alert("लगइन असफल भयो: " + err.message));
+    }
+</script>
+</body>
+</html>
