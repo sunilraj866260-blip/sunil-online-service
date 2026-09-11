@@ -3,118 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>रोहिणी वडा नं. १ - निवेदन प्रणाली</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <title>Sunil Photos Studio & Online System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="request/request.js"></script>
+
     <style>
-        * { box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background: #f4f7f6; margin: 0; padding: 0; }
-        header { 
-            background: #b71515; 
-            color: white; 
-            padding: 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            flex-wrap: wrap;
-        }
-        .header-title h1 { margin: 0; font-size: 24px; }
-        .header-title p { margin: 5px 0 0 0; font-size: 14px; }
-        .admin-btn { 
-            background: white; 
-            color: #b71515; 
-            padding: 10px 18px; 
-            text-decoration: none; 
-            font-weight: bold; 
-            border-radius: 5px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
-        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .card h3 { color: #b71515; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 8px; }
-        .track-box { display: flex; gap: 10px; margin-top: 10px; }
-        .track-box input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        .track-box button { padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; margin-top: 15px; }
-        .service-btn { display: block; text-align: center; background: #fff; border: 2px solid #b71515; color: #b71515; padding: 15px; border-radius: 6px; text-decoration: none; font-weight: bold; transition: 0.3s; }
-        .service-btn:hover { background: #b71515; color: white; }
-        #trackResult { margin-top: 15px; padding: 15px; border-radius: 5px; display: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; }
+        .navbar { display: flex; align-items: center; justify-content: space-between; background-color: #1e293b; padding: 15px 20px; color: #fff; position: fixed; top: 0; width: 100%; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .menu-icon { font-size: 24px; cursor: pointer; color: #38bdf8; }
+        .logo { font-size: 18px; font-weight: bold; }
+        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1001; }
+        .nav-drawer { position: fixed; top: 0; left: -300px; width: 300px; height: 100%; background-color: #ffffff; z-index: 1002; transition: left 0.3s ease; box-shadow: 2px 0 10px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow-y: auto; }
+        .nav-drawer.active { left: 0; }
+        .drawer-overlay.active { display: block; }
+        .drawer-profile { background: linear-gradient(135deg, #0f172a, #1e293b); padding: 25px 20px; text-align: center; color: #fff; position: relative; }
+        .profile-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #38bdf8; margin: 0 auto 10px auto; }
+        .profile-name { font-size: 18px; font-weight: bold; }
+        .profile-sub { font-size: 13px; color: #94a3b8; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 20px; color: #fff; cursor: pointer; }
+        .drawer-menu { list-style: none; padding: 15px; }
+        .menu-category { font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase; margin: 15px 0 5px 10px; }
+        .drawer-menu li a { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: #334155; text-decoration: none; font-weight: 500; border-radius: 6px; transition: 0.2s; }
+        .drawer-menu li a:hover { background-color: #f1f5f9; color: #0284c7; }
+        .main-content { margin-top: 80px; padding: 20px; }
+        .card-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 25px; }
+        .card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: left; border-top: 4px solid #0284c7; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .card h3 { margin-bottom: 8px; color: #1e293b; font-size: 18px; font-weight: bold; }
+        .card p { color: #64748b; font-size: 14px; line-height: 1.5; }
+        .card a { display: inline-block; margin-top: 15px; padding: 10px 16px; background-color: #0284c7; color: #fff; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; text-align: center; transition: background-color 0.2s; }
+        .card a:hover { background-color: #0369a1; }
     </style>
 </head>
-<body>
+<body class="flex flex-col min-h-screen justify-between">
 
-<header>
-    <div class="header-title">
-        <h1>रोहिणी गाउँपालिका - १ नं. वडा कार्यालय</h1>
-        <p>अनलाइन निवेदन तथा सिफारिश प्रणाली</p>
-    </div>
-    <a href="admin/login.html" class="admin-btn">🔐 कार्यालय लगइन (Admin)</a>
-</header>
-
-<div class="container">
-    <div class="card">
-        <h3>🔍 निवेदनको अवस्था जाँच (Track Application)</h3>
-        <div class="track-box">
-            <input type="text" id="trackInput" placeholder="Submission ID (उदा: NIV-12345) राख्नुहोस्">
-            <button onclick="trackRequest()">खोज्नुहोस्</button>
+    <div class="navbar">
+        <div class="nav-left">
+            <span class="menu-icon" onclick="toggleDrawer()">☰</span>
+            <div class="logo">Sunil Photos Studio & Online System</div>
         </div>
-        <div id="trackResult"></div>
-    </div>
-
-    <div class="card">
-        <h3>📝 अनलाइन निवेदन फारमहरू</h3>
-        <div class="grid">
-            <a href="forms/nagarikata.html" class="service-btn">नेपाली नागरिकता सिफारिश</a>
-            <a href="forms/charKilla.html" class="service-btn">चार किल्ला प्रमाणीकरण</a>
-            <a href="forms/nata.html" class="service-btn">नाता प्रमाणित सिफारिश</a>
-            <a href="forms/janma.html" class="service-btn">जन्म दर्ता सिफारिश</a>
-            <a href="forms/bibaha.html" class="service-btn">विवाह दर्ता सिफारिश</a>
-            <a href="forms/basaiSarai.html" class="service-btn">बसाइँसराई सिफारिश</a>
+        <div class="flex gap-2">
+            <a href="request/track.html" class="bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs md:text-sm font-bold px-3 py-1.5 rounded-md shadow transition flex items-center gap-1">
+                🔍 <span class="hidden sm:inline">ट्र्याक</span>
+            </a>
+            <a href="admin/requests.html" class="bg-slate-700 hover:bg-slate-600 text-white text-xs md:text-sm font-bold px-3 py-1.5 rounded-md shadow transition flex items-center gap-1">
+                🔐 <span class="hidden sm:inline">एडमिन</span>
+            </a>
         </div>
     </div>
-</div>
 
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
-    };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    <div class="drawer-overlay" id="overlay" onclick="toggleDrawer()"></div>
 
-    function trackRequest() {
-        const reqId = document.getElementById('trackInput').value.trim();
-        const resDiv = document.getElementById('trackResult');
-        if (!reqId) return alert("कृपया Submission ID राख्नुहोस्!");
+    <div class="nav-drawer" id="drawer">
+        <div class="drawer-profile">
+            <span class="close-btn" onclick="toggleDrawer()">✕</span>
+            <img src="https://via.placeholder.com/150" alt="Profile" class="profile-img">
+            <div class="profile-name">Sunil Raj</div>
+            <div class="profile-sub">Digital & Online Service Center</div>
+        </div>
 
-        resDiv.style.display = "block";
-        resDiv.innerHTML = "खोजी हुँदैछ...";
+        <ul class="drawer-menu">
+            <li class="menu-category">मुख्य मेनु</li>
+            <li><a href="#" onclick="toggleDrawer()">🏠 गृहपृष्ठ (Home)</a></li>
+            <li><a href="request/track.html">🔍 निवेदन ट्र्याक गर्नुहोस्</a></li>
 
-        db.ref("applications/" + reqId).once("value").then((snapshot) => {
-            if (snapshot.exists()) {
-                const d = snapshot.val();
-                
-                // Approved भइसकेपछि Customer ले Print गर्ने बटन
-                let printBtnHtml = "";
-                if (d.status === "Approved") {
-                    printBtnHtml = `<br><br><a href="admin/print.html?id=${reqId}" target="_blank" style="display:inline-block; padding:10px 18px; background:#27ae60; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">🖨️ सिफारिश पत्र प्रिन्ट / डाउनलोड गर्नुहोस्</a>`;
-                }
+            <li class="menu-category">अनलाइन सिफारिस सेवाहरू</li>
+            <li><a href="forms/janma.html">👶 जन्म दर्ता सिफारिस</a></li>
+            <li><a href="forms/bivaha.html">💍 विवाह सिफारिस निवेदन</a></li>
+            <li><a href="forms/nagarikata.html">🪪 नागरिकता सिफारिस निवेदन</a></li>
+            <li><a href="forms/charkilla.html">🗺️ चारकिल्ला सिफारिस निवेदन</a></li>
 
-                resDiv.style.background = "#e8f8f5";
-                resDiv.style.border = "1px solid #27ae60";
-                resDiv.innerHTML = `
-                    <b>निवेदकको नाम:</b> ${d.fullName}<br>
-                    <b>सिफारिश सेवा:</b> ${d.serviceType}<br>
-                    <b>अवस्था (Status):</b> <strong style="color:${d.status === 'Approved' ? '#27ae60' : '#b71515'};">${d.status}</strong>
-                    ${printBtnHtml}
-                `;
-            } else {
-                resDiv.style.background = "#f8d7da";
-                resDiv.style.border = "1px solid #c0392b";
-                resDiv.innerHTML = "यो ID भएको निवेदन भेटिएन। कृपया सहि ID राख्नुहोस्।";
-            }
-        });
-    }
-</script>
+            <li class="menu-category">व्यवस्थापन</li>
+            <li><a href="admin/requests.html">🔐 एडमिन प्यानल (Admin)</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content container mx-auto max-w-6xl">
+        <div class="text-center my-4">
+            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2">अनलाइन सिफारिस तथा निवेदन प्रणाली</h2>
+            <p class="text-slate-600 text-sm md:text-base">बायाँतर्फको मेनु (☰) खोलेर वा तलका कार्डहरूबाट आवश्यक सेवा छनोट गर्नुहोस्।</p>
+        </div>
+
+        <div class="card-container">
+            <div class="card" id="janma">
+                <div>
+                    <div class="text-3xl mb-2">👶</div>
+                    <h3>जन्म दर्ता सिफारिस</h3>
+                    <p>जन्म दर्ता प्रमाणपत्र तथा जन्म सिफारिस प्राप्त गर्न निवेदन फाराम।</p>
+                </div>
+                <a href="forms/janma.html">फारम खोल्नुहोस् →</a>
+            </div>
+
+            <div class="card" id="bibaha">
+                <div>
+                    <div class="text-3xl mb-2">💍</div>
+                    <h3>विवाह सिफारिस</h3>
+                    <p>विवाह दर्ता तथा विवाह प्रमाणित सिफारिसको लागि फारम भर्नुहोस्।</p>
+                </div>
+                <a href="forms/bivaha.html">फारम खोल्नुहोस् →</a>
+            </div>
+
+            <div class="card" id="nagarikta">
+                <div>
+                    <div class="text-3xl mb-2">🪪</div>
+                    <h3>नागरिकता सिफारिस</h3>
+                    <p>नेपाली नागरिकता प्रमाणपत्र वा प्रतिलिपिको सिफारिस निवेदन।</p>
+                </div>
+                <a href="forms/nagarikata.html">फारम खोल्नुहोस् →</a>
+            </div>
+
+            <div class="card" id="charkilla">
+                <div>
+                    <div class="text-3xl mb-2">🏠</div>
+                    <h3>चारकिल्ला सिफारिस</h3>
+                    <p>जग्गा जमिनको चारकिल्ला प्रमाणित तथा सिफारिसको निवेदन।</p>
+                </div>
+                <a href="forms/charkilla.html">फारम खोल्नुहोस् →</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-slate-800 text-slate-400 py-4 text-center text-xs mt-10">
+        <p>© Sunil Photos Studio & Services. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        function toggleDrawer() {
+            document.getElementById('drawer').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+    </script>
 </body>
 </html>
