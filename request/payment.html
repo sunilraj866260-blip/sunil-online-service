@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>निवेदन दस्तुर भुक्तानी</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="request.js"></script>
+</head>
+<body class="bg-slate-100 p-6 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg text-center">
+        <h2 class="text-2xl font-bold mb-2 text-slate-800">सेवा शुल्क भुक्तानी</h2>
+        <p class="text-sm text-slate-500 mb-4">तपाईंको ट्र्याकिङ टोकन:</p>
+        <div id="tokenDisplay" class="text-2xl font-mono font-bold text-sky-600 bg-sky-50 py-2 rounded-lg mb-6"></div>
+        <p class="text-slate-700 font-semibold mb-6">कुल सेवा दस्तुर: रु. १००/-</p>
+
+        <button onclick="payFee()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition shadow">
+            eSewa / Khalti बाट भुक्तानी गर्नुहोस्
+        </button>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        document.getElementById('tokenDisplay').innerText = token || 'N/A';
+
+        async function payFee() {
+            if(token) {
+                await updateRequestField(token, { paymentStatus: 'सफल (Paid)' });
+                alert('भुक्तानी सफल भयो! तपाईंको टोकन नम्बर: ' + token);
+                window.location.href = `track.html?token=${token}`;
+            } else {
+                alert('टोकन फेला परेन!');
+            }
+        }
+    </script>
+</body>
+</html>
