@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>एडमिन - रियलटाइम निवेदन व्यवस्थापन</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../request/request.js"></script>
+</head>
+<body class="bg-slate-100 p-6 min-h-screen">
+    <div class="container mx-auto bg-white p-6 rounded-xl shadow-md">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800">प्राप्त निवेदनहरू (Admin Dashboard)</h2>
+                <p class="text-xs text-green-600 font-semibold flex items-center gap-1 mt-1">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span> Realtime Sync Active
+                </p>
+            </div>
+            <a href="../index.html" class="text-sky-600 font-semibold hover:underline text-sm">← होमपेज</a>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-slate-200">
+                <thead>
+                    <tr class="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-600">
+                        <th class="p-3 border">टोकन</th>
+                        <th class="p-3 border">प्रकार</th>
+                        <th class="p-3 border">मिति</th>
+                        <th class="p-3 border">विवरण</th>
+                        <th class="p-3 border">भुक्तानी</th>
+                        <th class="p-3 border">अवस्था</th>
+                        <th class="p-3 border">कारबाही (Action)</th>
+                    </tr>
+                </thead>
+                <tbody id="requestTableBody">
+                    <tr><td colspan="7" class="p-4 text-center text-slate-400">डाटा लोड हुँदैछ...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function listenRealtimeData() {
+            const eventSource = new EventSource(`${API_BASE_URL}/requests.json`);
+
+            eventSource.onmessage = function(event) {
+                const requestsObj = JSON.parse(event.data);
+                renderTable(requestsObj);
+            };
+
+            eventSource.onerror = function(err) {
+                console.error("Realtime connection error...", err);
+            };
+        }
+
+        function renderTable(requestsObj) {
+            const tbody = document.getElementById('requestTableBody');
+            tbody.innerHTML = '';
+
+            if (!requestsObj) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-500">कुनै निवेदन फेला परेन।</td></tr>`;
+                return;
+            }
+
+            const requestsList = Object.keys(requestsObj).map(key => requestsObj[key]);
+            requestsList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+            requestsList.forEach((req) => {
+                let formattedData = '';
+                if(req.data) {
+                    for (let k in req.data) {
+                        formattedData += `<b>${k}:</b> ${req.data[k]}<br>`;
+                    }
+                }
+
+                const row = `
+                    <tr class="border-b hover:bg-slate-50 text-sm">
+                        <td class="p-3 border font-mono font-bold text-sky-600">${req.token}</td>
+                        <td class="p-3 border font-semibold">${req.type}</td>
+                        <td class="p-3 border">${req.date || '-'}</td>
+                        <td class="p-3 border text-xs max-w-xs overflow-hidden">${formattedData}</td>
+                        <td class="p-3 border">
+                            <span class="px-2 py-0.5 rounded text-xs font-bold ${req.paymentStatus === 'सफल (Paid)' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
+                                ${req.paymentStatus}
+                            </span>
+                        </td>
+                        <td class="p-3 border">
+                            <span class="px-2 py-0.5 rounded text-xs font-bold ${req.status === 'स्वीकृत (Approved)' ? 'bg-green-100 text-green-800' : (req.status === 'अस्वीकृत (Rejected)' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800')}">
+                                ${req.status}
+                            </span>
+                        </td>
+                        <td class="p-3 border space-y-1">
+                            <button onclick="changeStatus('${req.token}', 'स्वीकृत (Approved)')" class="w-full bg-green-600 text-white px-2 py-1 text-xs rounded hover:bg-green-700 font-bold">✓ Verify</button>
+                            <button onclick="changeStatus('${req.token}', 'अस्वीकृत (Rejected)')" class="w-full bg-red-600 text-white px-2 py-1 text-xs rounded hover:bg-red-700">✕ अस्वीकृत</button>
+                            <button onclick="openOriginalDocument('${req.fileLink}', '${req.token}')" class="w-full bg-slate-700 text-white px-2 py-1 text-xs rounded hover:bg-slate-800">🖨️ हेर्नुहोस्/प्रिन्ट</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        async function changeStatus(token, newStatus) {
+            await updateRequestField(token, { status: newStatus });
+        }
+
+        function openOriginalDocument(fileLink, token) {
+            window.open(`${fileLink}?printToken=${token}`, '_blank');
+        }
+
+        listenRealtimeData();
+    </script>
+</body>
+</html>
