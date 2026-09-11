@@ -1,9 +1,10 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/>
-<!DOCTYPE html>
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
     <title>नेपाली नागरिकता सिफारिस फारम - रोहिणी वडा नं. १</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         body { font-family: 'Arial', sans-serif; background-color: #f1f2f6; padding: 20px; margin: 0; }
         .master-card { max-width: 850px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 30px; }
@@ -14,267 +15,134 @@
         input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
         .row { display: flex; gap: 15px; margin-bottom: 10px; }
         .row div { flex: 1; }
-        button { width: 100%; padding: 18px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 20px; font-weight: bold; margin-top: 20px; }
-        button:hover { background: #218838; }
-
-        #print-area { display: none; } 
-
-        @media print {
-            .master-card { display: none !important; }
-            body { background: white !important; padding: 0 !important; margin: 0 !important; }
-            
-            @page { 
-                size: A4 portrait; 
-                margin: 0; 
-            }
-            
-            #print-area { 
-                display: block !important; 
-                visibility: visible !important;
-                width: 21cm;        
-                height: 29.7cm; 
-                box-sizing: border-box;
-                padding: 1.5cm 1.5cm; 
-                font-size: 12pt;      
-                line-height: 1.8;     
-                color: black !important; 
-                text-align: justify;
-                overflow: hidden;     
-                page-break-inside: avoid;
-                page-break-after: avoid;
-            }
-            
-            .p-top-section { margin-bottom: 8px; }
-            .recipient { line-height: 1.4; float: left; }
-            .date { text-align: right; margin-bottom: 8px; }
-            .clear { clear: both; }
-            .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 12px 0; font-size: 14pt; }
-            .content { text-indent: 50px; margin-bottom: 8px; }
-            .thumb-section { display: flex; justify-content: space-between; margin-top: 8px; margin-bottom: 8px; }
-            .thumb-box { border: 1px solid black; width: 80px; height: 80px; display: inline-block; text-align: center; line-height: 50px; font-size: 9.5pt; margin-right: 5px; }
-            
-            .documents-list { margin-top: 8px; line-height: 1.4; font-size: 11pt; }
-            .documents-list table { width: 100%; border-collapse: collapse; }
-            
-            .documents-list td { width: 50%; padding: 3px 0; display: none !important; } 
-            .documents-list td.show-doc { display: table-cell !important; } 
-            
-            .sanaakhat-box { 
-                margin-top: 10px; 
-                border: 1px solid black; 
-                padding: 8px 12px; 
-                line-height: 1.6; 
-                font-size: 11pt;
-                box-sizing: border-box;
-            }
-        }
+        .esewa-box { background: #e8f8f5; border: 1px dashed #27ae60; padding: 15px; margin-top: 15px; border-radius: 6px; }
+        button { width: 100%; padding: 18px; background: #b71515; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 20px; font-weight: bold; margin-top: 20px; }
+        button:hover { background: #8e1010; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
     </style>
 </head>
 <body onload="initDate()">
 
 <div class="master-card">
+    <a href="../index.html" style="color:#b71515; text-decoration:none; font-weight:bold;">← गृहपृष्ठ</a>
     <h2>नेपाली नागरिकता सिफारिस निवेदन फारम (रोहिणी वडा नं. १)</h2>
     
-    <div class="row">
-        <div class="input-group">
-            <label>आजको मिति (वि.सं.):</label>
-            <input type="text" id="in_date">
-        </div>
-        <div class="input-group">
-            <label>निवेदकको नाम थर (नागरिकता लिने व्यक्ति):</label>
-            <input type="text" id="cz_app_name" placeholder="नागरिकता लिनेको नाम">
-        </div>
-    </div>
-
-    <div class="section-title">१. ठेगाना र पारिवारिक विवरण</div>
-    <div class="row">
-        <div>
-            <label>जिल्ला :</label>
-            <input type="text" id="cz_district" value="रुपन्देही">
-        </div>
-        <div>
-            <label>गाउँपालिका / नगरपालिका :</label>
-            <input type="text" id="cz_local_body" value="रोहिणी गाउँपालिका">
-        </div>
-    </div>
-    <div class="row">
-        <div>
-            <label>वडा नं. :</label>
-            <input type="text" id="cz_ward_no" value="१">
-        </div>
-        <div>
-            <label>टोलको नाम :</label>
-            <input type="text" id="cz_toll" placeholder="उदा: पिप्रहवा / धखई">
-        </div>
-    </div>
-    
-    <div class="row">
-        <div>
-            <label>बाजेको नाम थर :</label>
-            <input type="text" id="cz_grand_name" placeholder="बाजेको नाम">
-        </div>
-        <div>
-            <label>नाता छान्नुहोस् (बाजे तर्फको) :</label>
-            <select id="cz_grand_relation">
-                <option value="नाति">नाति</option>
-                <option value="नातिनी">नातिनी</option>
-                <option value="बुहारी">बुहारी</option>
-            </select>
-        </div>
-    </div>
-    <div class="row">
-        <div>
-            <label>बाबुको नाम थर :</label>
-            <input type="text" id="cz_father_name" placeholder="बाबुको नाम">
-        </div>
-        <div>
-            <label>नाता छान्नुहोस् (बाबु तर्फको) :</label>
-            <select id="cz_parent_relation">
-                <option value="छोरा">छोरा</option>
-                <option value="छोरी">छोरी</option>
-                <option value="पत्नी">पत्नी</option>
-            </select>
-        </div>
-    </div>
-    <div class="row">
-        <div>
-            <label>पति वा पत्नीको नाम थर (विवाहितको हकमा) :</label>
-            <input type="text" id="cz_spouse_name" placeholder="नभए खाली छोड्नुहोस्">
-        </div>
-        <div>
-            <label>नाता (पति/पत्नी छान्नुहोस्) :</label>
-            <select id="cz_spouse_relation">
-                <option value="">-- छान्नुहोस् --</option>
-                <option value="पति">पति</option>
-                <option value="पत्नी">पत्नी</option>
-            </select>
-        </div>
-    </div>
-    <div class="row">
-        <div>
-            <label>जन्म मिति (वि.सं.) :</label>
-            <input type="text" id="cz_dob" placeholder="२०--/--/--">
-        </div>
-    </div>
-
-    <div class="section-title">२. संलग्न कागजातहरू (खाली छोडेमा वा ० लेखेमा प्रिन्ट गर्दा स्वतः लुक्नेछ)</div>
-    <div class="row">
-        <div><label>१. बाबु आमाको ना.प्र.प. प्रतिलिपि (थान) :</label><input type="text" id="doc_1" value="१"></div>
-        <div><label>२. जन्म दर्ता प्रमाण-पत्रको प्रतिलिपि (थान) :</label><input type="text" id="doc_2" value="१"></div>
-    </div>
-    <div class="row">
-        <div><label>३. शैक्षिक प्रमाण-पत्रको प्रतिलिपि (थान) :</label><input type="text" id="doc_3" placeholder="०"></div>
-        <div><label>४. सनाखत व्यक्तिको ना.प्र.प. प्रतिलिपि  :</label><input type="text" id="doc_4" value="१"></div>
-    </div>
-    <div class="row">
-        <div><label>५. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि (थान) :</label><input type="text" id="doc_5" placeholder="०"></div>
-        <div><label>६. अन्य कागजात (थान) :</label><input type="text" id="doc_6" placeholder="०"></div>
-    </div>
-
-    <div class="section-title">३. सनाखत गर्ने व्यक्तिको विवरण</div>
-    <div class="row">
-        <div><label>सनाखत बस्नेको नाम थर :</label><input type="text" id="s_name" placeholder="उदा: राम बहादुर भर"></div>
-        <div>
-            <label>नाता (निवेदकका) :</label>
-            <select id="s_rel">
-                <option value="पिता">पिता</option>
-                <option value="काका">काका</option>
-                <option value="दाजु">दाजु</option>
-                <option value="आमा">आमा</option>
-                <option value="दिदी">दिदी</option>
-                <option value="बहिनी">बहिनी</option>
-                <option value="संरक्षक">संरक्षक</option>
-                <option value="छोरा">छोरा</option>
-                <option value="छोरी">छोरी</option>
-            </select>
-        </div>
-    </div>
-    <div class="row">
-        <div><label>सनाखत बस्नेको ठेगाना वडा नं. :</label><input type="text" id="s_ward" value="१"></div>
-        <div><label>नागरिकता प्रमाणपत्र नं. :</label><input type="text" id="s_cit_no"></div>
-    </div>
-    <div class="row">
-        <div><label>नागरिकता जारी जिल्ला :</label><input type="text" id="s_cit_dist" value="रुपन्देही"></div>
-        <div><label>उमेर (वर्ष) :</label><input type="text" id="s_age" placeholder="उदा: ४५"></div>
-    </div>
-
-    <button onclick="generatePrint()">निवेदन तयार र प्रिन्ट गर्नुहोस्</button>
-</div>
-
-
-<div id="print-area">
-    <div class="date">मिति :- <span id="p_date"></span></div>
-
-    <div class="p-top-section">
-        <div class="recipient">
-            <strong>श्रीमान् वडा सचिव ज्यु,</strong><br>
-            <strong>रोहिणी गाउँपालिका</strong><br>
-            <strong>नं. १ वडा कार्यालय</strong><br>
-            <strong>रुपन्देही, लुम्बिनी प्रदेश, नेपाल।</strong><br>
-        </div>
-        <div class="clear"></div>
-    </div>
-
-    <div class="subject">विषय :- नेपाली नागरिकताको लागि सिफारिस पाउँ ।</div>
-    
-    <p>महोदय,</p>
-    
-    <div class="content">
-        सविनय नम्र निवेदन यस प्रकार छ की जिल्ला <strong><span id="p_district">रुपन्देही</span></strong>, <strong><span id="p_local_body">रोहिणी गाउँपालिका</span></strong> वडा नं. <strong><span id="p_ward_no">१</span></strong> को <strong><span id="p_toll">........................................</span> (टोल)</strong> मा स्थायी बसोबास गरिआएको श्री <strong><span id="p_grand_name">....................................................................</span></strong> को <strong><span id="p_grand_rel">नाति/नातिनी/बुहारी</span></strong>, श्री <strong><span id="p_father_name">....................................................................</span></strong> को <strong><span id="p_parent_rel">छोरा/छोरी/पत्नी</span></strong>, <span id="p_spouse_block">श्री <strong><span id="p_spouse_name">....................................................................</span></strong> को <strong><span id="p_spouse_rel">पति/पत्नी</span></strong></span> जन्म मिति <strong><span id="p_dob">........................................</span></strong> मा भएको श्री <strong><span id="p_app_name">....................................................................</span></strong> हूँ। मैले हालसम्म नेपाली नागरिकताको प्रमाणपत्र नलिएको र हाल मलाई आवश्यक परेको हुँदा वंशजको नाताले नेपाली नागरिकताको प्रमाणपत्रको लागि सिफारिस गरी पाउँ भनी तपसिलका कागजात थान संलग्न राखी यो निवेदन पेश गरेको छु । <br>
-        उल्लेखित व्यहोरा फरक छैन, ठिक साँचो हो । फरक परी झुट्ठा ठहरे प्रचलित कानून बमोजिम सजाय भोग्न मन्जुर छु । श्रीमानको जो आदेश ।
-    </div>
-
-    <div class="thumb-section">
-        <div>
-            <strong>औंठा छाप:</strong><br>
-            <div class="thumb-box"></div>
-            <div class="thumb-box"></div>
-        </div>
-        <div style="text-align: left; padding-top: 15px; width: 300px;">
-            निवेदकको हस्ताक्षर: .......................................
-        </div>
-    </div>
-
-    <div class="documents-list">
-        <strong><u>संलग्न कागजातहरु:</u></strong>
-        <table>
-            <tr>
-                <td id="p_d1_row">१. बाबु आमाको ना.प्र.प. प्रतिलिपि थान: <strong id="p_doc_1"></strong></td>
-                <td id="p_d2_row">२. जन्म दर्ता प्रमाण-पत्र को प्रतिलिपि थान: <strong id="p_doc_2"></strong></td>
-            </tr>
-            <tr>
-                <td id="p_d3_row">३. शैक्षिक प्रमाण-पत्रको प्रतिलिपि थान: <strong id="p_doc_3"></strong></td>
-                <td id="p_d4_row">४.सनाखत गर्ने व्यक्तिको ना.प्र.प.को प्रतिलिपि थान: <strong id="p_doc_4"></strong></td>
-            </tr>
-            <tr>
-                <td id="p_d5_row">५. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि थान: <strong id="p_doc_5"></strong></td>
-                <td id="p_d6_row">६. अन्य कागजात थान: <strong id="p_doc_6"></strong></td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="sanaakhat-box">
-        <strong><u>सनाखत गर्ने व्यक्तिको विवरण:</u></strong> <br>
-        यसमा लेखिएको विवरण भएको निवेदक <span id="p_s_app_name">.......................</span> मेरो <strong><span id="p_s_rel"></span></strong>को नाता हो । निजले यस अघि नागरिकताको प्रमाण-पत्र लियाे/लिएको छैन । लेखिएको विवरण ठिक साँचो हो, झुठ्ठा ठहरे कानून बमोजिम सहूँला बुझाउँला भनी सहीछाप गर्ने निवेदकका पिता/काका/दाजु वा संरक्षक: <br>
-        
-        नाम, थर: <strong><span id="p_s_name"></span></strong> &nbsp;&nbsp;&nbsp;&nbsp; उमेर: <strong><span id="p_s_age"></span></strong> वर्ष <br>
-        ठेगाना: <span id="p_s_local">रोहिणी गाउँपालिका</span> वडा नं. <strong><span id="p_s_ward">१</span></strong>, <span id="p_s_district_fixed">रुपन्देही</span> <br>
-        नागरिकता प्रमाणपत्र नं.: <strong><span id="p_s_cit_no"></span></strong>, जारी जिल्ला: <strong><span id="p_s_cit_dist"></span></strong> <br>
-        
-        <div style="display: flex; justify-content: space-between; margin-top: 4px; align-items: flex-end;">
-            <div>
-                <strong>औंठा छाप:</strong> &nbsp;
-                <div class="thumb-box" style="height: 80px; line-height: 80px;"></div>
-                <div class="thumb-box" style="height: 80px; line-height: 80px;"></div>
+    <form id="nagarikataForm">
+        <div class="row">
+            <div class="input-group">
+                <label>आजको मिति (वि.सं.): *</label>
+                <input type="text" id="in_date" required>
             </div>
-            <div>
-               सनाखत हस्ताक्षर: .....................................................
+            <div class="input-group">
+                <label>निवेदकको नाम थर (नागरिकता लिने व्यक्ति): *</label>
+                <input type="text" id="cz_app_name" placeholder="नागरिकता लिनेको नाम" required>
             </div>
         </div>
-    </div>
+
+        <div class="section-title">१. ठेगाना र पारिवारिक विवरण</div>
+        <div class="row">
+            <div><label>जिल्ला : *</label><input type="text" id="cz_district" value="रुपन्देही" required></div>
+            <div><label>गाउँपालिका / नगरपालिका : *</label><input type="text" id="cz_local_body" value="रोहिणी गाउँपालिका" required></div>
+        </div>
+        <div class="row">
+            <div><label>वडा नं. : *</label><input type="text" id="cz_ward_no" value="१" required></div>
+            <div><label>टोलको नाम : *</label><input type="text" id="cz_toll" placeholder="उदा: पिप्रहवा / धखई" required></div>
+        </div>
+        
+        <div class="row">
+            <div><label>बाजेको नाम थर : *</label><input type="text" id="cz_grand_name" placeholder="बाजेको नाम" required></div>
+            <div>
+                <label>नाता छान्नुहोस् (बाजे तर्फको) : *</label>
+                <select id="cz_grand_relation">
+                    <option value="नाति">नाति</option>
+                    <option value="नातिनी">नातिनी</option>
+                    <option value="बुहारी">बुहारी</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div><label>बाबुको नाम थर : *</label><input type="text" id="cz_father_name" placeholder="बाबुको नाम" required></div>
+            <div>
+                <label>नाता छान्नुहोस् (बाबु तर्फको) : *</label>
+                <select id="cz_parent_relation">
+                    <option value="छोरा">छोरा</option>
+                    <option value="छोरी">छोरी</option>
+                    <option value="पत्नी">पत्नी</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div><label>पति वा पत्नीको नाम थर (विवाहितको हकमा) :</label><input type="text" id="cz_spouse_name" placeholder="नभए खाली छोड्नुहोस्"></div>
+            <div>
+                <label>नाता (पति/पत्नी छान्नुहोस्) :</label>
+                <select id="cz_spouse_relation">
+                    <option value="">-- छान्नुहोस् --</option>
+                    <option value="पति">पति</option>
+                    <option value="पत्नी">पत्नी</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div><label>जन्म मिति (वि.सं.) : *</label><input type="text" id="cz_dob" placeholder="२०--/--/--" required></div>
+            <div><label>सम्पर्क फोन नं.: *</label><input type="tel" id="mobile" placeholder="उदा: 98XXXXXXXX" required></div>
+        </div>
+
+        <div class="section-title">२. संलग्न कागजातहरू</div>
+        <div class="row">
+            <div><label>१. बाबु आमाको ना.प्र.प. प्रतिलिपि (थान) :</label><input type="text" id="doc_1" value="१"></div>
+            <div><label>२. जन्म दर्ता प्रमाण-पत्रको प्रतिलिपि (थान) :</label><input type="text" id="doc_2" value="१"></div>
+        </div>
+        <div class="row">
+            <div><label>३. शैक्षिक प्रमाण-पत्रको प्रतिलिपि (थान) :</label><input type="text" id="doc_3" placeholder="०"></div>
+            <div><label>४. सनाखत व्यक्तिको ना.प्र.प. प्रतिलिपि :</label><input type="text" id="doc_4" value="१"></div>
+        </div>
+        <div class="row">
+            <div><label>५. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि (थान) :</label><input type="text" id="doc_5" placeholder="०"></div>
+            <div><label>६. अन्य कागजात (थान) :</label><input type="text" id="doc_6" placeholder="०"></div>
+        </div>
+
+        <div class="section-title">३. सनाखत गर्ने व्यक्तिको विवरण</div>
+        <div class="row">
+            <div><label>सनाखत बस्नेको नाम थर : *</label><input type="text" id="s_name" placeholder="उदा: राम बहादुर भर" required></div>
+            <div>
+                <label>नाता (निवेदकका) : *</label>
+                <select id="s_rel">
+                    <option value="पिता">पिता</option>
+                    <option value="काका">काका</option>
+                    <option value="दाजु">दाजु</option>
+                    <option value="आमा">आमा</option>
+                    <option value="दिदी">दिदी</option>
+                    <option value="बहिनी">बहिनी</option>
+                    <option value="संरक्षक">संरक्षक</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div><label>सनाखत बस्नेको ठेगाना वडा नं. : *</label><input type="text" id="s_ward" value="१" required></div>
+            <div><label>नागरिकता प्रमाणपत्र नं. : *</label><input type="text" id="s_cit_no" required></div>
+        </div>
+        <div class="row">
+            <div><label>नागरिकता जारी जिल्ला : *</label><input type="text" id="s_cit_dist" value="रुपन्देही" required></div>
+            <div><label>उमेर (वर्ष) : *</label><input type="text" id="s_age" placeholder="उदा: ४५" required></div>
+        </div>
+
+        <div class="esewa-box">
+            <label style="margin-top:0; color:#27ae60;">eSewa Payment Code (Txn ID): *</label>
+            <input type="text" id="esewaTxnId" placeholder="उदा: 8X92K1L" required>
+        </div>
+
+        <button type="submit" id="btnSubmit">निवेदन पेश गर्नुहोस्</button>
+    </form>
 </div>
 
 <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     function initDate() {
         try {
             const options = { year: 'numeric', month: 'numeric', day: 'numeric', calendar: 'nepali' };
@@ -284,69 +152,59 @@
         }
     }
 
-    function generatePrint() {
-        document.getElementById('p_date').innerText = document.getElementById('in_date').value;
+    document.getElementById('nagarikataForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
         
-        const appName = document.getElementById('cz_app_name').value || "....................................................................";
-        document.getElementById('p_app_name').innerText = appName;
-        document.getElementById('p_s_app_name').innerText = appName;
+        const btn = document.getElementById('btnSubmit');
+        btn.disabled = true;
+        btn.innerText = "पेश हुँदैछ...";
+
+        const subId = "NIV-" + Math.floor(10000 + Math.random() * 90000);
         
-        const localBody = document.getElementById('cz_local_body').value || "रोहिणी गाउँपालिका";
-        document.getElementById('p_local_body').innerText = localBody;
-        document.getElementById('p_s_local').innerText = localBody;
-        
-        const wardNo = document.getElementById('cz_ward_no').value || "१";
-        document.getElementById('p_ward_no').innerText = wardNo;
-        
-        document.getElementById('p_district').innerText = document.getElementById('cz_district').value || "रुपन्देही";
-        document.getElementById('p_toll').innerText = document.getElementById('cz_toll').value || "........................................";
-        
-        document.getElementById('p_grand_name').innerText = document.getElementById('cz_grand_name').value || "....................................................................";
-        document.getElementById('p_grand_rel').innerText = document.getElementById('cz_grand_relation').value;
-        
-        document.getElementById('p_father_name').innerText = document.getElementById('cz_father_name').value || "....................................................................";
-        document.getElementById('p_parent_rel').innerText = document.getElementById('cz_parent_relation').value;
-        
-        const spouseName = document.getElementById('cz_spouse_name').value;
-        const spouseRel = document.getElementById('cz_spouse_relation').value;
-        if(spouseName) {
-            document.getElementById('p_spouse_block').style.display = "inline";
-            document.getElementById('p_spouse_name').innerText = spouseName;
-            document.getElementById('p_spouse_rel').innerText = spouseRel || "पति/पत्नी";
-        } else {
-            document.getElementById('p_spouse_block').style.display = "none";
+        const data = {
+            submissionId: subId,
+            serviceType: "नेपाली नागरिकता सिफारिस",
+            date: document.getElementById('in_date').value.trim(),
+            fullName: document.getElementById('cz_app_name').value.trim(),
+            district: document.getElementById('cz_district').value.trim(),
+            localBody: document.getElementById('cz_local_body').value.trim(),
+            wardNo: document.getElementById('cz_ward_no').value.trim(),
+            toll: document.getElementById('cz_toll').value.trim(),
+            grandFatherName: document.getElementById('cz_grand_name').value.trim(),
+            grandRelation: document.getElementById('cz_grand_relation').value,
+            fatherName: document.getElementById('cz_father_name').value.trim(),
+            parentRelation: document.getElementById('cz_parent_relation').value,
+            spouseName: document.getElementById('cz_spouse_name').value.trim(),
+            spouseRelation: document.getElementById('cz_spouse_relation').value,
+            dob: document.getElementById('cz_dob').value.trim(),
+            mobile: document.getElementById('mobile').value.trim(),
+            doc_1: document.getElementById('doc_1').value.trim(),
+            doc_2: document.getElementById('doc_2').value.trim(),
+            doc_3: document.getElementById('doc_3').value.trim(),
+            doc_4: document.getElementById('doc_4').value.trim(),
+            doc_5: document.getElementById('doc_5').value.trim(),
+            doc_6: document.getElementById('doc_6').value.trim(),
+            sanaakhatName: document.getElementById('s_name').value.trim(),
+            sanaakhatRelation: document.getElementById('s_rel').value,
+            sanaakhatWard: document.getElementById('s_ward').value.trim(),
+            sanaakhatCitNo: document.getElementById('s_cit_no').value.trim(),
+            sanaakhatCitDistrict: document.getElementById('s_cit_dist').value.trim(),
+            sanaakhatAge: document.getElementById('s_age').value.trim(),
+            esewaTxnId: document.getElementById('esewaTxnId').value.trim(),
+            status: "Pending", // सुरुमा पेन्डिङ रहनेछ
+            createdDate: new Date().toISOString()
+        };
+
+        try {
+            await db.ref("applications/" + subId).set(data);
+            // स्टेटस हेर्ने र प्रिन्ट गर्ने पानामा पठाउने
+            window.location.href = "../customer/submit.html?id=" + subId;
+        } catch (err) {
+            alert("त्रुटि आयो: " + err.message);
+            btn.disabled = false;
+            btn.innerText = "निवेदन पेश गर्नुहोस्";
         }
-
-        document.getElementById('p_dob').innerText = document.getElementById('cz_dob').value || "........................................";
-
-        // कागजातहरू लुकाउने/देखाउने भाग
-        for (let i = 1; i <= 6; i++) {
-            let val = document.getElementById('doc_' + i).value.trim();
-            let row = document.getElementById('p_d1_row');
-            if(i === 1) row = document.getElementById('p_d1_row');
-            else if(i === 2) row = document.getElementById('p_d2_row');
-            else if(i === 3) row = document.getElementById('p_d3_row');
-            else if(i === 4) row = document.getElementById('p_d4_row');
-            else if(i === 5) row = document.getElementById('p_d5_row');
-            else if(i === 6) row = document.getElementById('p_d6_row');
-            
-            if (val === "" || val === "०" || val === "0") {
-                row.classList.remove('show-doc'); 
-            } else {
-                document.getElementById('p_doc_' + i).innerText = val;
-                row.classList.add('show-doc'); 
-            }
-        }
-
-        // सनाखत
-        document.getElementById('p_s_name').innerText = document.getElementById('s_name').value || "……………";
-        document.getElementById('p_s_rel').innerText = document.getElementById('s_rel').value; 
-        document.getElementById('p_s_ward').innerText = document.getElementById('s_ward').value || "१";
-        document.getElementById('p_s_cit_no').innerText = document.getElementById('s_cit_no').value || "……………";
-        document.getElementById('p_s_cit_dist').innerText = document.getElementById('s_cit_dist').value || "रुपन्देही";
-        document.getElementById('p_s_age').innerText = document.getElementById('s_age').value || "……";
-        window.print();
-    }
+    });
 </script>
 
 </body>
