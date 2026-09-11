@@ -3,171 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>रोहिणी गाउँपालिका - वडा नं. १ निवेदन प्रणाली</title>
-    
-    <!-- Firebase SDK (v8) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
+    <title>गृह पृष्ठ - Sunil Online Service</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Kalimati, Arial, sans-serif; }
-        body { background: #f4f7f6; margin: 0; padding: 0; color: #333; }
-        
-        header { background: #b71515; color: white; text-align: center; padding: 25px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        header h1 { margin: 0; font-size: 26px; }
-        header p { margin: 5px 0 0 0; font-size: 16px; opacity: 0.9; }
-
-        .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
-
-        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-        .card-title { font-size: 20px; color: #b71515; margin-top: 0; border-bottom: 2px solid #f4f7f6; padding-bottom: 10px; }
-
-        /* Track Application Section */
-        .track-box { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        .track-box input { flex: 1; min-width: 220px; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; outline: none; }
-        .track-box button { padding: 12px 25px; background: #27ae60; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .track-box button:hover { background: #219150; }
-        
-        #trackResult { margin-top: 15px; padding: 15px; border-radius: 5px; display: none; font-size: 15px; }
-
-        /* Forms Grid */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; }
-        .service-btn { background: #fff; border: 2px solid #b71515; color: #b71515; text-decoration: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; text-align: center; transition: 0.3s; display: flex; align-items: center; justify-content: center; min-height: 60px; }
-        .service-btn:hover { background: #b71515; color: white; transform: translateY(-3px); }
-
-        /* QR Payment Section */
-        .payment-area { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
-        .qr-card { text-align: center; border: 2px dashed #60bb46; padding: 15px; border-radius: 10px; background: #f9fff8; width: 100%; max-width: 250px; }
-        .qr-card img { width: 100%; height: auto; border-radius: 5px; }
-        .payment-info { flex: 1; min-width: 250px; line-height: 1.6; }
-        .esewa-badge { background: #60bb46; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
-
-        footer { text-align: center; padding: 20px; background: #e9ecef; color: #666; font-size: 14px; margin-top: 40px; }
-        .admin-link { color: #b71515; font-weight: bold; text-decoration: none; }
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .header-bg { background: linear-gradient(135deg, #0d6efd, #0a58ca); color: white; padding: 25px 0; margin-bottom: 30px; }
+        .card { border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>रोहिणी गाउँपालिका - वडा नं. १</h1>
-    <p>अनलाइन सेवा तथा डिजिटल निवेदन प्रणाली</p>
-</header>
-
-<div class="container">
-
-    <!-- १. निवेदन ट्रयाक गर्ने सेक्सन (Track Status) -->
-    <div class="card">
-        <h3 class="card-title">🔍 निवेदनको अवस्था हेर्नुहोस् (Track Status)</h3>
-        <p>फारम भरेपछि प्राप्त भएको **Submission ID** हालेर अवस्था जाँच गर्नुहोस्:</p>
-        <div class="track-box">
-            <input type="text" id="trackIdInput" placeholder="उदा: NIV-10245">
-            <button onclick="trackApplication()">खोज्नुहोस्</button>
-        </div>
-        <div id="trackResult"></div>
+    <div class="header-bg text-center">
+        <h2>सुनिल अनलाइन सर्भिस - निवेदन प्रणाली</h2>
+        <p class="mb-0">Sunil Online Service - Home & Status Tracking</p>
     </div>
 
-    <!-- २. अनलाइन सेवा फारमहरू -->
-    <div class="card">
-        <h3 class="card-title">📝 निवेदन फारम छनोट गर्नुहोस्</h3>
-        <div class="grid">
-            <a href="forms/nagarikata.html" class="service-btn">नेपाली नागरिकता सिफारिश</a>
-            <a href="forms/charKilla.html" class="service-btn">चार किल्ला प्रमाणीकरण</a>
-            <a href="forms/nata.html" class="service-btn">नाता प्रमाणित</a>
-            <a href="forms/janma.html" class="service-btn">जन्म दर्ता सिफारिश</a>
-            <a href="forms/bibaha.html" class="service-btn">विवाह दर्ता सिफारिश</a>
-            <a href="forms/basaiSarai.html" class="service-btn">बसाइँसराई सिफारिश</a>
+    <div class="container">
+        <!-- Navigation Links -->
+        <div class="d-flex justify-content-center gap-3 mb-4">
+            <a href="index.html" class="btn btn-primary active">🏠 गृह पृष्ठ</a>
+            <a href="customer.html" class="btn btn-outline-primary">📝 फारम भर्नुहोस्</a>
+            <a href="admin.html" class="btn btn-outline-danger">🔐 एडमिन प्यानल</a>
         </div>
-    </div>
 
-    <!-- ३. eSewa QR भुक्तानी विवरण -->
-    <div class="card">
-        <h3 class="card-title">💳 अनलाइन दस्तुर भुक्तानी (eSewa QR)</h3>
-        <div class="payment-area">
-            <div class="qr-card">
-                <!-- QR कोडको फोटो (आफ्नो सक्कली QR फोटो राख्नुहोस्) -->
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=eSewa-Rohini-Ward1" alt="eSewa QR Code">
-                <p style="margin: 8px 0 0 0; color: #60bb46; font-weight: bold;">स्क्यान गरी भुक्तानी गर्नुहोस्</p>
-            </div>
-            <div class="payment-info">
-                <p>निवेदन दस्तुर वा राजस्व रकम <span class="esewa-badge">eSewa</span> मार्फत भुक्तानी गर्न सकिन्छ।</p>
-                <ul>
-                    <li>QR Scan गरिसकेपछि प्राप्त हुने **eSewa Transaction ID** कपी गर्नुहोस्।</li>
-                    <li>उक्त Transaction ID लाई फारम भर्दा सम्बन्धित ठाउँमा अनिवार्य राख्नुहोस्।</li>
-                    <li>भुक्तानी प्रमाणीकरण भएपछि मात्र वडा कार्यालयबाट निवेदन स्वीकृत हुनेछ।</li>
-                </ul>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <!-- Status Track Box -->
+                <div class="card p-4 mb-4">
+                    <h4 class="card-title text-center text-primary mb-3">निवेदनको स्थिति पत्ता लगाउनुहोस् (Track Status)</h4>
+                    <div class="input-group mb-3">
+                        <input type="text" id="trackInput" class="form-control form-control-lg" placeholder="Request ID राख्नुहोस् (उदा: REQ-123456)">
+                        <button class="btn btn-primary btn-lg" onclick="trackStatus()">खोज्नुहोस्</button>
+                    </div>
+                    <div id="trackResult" class="mt-3" style="display:none;"></div>
+                </div>
+
+                <!-- Available Services -->
+                <div class="card p-4">
+                    <h5 class="mb-3">सबै उपलब्ध सेवाहरू:</h5>
+                    <div class="list-group">
+                        <a href="customer.html?service=नागरिकता फारम" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            नागरिकता फारम निवेदन
+                            <span class="badge bg-primary rounded-pill">फारम भर्नुहोस् &rarr;</span>
+                        </a>
+                        <a href="customer.html?service=राष्ट्रिय परिचयपत्र" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            राष्ट्रिय परिचयपत्र (NID) निवेदन
+                            <span class="badge bg-primary rounded-pill">फारम भर्नुहोस् &rarr;</span>
+                        </a>
+                        <a href="customer.html?service=राहदानी" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            राहदानी (Passport) निवेदन
+                            <span class="badge bg-primary rounded-pill">फारम भर्नुहोस् &rarr;</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-</div>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-<footer>
-    <p>© रोहिणी गाउँपालिका वडा नं. १ - सर्वअधिकार सुरक्षित | <a href="admin/login.html" class="admin-link">कार्यालय लगइन (Admin)</a></p>
-</footer>
-
-<script>
-    // Firebase Config setup
-    const firebaseConfig = {
-        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-        projectId: "sunil-online-service",
-        storageBucket: "sunil-online-service.firebasestorage.app"
-    };
-
-    if (!firebase.apps.length) {
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+            projectId: "sunil-online-service"
+        };
         firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.firestore();
+        const db = firebase.firestore();
 
-    // निवेदन अवस्था (Status) खोज्ने फङ्क्सन
-    function trackApplication() {
-        const id = document.getElementById('trackIdInput').value.trim();
-        const resultDiv = document.getElementById('trackResult');
+        async function trackStatus() {
+            const reqId = document.getElementById('trackInput').value.trim();
+            const resultDiv = document.getElementById('trackResult');
+            
+            if(!reqId) {
+                alert("कृपया Request ID राख्नुहोस्!");
+                return;
+            }
 
-        if (!id) {
-            alert("कृपया Submission ID राख्नुहोस्!");
-            return;
-        }
+            resultDiv.style.display = "block";
+            resultDiv.innerHTML = "<p class='text-muted'>खोजिँदैछ...</p>";
 
-        resultDiv.style.display = "block";
-        resultDiv.style.background = "#eef6ff";
-        resultDiv.style.color = "#004085";
-        resultDiv.innerText = "खोजी हुँदैछ, कृपया पर्खनुहोस्...";
-
-        db.collection("applications").doc(id).get()
-            .then((doc) => {
-                if (doc.exists) {
+            try {
+                const doc = await db.collection('Requests').doc(reqId).get();
+                if(doc.exists) {
                     const data = doc.data();
-                    let statusColor = "#f39c12"; // Pending - Orange
-                    let statusText = "पेन्डिङ (प्रक्रियामा छ)";
+                    let badgeClass = "bg-warning text-dark";
+                    if(data.status === 'Verified') badgeClass = "bg-primary";
+                    if(data.status === 'Rejected') badgeClass = "bg-danger";
+                    if(data.status === 'Printed') badgeClass = "bg-success";
 
-                    if (data.status === "Approved") {
-                        statusColor = "#27ae60"; // Green
-                        statusText = "स्वीकृत भयो (प्रिन्टको लागि तयार)";
-                    } else if (data.status === "Rejected") {
-                        statusColor = "#c0392b"; // Red
-                        statusText = "अस्वीकृत भयो";
-                    }
-
-                    resultDiv.style.background = "#fff";
-                    resultDiv.style.border = "1px solid #ccc";
                     resultDiv.innerHTML = `
-                        <strong>निवेदकको नाम:</strong> ${data.fullName || 'N/A'}<br>
-                        <strong>सेवाको नाम:</strong> ${data.serviceType || 'N/A'}<br>
-                        <strong>अवस्था (Status):</strong> <span style="color: ${statusColor}; font-weight: bold;">${statusText}</span>
+                        <div class="alert alert-info mb-0">
+                            <h5>निवेदन विवरण</h5>
+                            <p class="mb-1"><strong>नाम:</strong> ${data.custName}</p>
+                            <p class="mb-1"><strong>सेवा:</strong> ${data.serviceType}</p>
+                            <p class="mb-0"><strong>स्थिति (Status):</strong> <span class="badge ${badgeClass}">${data.status}</span></p>
+                        </div>
                     `;
                 } else {
-                    resultDiv.style.background = "#f8d7da";
-                    resultDiv.style.color = "#721c24";
-                    resultDiv.innerText = "माफ गर्नुहोला! यो ID भएको कुनै निवेदन भेटिएन।";
+                    resultDiv.innerHTML = `<div class="alert alert-danger mb-0">कुनै निवेदन फेला परेन। Request ID जाँच्नुहोस्।</div>`;
                 }
-            })
-            .catch((error) => {
-                resultDiv.style.background = "#f8d7da";
-                resultDiv.style.color = "#721c24";
-                resultDiv.innerText = "त्रुटि आयो: " + error.message;
-            });
-    }
-</script>
-
+            } catch(err) {
+                resultDiv.innerHTML = `<div class="alert alert-danger mb-0">त्रुटि: ${err.message}</div>`;
+            }
+        }
+    </script>
 </body>
 </html>
