@@ -1,87 +1,70 @@
-
 <!DOCTYPE html>
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
-    <title>निवेदन प्रिन्ट - रोहिणी १</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>सिफारिश पत्र प्रिन्ट</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { font-family: 'Times New Roman', Times, serif; background: #ccc; margin: 0; padding: 20px; }
-        
-        .page { 
-            background: white; 
-            width: 21cm; 
-            min-height: 29.7cm; 
-            padding: 2cm; 
-            margin: auto; 
-            box-sizing: border-box; 
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
-            font-size: 13pt;
-            line-height: 1.8;
-        }
-        
-        .date { text-align: right; margin-bottom: 10px; }
-        .subject { text-align: center; font-weight: bold; font-size: 15pt; text-decoration: underline; margin: 25px 0; }
-        .content { text-indent: 50px; text-align: justify; }
-        .footer { margin-top: 100px; float: right; text-align: center; }
-
+        body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
+        .page { width: 210mm; min-height: 297mm; padding: 20mm; margin: auto; background: white; border: 1px solid #ccc; box-sizing: border-box; }
+        .header-letter { text-align: center; color: #b71515; border-bottom: 2px solid #b71515; padding-bottom: 10px; margin-bottom: 30px; }
+        .content { font-size: 18px; line-height: 2; margin-top: 40px; text-align: justify; }
+        .footer-sig { margin-top: 100px; display: flex; justify-content: space-between; }
         @media print {
-            body { background: white; padding: 0; }
-            .page { box-shadow: none; width: 100%; min-height: auto; padding: 1.5cm; }
+            .no-print { display: none; }
+            .page { border: none; margin: 0; width: 100%; }
         }
     </style>
 </head>
 <body>
 
+<div class="no-print" style="text-align:center; margin-bottom:15px;">
+    <button onclick="window.print()" style="padding:10px 20px; background:#27ae60; color:white; border:none; font-size:16px; cursor:pointer;">🖨️ प्रिन्ट गर्नुहोस्</button>
+</div>
+
 <div class="page">
-    <div class="date">मिति :- <span id="p_date">२०८३/--/--</span></div>
-
-    <div>
-        <strong>श्रीमान् अध्यक्ष ज्यु,</strong><br>
-        <strong>रोहिणी गाउँपालिका, १ नं. वडा कार्यालय</strong><br>
-        <strong>रुपन्देही, लुम्बिनी प्रदेश, नेपाल।</strong>
+    <div class="header-letter">
+        <h2 style="margin:0;">रोहिणी गाउँपालिका</h2>
+        <h3 style="margin:5px 0;">१ नं. वडा कार्यालय</h3>
+        <p style="margin:0;">रुपन्देही, लुम्बिनी प्रदेश</p>
     </div>
-
-    <div class="subject">विषय :- <span id="p_subject">सिफारिस सम्बन्धमा</span>।</div>
-
-    <p>महोदय,</p>
 
     <div class="content">
-        सविनय निवेदन यो छ कि जिल्ला रुपन्देही, रोहिणी गाउँपालिका वडा नं. १ <strong id="p_toll">..................</strong> बस्ने श्री <strong id="p_grand">..................</strong> को नाति/नातिनी, श्री <strong id="p_father">..................</strong> को छोरा/छोरी जन्म मिति <strong id="p_dob">..................</strong> भएको श्री <strong id="p_name">..................</strong> ले <strong id="p_service">..................</strong> को लागि यो निवेदन पेश गर्नुभएको छ।
+        <p style="text-align: center; font-size: 22px; font-weight: bold; text-decoration: underline;" id="pService">सिफारिश पत्र</p>
         <br>
-        उल्लेखित व्यहोरा साँचो हो, झुठ्ठा ठहरे कानून बमोजिम सहूँला बुझाउँला।
+        श्री जो जससँग सम्बन्ध छ।
+        <br><br>
+        प्रस्तुत विषयमा रोहिणी गाउँपालिका वडा नं. १ बस्ने श्री <b><span id="pFather">...........</span></b> को (छोरा/छोरी) जन्म मिति <b><span id="pDob">...........</span></b> भई बस्ने श्री <b><span id="pName">...........</span></b> लाई माग बमोजिम <b><span id="pService2">...........</span></b> सिफारिश पत्र प्रदान गरिएको छ।
     </div>
 
-    <div class="footer">
-        ...........................................<br>
-        <strong>निवेदकको हस्ताक्षर</strong>
+    <div class="footer-sig">
+        <div>------------------------<br>तयार गर्ने</div>
+        <div>------------------------<br>वडा अध्यक्ष / सचिव</div>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = { apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM", projectId: "https://sunil-online-service-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(firebaseConfig);
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    const docId = new URLSearchParams(window.location.search).get('id');
+    const urlParams = new URLSearchParams(window.location.search);
+    const docId = urlParams.get('id');
 
     if (docId) {
-        firebase.firestore().collection('requests').doc(docId).get().then(doc => {
-            if (doc.exists) {
-                const data = doc.data();
-                document.getElementById('p_subject').innerText = (data.service_type || "सिफारिस") + " पाउँ";
-                document.getElementById('p_name').innerText = data.applicant_name || '..................';
-                document.getElementById('p_father').innerText = data.father_name || '..................';
-                document.getElementById('p_grand').innerText = data.grand_name || '..................';
-                document.getElementById('p_toll').innerText = data.toll || '..................';
-                document.getElementById('p_dob').innerText = data.dob || '..................';
-                document.getElementById('p_service').innerText = data.service_type || '..................';
-                
-                // आजको मिति नेपाली ढाँचामा हाल्ने
-                const options = { year: 'numeric', month: 'numeric', day: 'numeric', calendar: 'nepali' };
-                try {
-                    document.getElementById('p_date').innerText = new Intl.DateTimeFormat('ne-NP-u-ca-nepali', options).format(new Date());
-                } catch(e){}
+        db.ref("applications/" + docId).once("value").then((snapshot) => {
+            if (snapshot.exists()) {
+                const d = snapshot.val();
+                document.getElementById('pService').innerText = d.serviceType;
+                document.getElementById('pService2').innerText = d.serviceType;
+                document.getElementById('pName').innerText = d.fullName;
+                document.getElementById('pFather').innerText = d.fatherName;
+                document.getElementById('pDob').innerText = d.dob;
             }
         });
     }
