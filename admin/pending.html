@@ -1,54 +1,78 @@
-
 <!DOCTYPE html>
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
-    <title>Pending निवेदनहरू</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>पेन्डिङ निवेदनहरू</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f6f9; }
-        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; }
-        th { background: #d63031; color: white; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 20px; }
+        .header { background: #d35400; color: white; padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .header a { color: white; text-decoration: none; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #d35400; color: white; }
+        .btn-approve { padding: 6px 12px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h2>⏳ पेन्डिङ (Pending) रहेका निवेदनहरू</h2>
-    <a href="dashboard.html">← ड्यासबोर्डमा फर्कनुहोस्</a>
-    <table>
-        <thead>
-            <tr>
-                <th>निवेदक</th>
-                <th>सेवा प्रकार</th>
-                <th>फोन</th>
-                <th>eSewa Code</th>
-                <th>कार्य</th>
-            </tr>
-        </thead>
-        <tbody id="pendingTable"></tbody>
-    </table>
+
+<div class="header">
+    <h2>बाँकी (Pending) निवेदनहरू</h2>
+    <a href="dashboard.html">← मुख्य ड्यासबोर्ड</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>निवेदक</th>
+            <th>सेवा</th>
+            <th>eSewa Txn ID</th>
+            <th>फोन नं.</th>
+            <th>कार्य</th>
+        </tr>
+    </thead>
+    <tbody id="pendingBody"></tbody>
+</table>
 
 <script>
-    const firebaseConfig = { apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM", projectId: "https://sunil-online-service-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    db.collection('requests').where('status', '==', 'PENDING').onSnapshot(snapshot => {
-        let html = '';
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            html += `<tr>
-                <td>${data.applicant_name}</td>
-                <td>${data.service_type}</td>
-                <td>${data.phone}</td>
-                <td>${data.esewa_code}</td>
-                <td><a href="print.html?id=${doc.id}" target="_blank">Print गर्नुहाेस्</a></td>
-            </tr>`;
+    db.ref("applications").orderByChild("status").equalTo("Pending").on("value", (snapshot) => {
+        const tbody = document.getElementById('pendingBody');
+        tbody.innerHTML = '';
+        if (!snapshot.exists()) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">पेन्डिङ निवेदनहरू छैनन्।</td></tr>';
+            return;
+        }
+        snapshot.forEach((childSnap) => {
+            const d = childSnap.val();
+            const id = childSnap.key;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><b>${id}</b></td>
+                <td>${d.fullName}</td>
+                <td>${d.serviceType}</td>
+                <td><strong style="color:#27ae60;">${d.esewaTxnId}</strong></td>
+                <td>${d.mobile}</td>
+                <td><button class="btn-approve" onclick="approve('${id}')">Verify & Approve</button></td>
+            `;
+            tbody.appendChild(tr);
         });
-        document.getElementById('pendingTable').innerHTML = html;
     });
+
+    function approve(id) {
+        if(confirm("स्वीकृत गर्ने?")) {
+            db.ref("applications/" + id).update({ status: 'Approved' });
+        }
+    }
 </script>
 </body>
 </html>
