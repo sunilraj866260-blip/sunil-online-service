@@ -3,35 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>रोहिणी १ - इ-सिफारिस प्रणाली</title>
+    <title>रोहिणी गाउँपालिका - वडा नं. १ निवेदन प्रणाली</title>
+    
+    <!-- Firebase SDK (v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background: #f4f6f9; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .header { text-align: center; border-bottom: 3px solid #b71515; padding-bottom: 15px; margin-bottom: 25px; }
-        .header h1 { color: #b71515; margin: 0 0 5px 0; font-size: 24px; }
-        .header p { margin: 0; color: #555; font-weight: bold; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
-        .card { background: #fff; border: 2px solid #e0e0e0; padding: 20px; border-radius: 8px; text-decoration: none; color: #333; text-align: center; font-weight: bold; font-size: 16px; transition: 0.3s; }
-        .card:hover { border-color: #b71515; background: #fff5f5; transform: translateY(-3px); }
-        .footer-link { display: block; text-align: center; margin-top: 30px; text-decoration: none; color: #1e3799; font-weight: bold; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Kalimati, Arial, sans-serif; }
+        body { background: #f4f7f6; margin: 0; padding: 0; color: #333; }
+        
+        header { background: #b71515; color: white; text-align: center; padding: 25px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        header h1 { margin: 0; font-size: 26px; }
+        header p { margin: 5px 0 0 0; font-size: 16px; opacity: 0.9; }
+
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
+
+        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .card-title { font-size: 20px; color: #b71515; margin-top: 0; border-bottom: 2px solid #f4f7f6; padding-bottom: 10px; }
+
+        /* Track Application Section */
+        .track-box { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .track-box input { flex: 1; min-width: 220px; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; outline: none; }
+        .track-box button { padding: 12px 25px; background: #27ae60; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .track-box button:hover { background: #219150; }
+        
+        #trackResult { margin-top: 15px; padding: 15px; border-radius: 5px; display: none; font-size: 15px; }
+
+        /* Forms Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; }
+        .service-btn { background: #fff; border: 2px solid #b71515; color: #b71515; text-decoration: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; text-align: center; transition: 0.3s; display: flex; align-items: center; justify-content: center; min-height: 60px; }
+        .service-btn:hover { background: #b71515; color: white; transform: translateY(-3px); }
+
+        /* QR Payment Section */
+        .payment-area { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+        .qr-card { text-align: center; border: 2px dashed #60bb46; padding: 15px; border-radius: 10px; background: #f9fff8; width: 100%; max-width: 250px; }
+        .qr-card img { width: 100%; height: auto; border-radius: 5px; }
+        .payment-info { flex: 1; min-width: 250px; line-height: 1.6; }
+        .esewa-badge { background: #60bb46; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
+
+        footer { text-align: center; padding: 20px; background: #e9ecef; color: #666; font-size: 14px; margin-top: 40px; }
+        .admin-link { color: #b71515; font-weight: bold; text-decoration: none; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>रोहिणी गाउँपालिका, १ नं. वडा कार्यालय</h1>
-            <p>इलेक्ट्रोनिक सिफारिस तथा निवेदन सङ्कलन पोर्टल</p>
+
+<header>
+    <h1>रोहिणी गाउँपालिका - वडा नं. १</h1>
+    <p>अनलाइन सेवा तथा डिजिटल निवेदन प्रणाली</p>
+</header>
+
+<div class="container">
+
+    <!-- १. निवेदन ट्रयाक गर्ने सेक्सन (Track Status) -->
+    <div class="card">
+        <h3 class="card-title">🔍 निवेदनको अवस्था हेर्नुहोस् (Track Status)</h3>
+        <p>फारम भरेपछि प्राप्त भएको **Submission ID** हालेर अवस्था जाँच गर्नुहोस्:</p>
+        <div class="track-box">
+            <input type="text" id="trackIdInput" placeholder="उदा: NIV-10245">
+            <button onclick="trackApplication()">खोज्नुहोस्</button>
         </div>
-        <div class="grid">
-            <a href="forms/nagarikata.html" class="card">📝 नागरिकता सिफारिस</a>
-            <a href="forms/charKilla.html" class="card">🏠 चार किल्ला प्रमाणित</a>
-            <a href="forms/nata.html" class="card">👨‍👩‍👧‍👦 नाता प्रमाणित</a>
-            <a href="forms/janma.html" class="card">👶 जन्म दर्ता सिफारिस</a>
-            <a href="forms/bibaha.html" class="card">💍 विवाह दर्ता सिफारिस</a>
-            <a href="forms/basaiSarai.html" class="card">🚚 बसाइँसराइ सिफारिस</a>
-        </div>
-        <a href="admin/login.html" class="footer-link">🔒 वडा कार्यालय एडमिन लगइन</a>
+        <div id="trackResult"></div>
     </div>
+
+    <!-- २. अनलाइन सेवा फारमहरू -->
+    <div class="card">
+        <h3 class="card-title">📝 निवेदन फारम छनोट गर्नुहोस्</h3>
+        <div class="grid">
+            <a href="forms/nagarikata.html" class="service-btn">नेपाली नागरिकता सिफारिश</a>
+            <a href="forms/charKilla.html" class="service-btn">चार किल्ला प्रमाणीकरण</a>
+            <a href="forms/nata.html" class="service-btn">नाता प्रमाणित</a>
+            <a href="forms/janma.html" class="service-btn">जन्म दर्ता सिफारिश</a>
+            <a href="forms/bibaha.html" class="service-btn">विवाह दर्ता सिफारिश</a>
+            <a href="forms/basaiSarai.html" class="service-btn">बसाइँसराई सिफारिश</a>
+        </div>
+    </div>
+
+    <!-- ३. eSewa QR भुक्तानी विवरण -->
+    <div class="card">
+        <h3 class="card-title">💳 अनलाइन दस्तुर भुक्तानी (eSewa QR)</h3>
+        <div class="payment-area">
+            <div class="qr-card">
+                <!-- QR कोडको फोटो (आफ्नो सक्कली QR फोटो राख्नुहोस्) -->
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=eSewa-Rohini-Ward1" alt="eSewa QR Code">
+                <p style="margin: 8px 0 0 0; color: #60bb46; font-weight: bold;">स्क्यान गरी भुक्तानी गर्नुहोस्</p>
+            </div>
+            <div class="payment-info">
+                <p>निवेदन दस्तुर वा राजस्व रकम <span class="esewa-badge">eSewa</span> मार्फत भुक्तानी गर्न सकिन्छ।</p>
+                <ul>
+                    <li>QR Scan गरिसकेपछि प्राप्त हुने **eSewa Transaction ID** कपी गर्नुहोस्।</li>
+                    <li>उक्त Transaction ID लाई फारम भर्दा सम्बन्धित ठाउँमा अनिवार्य राख्नुहोस्।</li>
+                    <li>भुक्तानी प्रमाणीकरण भएपछि मात्र वडा कार्यालयबाट निवेदन स्वीकृत हुनेछ।</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p>© रोहिणी गाउँपालिका वडा नं. १ - सर्वअधिकार सुरक्षित | <a href="admin/login.html" class="admin-link">कार्यालय लगइन (Admin)</a></p>
+</footer>
+
+<script>
+    // Firebase Config setup
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+        projectId: "sunil-online-service",
+        storageBucket: "sunil-online-service.firebasestorage.app"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    // निवेदन अवस्था (Status) खोज्ने फङ्क्सन
+    function trackApplication() {
+        const id = document.getElementById('trackIdInput').value.trim();
+        const resultDiv = document.getElementById('trackResult');
+
+        if (!id) {
+            alert("कृपया Submission ID राख्नुहोस्!");
+            return;
+        }
+
+        resultDiv.style.display = "block";
+        resultDiv.style.background = "#eef6ff";
+        resultDiv.style.color = "#004085";
+        resultDiv.innerText = "खोजी हुँदैछ, कृपया पर्खनुहोस्...";
+
+        db.collection("applications").doc(id).get()
+            .then((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    let statusColor = "#f39c12"; // Pending - Orange
+                    let statusText = "पेन्डिङ (प्रक्रियामा छ)";
+
+                    if (data.status === "Approved") {
+                        statusColor = "#27ae60"; // Green
+                        statusText = "स्वीकृत भयो (प्रिन्टको लागि तयार)";
+                    } else if (data.status === "Rejected") {
+                        statusColor = "#c0392b"; // Red
+                        statusText = "अस्वीकृत भयो";
+                    }
+
+                    resultDiv.style.background = "#fff";
+                    resultDiv.style.border = "1px solid #ccc";
+                    resultDiv.innerHTML = `
+                        <strong>निवेदकको नाम:</strong> ${data.fullName || 'N/A'}<br>
+                        <strong>सेवाको नाम:</strong> ${data.serviceType || 'N/A'}<br>
+                        <strong>अवस्था (Status):</strong> <span style="color: ${statusColor}; font-weight: bold;">${statusText}</span>
+                    `;
+                } else {
+                    resultDiv.style.background = "#f8d7da";
+                    resultDiv.style.color = "#721c24";
+                    resultDiv.innerText = "माफ गर्नुहोला! यो ID भएको कुनै निवेदन भेटिएन।";
+                }
+            })
+            .catch((error) => {
+                resultDiv.style.background = "#f8d7da";
+                resultDiv.style.color = "#721c24";
+                resultDiv.innerText = "त्रुटि आयो: " + error.message;
+            });
+    }
+</script>
+
 </body>
 </html>
