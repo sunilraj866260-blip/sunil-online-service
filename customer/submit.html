@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ne">
 <head>
@@ -6,26 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>निवेदन प्राप्त भयो</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #eef2f5; text-align: center; padding: 50px 20px; }
-        .card { background: white; max-width: 480px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .icon { font-size: 55px; color: #28a745; margin-bottom: 10px; }
-        .req-id { background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; font-weight: bold; font-size: 18px; margin: 15px 0; display: inline-block; word-break: break-all; }
-        .btn { display: inline-block; margin-top: 15px; padding: 12px 24px; background: #1e3799; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 8px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 450px; }
+        .icon { font-size: 50px; color: #27ae60; }
+        .id-box { font-size: 24px; font-weight: bold; background: #e8f8f5; color: #27ae60; padding: 12px; border-radius: 5px; margin: 15px 0; border: 1px dashed #27ae60; }
+        .btn { display: inline-block; padding: 10px 20px; background: #b71515; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="icon">✓</div>
-        <h2 style="margin: 0; color: #2c3e50;">निवेदन सफलतापूर्वक पेश भयो!</h2>
-        <p style="color: #666; margin-top: 10px;">तपाईँको Token / Request ID:</p>
-        <div class="req-id" id="reqId">Loading...</div>
-        <p style="font-size: 14px; color: #555;">कृपया यो ID सुरक्षित राख्नुहोला। वडा कार्यालयले भेरिफाई गरेपछि सिफारिस तयार हुनेछ।</p>
-        <a href="../index.html" class="btn">मुख्य होमपेजमा फर्कनुहोस्</a>
-    </div>
 
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        document.getElementById('reqId').innerText = urlParams.get('id') || 'उपलब्ध छैन';
-    </script>
+<div class="card">
+    <div class="icon">✓</div>
+    <h2>निवेदन दर्ता भयो!</h2>
+    <p>तपाईँको Submission ID:</p>
+    <div class="id-box" id="subIdDisplay">NIV-XXXXX</div>
+    <p style="color: #666; font-size: 14px;">यस ID लाई सुरक्षित राख्नुहोस्। होमपेजबाट निवेदनको अवस्था चेक गर्न सक्नुहुन्छ।</p>
+    <a href="../index.html" class="btn">गृहपृष्ठमा फर्कनुहोस्</a>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+    if (id) document.getElementById('subIdDisplay').innerText = id;
+</script>
 </body>
 </html>
