@@ -8,7 +8,6 @@
     <!-- Firebase SDK (v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Kalimati, Arial, sans-serif; }
@@ -101,16 +100,17 @@
             </div>
         </div>
 
-        <!-- ३. कागजात अपलोड र भुक्तानी -->
-        <div class="section-title">३. कागजात र दस्तुर भुक्तानी</div>
+        <!-- ३. भुक्तानी (फोटो/फाइल अपलोड ऐच्छिक वा हटाउन सकिने) -->
+        <div class="section-title">३. दस्तुर भुक्तानी</div>
         <div class="row">
-            <div class="col">
-                <label>जन्मदर्ता वा सिफारिश कागजात (Photo/PDF): *</label>
-                <input type="file" id="documentFile" accept="image/*,.pdf" required>
-            </div>
             <div class="col">
                 <label>eSewa Transaction ID: *</label>
                 <input type="text" id="esewaTxnId" placeholder="eSewa बाट भुक्तानी गरेको Txn ID" required>
+            </div>
+            <div class="col">
+                <!-- ऐच्छिक कागजात (फोटो नहाले पनि सबमिट हुन्छ) -->
+                <label>कागजातको फोटो (ऐच्छिक - Optional):</label>
+                <input type="file" id="documentFile" accept="image/*,.pdf">
             </div>
         </div>
 
@@ -128,46 +128,32 @@
 </div>
 
 <script>
-    // १. तपाईँको सच्याइएको Firebase Config
+    // Firebase Config setup
     const firebaseConfig = {
         apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
         projectId: "sunil-online-service",
         storageBucket: "sunil-online-service.firebasestorage.app"
     };
 
-    // Firebase Initializing
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
-    const db = firebase.firestore();
-    const storage = firebase.storage();
+    // Database ID स्पेसिफिक रूपमा तोकिएको
+    const db = firebase.app().firestore("(default)");
 
-    // Form Submit handling
     document.getElementById('nagarikataForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
         const submitBtn = document.getElementById('submitBtn');
-        const fileInput = document.getElementById('documentFile').files[0];
-
-        if (!fileInput) {
-            alert("कृपया आवश्यक कागजात छान्नुहोस्!");
-            return;
-        }
-
         submitBtn.disabled = true;
-        submitBtn.innerText = "कागजात अपलोड तथा दर्ता हुँदैछ...";
+        submitBtn.innerText = "दर्ता हुँदैछ...";
 
         try {
-            // A. Submission ID generate गर्ने (उदा: NIV-84920)
+            // Random Submission ID generate गर्ने
             const randomNum = Math.floor(10000 + Math.random() * 90000);
             const submissionId = "NIV-" + randomNum;
 
-            // B. Document File लाई Firebase Storage मा अपलोड गर्ने
-            const storageRef = storage.ref(`documents/${submissionId}_${fileInput.name}`);
-            const uploadTask = await storageRef.put(fileInput);
-            const fileUrl = await uploadTask.ref.getDownloadURL();
-
-            // C. Firestore Database मा डाटा सेभ गर्ने
+            // Firestore Database मा सोझै विवरण सेभ गर्ने (Image Upload नचाहिने गरी)
             const applicationData = {
                 submissionId: submissionId,
                 serviceType: "नेपाली नागरिकता सिफारिश",
@@ -180,22 +166,20 @@
                 wardNo: "१",
                 mobile: document.getElementById('mobile').value.trim(),
                 esewaTxnId: document.getElementById('esewaTxnId').value.trim(),
-                documentUrl: fileUrl,
-                status: "Pending", // Pending, Approved, Rejected
+                status: "Pending",
                 appliedDate: new Date().toISOString()
             };
 
-            // Database मा specific ID सहित Save गर्ने
             await db.collection("applications").doc(submissionId).set(applicationData);
 
-            // D. फारम लुकाएर सफलताको सन्देश देखाउने
+            // Form लुकाउने र Success Card देखाउने
             document.getElementById('nagarikataForm').style.display = "none";
             document.getElementById('displaySubId').innerText = submissionId;
             document.getElementById('successCard').style.display = "block";
 
         } catch (error) {
             console.error("Error submitting form: ", error);
-            alert("त्रुटि आयो: " + error.message + "\n\nकृपया Firebase Storage/Firestore Rules खुला छ कि छैन जाँच्नुहोस्।");
+            alert("त्रुटि आयो: " + error.message);
             submitBtn.disabled = false;
             submitBtn.innerText = "सिफारिश दर्ता गर्नुहोस्";
         }
