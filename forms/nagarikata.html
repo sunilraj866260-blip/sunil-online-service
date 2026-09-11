@@ -3,188 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>नेपाली नागरिकता सिफारिश फारम - रोहिणी १</title>
-
-    <!-- Firebase SDK (v8) -->
+    <title>नागरिकता सिफारिश फारम</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Kalimati, Arial, sans-serif; }
-        body { background: #f4f7f6; margin: 0; padding: 20px 10px; color: #333; }
-        
-        .form-container { max-width: 700px; background: white; margin: 0 auto; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #b71515; padding-bottom: 10px; }
-        .back-btn { text-decoration: none; color: #b71515; font-weight: bold; font-size: 15px; }
-        .back-btn:hover { text-decoration: underline; }
-        
-        h2 { color: #b71515; margin: 0; font-size: 22px; }
-        .section-title { font-size: 16px; font-weight: bold; color: #444; margin-top: 20px; margin-bottom: 10px; border-left: 4px solid #b71515; padding-left: 8px; }
-
-        .row { display: flex; flex-wrap: wrap; gap: 15px; }
-        .col { flex: 1; min-width: 250px; }
-
-        label { display: block; font-weight: bold; font-size: 14px; margin-bottom: 5px; margin-top: 10px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 15px; outline: none; }
-        input:focus, select:focus { border-color: #b71515; }
-
-        .submit-btn { width: 100%; padding: 14px; background: #b71515; color: white; border: none; font-size: 18px; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 25px; transition: 0.3s; }
-        .submit-btn:hover { background: #961010; }
-        .submit-btn:disabled { background: #aaa; cursor: not-allowed; }
-
-        /* Receipt Box */
-        #successCard { display: none; text-align: center; background: #e8f8f5; border: 2px solid #2ecc71; padding: 20px; border-radius: 8px; margin-top: 20px; }
-        .submission-id { font-size: 24px; font-weight: bold; color: #27ae60; letter-spacing: 1px; margin: 10px 0; }
+        body { font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; }
+        .form-box { max-width: 600px; background: white; margin: auto; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #b71515; text-align: center; margin-top: 0; }
+        label { display: block; margin-top: 12px; font-weight: bold; }
+        input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .esewa-box { background: #e8f8f5; border: 1px dashed #27ae60; padding: 12px; margin-top: 15px; border-radius: 6px; }
+        button { width: 100%; padding: 12px; background: #b71515; color: white; border: none; font-size: 16px; font-weight: bold; border-radius: 4px; margin-top: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="form-container">
-    <div class="top-bar">
-        <h2>नेपाली नागरिकता सिफारिश फारम</h2>
-        <a href="../index.html" class="back-btn">← गृहपृष्ठ (Home)</a>
-    </div>
+<div class="form-box">
+    <a href="../index.html" style="color:#b71515; text-decoration:none;">← गृहपृष्ठ</a>
+    <h2>नेपाली नागरिकता सिफारिश फारम</h2>
 
     <form id="nagarikataForm">
-        
-        <!-- १. निवेदकको विवरण -->
-        <div class="section-title">१. निवेदकको विवरण</div>
-        <div class="row">
-            <div class="col">
-                <label>पूरा नाम (नेपालीमा): *</label>
-                <input type="text" id="fullName" placeholder="उदा: राम बहादुर थापा" required>
-            </div>
-            <div class="col">
-                <label>Full Name (In English): *</label>
-                <input type="text" id="fullNameEng" placeholder="E.g. RAM BAHADUR THAPA" style="text-transform: uppercase;" required>
-            </div>
+        <label>निवेदकको पूरा नाम: *</label>
+        <input type="text" id="fullName" required>
+
+        <label>बाबुको नाम: *</label>
+        <input type="text" id="fatherName" required>
+
+        <label>जन्म मिति (वि.सं.): *</label>
+        <input type="text" id="dob" placeholder="YYYY-MM-DD" required>
+
+        <label>सम्पर्क फोन नं.: *</label>
+        <input type="tel" id="mobile" required>
+
+        <div class="esewa-box">
+            <label style="margin-top:0; color:#27ae60;">eSewa Payment Code (Txn ID): *</label>
+            <input type="text" id="esewaTxnId" placeholder="उदा: 8X92K1L" required>
         </div>
 
-        <div class="row">
-            <div class="col">
-                <label>जन्म मिति (वि.सं.): *</label>
-                <input type="text" id="dob" placeholder="YYYY-MM-DD (उदा: २०६०-०५-१०)" required>
-            </div>
-            <div class="col">
-                <label>लिङ्ग (Gender): *</label>
-                <select id="gender" required>
-                    <option value="">छान्नुहोस्</option>
-                    <option value="पुरुष">पुरुष (Male)</option>
-                    <option value="महिला">महिला (Female)</option>
-                    <option value="अन्य">अन्य (Other)</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col">
-                <label>बाबुको नाम:</label>
-                <input type="text" id="fatherName" placeholder="बाबुको पूरा नाम">
-            </div>
-            <div class="col">
-                <label>आमाको नाम:</label>
-                <input type="text" id="motherName" placeholder="आमाको पूरा नाम">
-            </div>
-        </div>
-
-        <!-- २. ठेगाना र सम्पर्क -->
-        <div class="section-title">२. स्थायी ठेगाना र सम्पर्क</div>
-        <div class="row">
-            <div class="col">
-                <label>वडा नं.:</label>
-                <input type="text" id="wardNo" value="१" readonly style="background: #eee;">
-            </div>
-            <div class="col">
-                <label>मोबाइल नम्बर: *</label>
-                <input type="tel" id="mobile" placeholder="९८XXXXXXXX" pattern="[0-9]{10}" required>
-            </div>
-        </div>
-
-        <!-- ३. भुक्तानी (फोटो/फाइल अपलोड ऐच्छिक वा हटाउन सकिने) -->
-        <div class="section-title">३. दस्तुर भुक्तानी</div>
-        <div class="row">
-            <div class="col">
-                <label>eSewa Transaction ID: *</label>
-                <input type="text" id="esewaTxnId" placeholder="eSewa बाट भुक्तानी गरेको Txn ID" required>
-            </div>
-            <div class="col">
-                <!-- ऐच्छिक कागजात (फोटो नहाले पनि सबमिट हुन्छ) -->
-                <label>कागजातको फोटो (ऐच्छिक - Optional):</label>
-                <input type="file" id="documentFile" accept="image/*,.pdf">
-            </div>
-        </div>
-
-        <button type="submit" id="submitBtn" class="submit-btn">सिफारिश दर्ता गर्नुहोस्</button>
+        <button type="submit" id="btnSubmit">निवेदन पेश गर्नुहोस्</button>
     </form>
-
-    <!-- सफलताको सन्देश बाकस -->
-    <div id="successCard">
-        <h3 style="color: #27ae60; margin: 0;">निवेदन सफलतापूर्वक दर्ता भयो!</h3>
-        <p>तपाईँको Submission ID तल दिइएको छ। यसलाई सुरक्षित राख्नुहोस्:</p>
-        <div class="submission-id" id="displaySubId">NIV-XXXXX</div>
-        <p style="font-size: 14px; color: #555;">गृहपृष्ठमा गई यो ID हालेर आफ्नो निवेदनको अवस्था ट्रयाक (Track) गर्न सक्नुहुन्छ।</p>
-        <a href="../index.html" class="back-btn" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: #b71515; color: white; border-radius: 5px;">गृहपृष्ठमा फर्कनुहोस्</a>
-    </div>
 </div>
 
 <script>
-    // Firebase Config setup
     const firebaseConfig = {
         apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-        projectId: "sunil-online-service",
-        storageBucket: "sunil-online-service.firebasestorage.app"
+        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
     };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    // Database ID स्पेसिफिक रूपमा तोकिएको
-    const db = firebase.app().firestore("(default)");
-
-    document.getElementById('nagarikataForm').addEventListener('submit', async function(e) {
+    document.getElementById('nagarikataForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const btn = document.getElementById('btnSubmit');
+        btn.disabled = true;
+        btn.innerText = "पेश हुँदैछ...";
 
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.innerText = "दर्ता हुँदैछ...";
+        const subId = "NIV-" + Math.floor(10000 + Math.random() * 90000);
+        
+        const data = {
+            submissionId: subId,
+            serviceType: "नेपाली नागरिकता सिफारिश",
+            fullName: document.getElementById('fullName').value.trim(),
+            fatherName: document.getElementById('fatherName').value.trim(),
+            dob: document.getElementById('dob').value.trim(),
+            mobile: document.getElementById('mobile').value.trim(),
+            esewaTxnId: document.getElementById('esewaTxnId').value.trim(),
+            status: "Pending",
+            createdDate: new Date().toISOString()
+        };
 
         try {
-            // Random Submission ID generate गर्ने
-            const randomNum = Math.floor(10000 + Math.random() * 90000);
-            const submissionId = "NIV-" + randomNum;
-
-            // Firestore Database मा सोझै विवरण सेभ गर्ने (Image Upload नचाहिने गरी)
-            const applicationData = {
-                submissionId: submissionId,
-                serviceType: "नेपाली नागरिकता सिफारिश",
-                fullName: document.getElementById('fullName').value.trim(),
-                fullNameEng: document.getElementById('fullNameEng').value.trim(),
-                dob: document.getElementById('dob').value.trim(),
-                gender: document.getElementById('gender').value,
-                fatherName: document.getElementById('fatherName').value.trim(),
-                motherName: document.getElementById('motherName').value.trim(),
-                wardNo: "१",
-                mobile: document.getElementById('mobile').value.trim(),
-                esewaTxnId: document.getElementById('esewaTxnId').value.trim(),
-                status: "Pending",
-                appliedDate: new Date().toISOString()
-            };
-
-            await db.collection("applications").doc(submissionId).set(applicationData);
-
-            // Form लुकाउने र Success Card देखाउने
-            document.getElementById('nagarikataForm').style.display = "none";
-            document.getElementById('displaySubId').innerText = submissionId;
-            document.getElementById('successCard').style.display = "block";
-
-        } catch (error) {
-            console.error("Error submitting form: ", error);
-            alert("त्रुटि आयो: " + error.message);
-            submitBtn.disabled = false;
-            submitBtn.innerText = "सिफारिश दर्ता गर्नुहोस्";
+            await db.ref("applications/" + subId).set(data);
+            window.location.href = "../customer/submit.html?id=" + subId;
+        } catch (err) {
+            alert("त्रुटि आयो: " + err.message);
+            btn.disabled = false;
+            btn.innerText = "निवेदन पेश गर्नुहोस्";
         }
     });
 </script>
-
 </body>
 </html>
