@@ -12,11 +12,9 @@ const firebaseConfig = {
 };
 
 const API_BASE_URL = firebaseConfig.databaseURL;
-
-// सक्कली window.print लाई सुरक्षित राख्ने
 const nativePrint = window.print;
 
-// १. क्लाउडमा डाटा सेभ गर्ने
+// १. क्लाउडमा डाटा सेभ गर्ने फङ्क्सन
 async function saveRequestToCloud(type, formData) {
     const token = 'NIV-' + Math.floor(100000 + Math.random() * 900000);
     const currentFileLink = window.location.href.split('?')[0];
@@ -33,10 +31,12 @@ async function saveRequestToCloud(type, formData) {
         date: new Date().toLocaleDateString('ne-NP')
     };
 
+    // Local Storage मा पनि सेभ गर्ने
     let localRequests = JSON.parse(localStorage.getItem('nivedan_requests')) || [];
     localRequests.push(newRequest);
     localStorage.setItem('nivedan_requests', JSON.stringify(localRequests));
 
+    // Firebase Realtime Database मा सेभ गर्ने
     try {
         await fetch(`${API_BASE_URL}/requests/${token}.json?key=${firebaseConfig.apiKey}`, {
             method: 'PUT',
@@ -44,13 +44,13 @@ async function saveRequestToCloud(type, formData) {
             body: JSON.stringify(newRequest)
         });
     } catch (error) {
-        console.warn("Firebase Storage Error, Offline local backup active:", error);
+        console.warn("Firebase Storage Error:", error);
     }
 
     return token;
 }
 
-// २. टोकनबाट डाटा तानेर ल्याउने
+// २. टोकनबाट डाटा तान्ने
 async function getRequestByToken(token) {
     if (!token) return null;
     try {
@@ -60,7 +60,7 @@ async function getRequestByToken(token) {
             if (data) return data;
         }
     } catch (error) {
-        console.warn("Firebase Fetch Failed, Local Storage used:", error);
+        console.warn("Firebase Fetch Error:", error);
     }
     const localRequests = JSON.parse(localStorage.getItem('nivedan_requests')) || [];
     return localRequests.find(req => req.token === token) || null;
@@ -86,27 +86,29 @@ async function updateRequestField(token, fieldsToUpdate) {
     }
 }
 
-// ४. फारामको डाटा सङ्कलन गर्ने
+// ४. फारामका सम्पूर्ण Inpus हरू सङ्कलन गर्ने (सच्याइएको)
 function collectPageData() {
     const formData = {};
     const inputs = document.querySelectorAll('input, select, textarea');
     inputs.forEach((input, index) => {
         if (input.type !== 'button' && input.type !== 'submit') {
-            const key = input.name || input.id || input.placeholder || `फिल्ड_${index + 1}`;
-            formData[key] = input.value;
+            const key = input.name || input.id || input.placeholder || `इनपुट_${index + 1}`;
+            formData[key] = input.value || '-';
         }
     });
     return formData;
 }
 
-// ५. फाराम सबमिट गरेर QR भुक्तानी पेजमा पठाउने मुख्य फङ्क्सन
+// ५. फाराम सबमिट गरी Firebase मा सेभ गरेर QR Page मा पठाउने
 async function handleFormSubmission(event) {
     if (event) {
         event.preventDefault();
-        event.stopPropagation();
+        if (event.stopPropagation) event.stopPropagation();
     }
     
     const data = collectPageData();
+    
+    // डाटा सेभ नभएसम्म पर्खिने (Await)
     const token = await saveRequestToCloud(document.title, data);
 
     alert(`तपाईंको विवरण दर्ता भयो!\n\nटोकन नम्बर: ${token}\n\nअब QR स्क्यान गरी भुक्तानी गर्नुहोस्।`);
@@ -114,19 +116,18 @@ async function handleFormSubmission(event) {
 }
 
 // ==========================================
-// STRICT PRINT BLOCKING & OVERRIDE LOGIC
+// STRICT OVERRIDE & INITIALIZATION
 // ==========================================
 (function() {
     const currentPath = window.location.pathname.toLowerCase();
     const urlParams = new URLSearchParams(window.location.search);
     const printToken = urlParams.get('printToken');
 
-    // track.html, payment.html, वा admin पेजमा भए केही नगर्ने
     if (currentPath.includes('track.html') || currentPath.includes('payment.html') || currentPath.includes('admin')) {
         return;
     }
 
-    // यदि Approved टोकन छैन भने window.print() लाई नै Override गर्ने (फारममा प्रिन्ट हुनै नदिने)
+    // printToken नभएसम्म window.print लाई रोक्ने
     if (!printToken) {
         window.print = function() {
             handleFormSubmission();
@@ -143,14 +144,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // स्वीकृत भएपछि फाराममा डाटा भरेर सक्कली प्रिन्ट (nativePrint) गर्ने
+    // स्वीकृत भएपछि स्वतः प्रिन्ट गराउने
     if (printToken) {
         const req = await getRequestByToken(printToken);
         
         if (req && req.status === 'स्वीकृत (Approved)') {
             const inputs = document.querySelectorAll('input, select, textarea');
             inputs.forEach((input, index) => {
-                const key = input.name || input.id || input.placeholder || `फिल्ड_${index + 1}`;
+                const key = input.name || input.id || input.placeholder || `इनपुट_${index + 1}`;
                 if (req.data && req.data[key] !== undefined) {
                     input.value = req.data[key];
                 }
@@ -170,7 +171,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // फाराम बुझाउने/प्रिन्ट बटनहरूमा Event Intercept गर्ने
+    // सबै प्रिन्ट र सबमिट बटनमा इन्टरसेप्ट गर्ने
     const printButtons = document.querySelectorAll('button, input[type="button"], input[type="submit"]');
     printButtons.forEach(btn => {
         btn.onclick = function(e) {
