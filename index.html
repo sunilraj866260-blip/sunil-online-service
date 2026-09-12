@@ -28,6 +28,7 @@
       border-radius: 8px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.05);
       border-top: 5px solid #0056b3;
+      position: relative;
     }
 
     .header-container h1 {
@@ -99,7 +100,7 @@
       background-color: #0056b3;
     }
 
-    /* Trace Section in Index */
+    /* Trace Section */
     .trace-wrapper {
       max-width: 900px;
       margin: 40px auto 0 auto;
@@ -138,14 +139,90 @@
       font-weight: bold;
     }
 
-    .trace-box button:hover {
-      background-color: #138496;
+    /* Admin Section Styling */
+    .admin-wrapper {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      border-top: 5px solid #28a745;
     }
 
-    #globalStatus {
+    .admin-login-box {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
       margin-top: 15px;
+    }
+
+    .admin-login-box input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .btn-admin-login {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
       font-weight: bold;
     }
+
+    /* Admin Dashboard Table */
+    .admin-panel {
+      display: none;
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .btn-approve {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-reject {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-left: 4px;
+    }
+
+    .status-approved { color: green; font-weight: bold; }
+    .status-pending { color: orange; font-weight: bold; }
+    .status-rejected { color: red; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -204,7 +281,7 @@
       <a href="basobas.html" class="btn-link">फारम खोल्नुहोस् ➔</a>
     </div>
 
-    <!-- ६. अन्य कुनै नयाँ थप्न परेमा -->
+    <!-- ६. चारित्रिक सिफारिस -->
     <div class="nivedan-card">
       <div>
         <h3>चारित्रिक सिफारिस</h3>
@@ -215,7 +292,7 @@
 
   </div>
 
-  <!-- Trace Status Section (सबै प्रकारका निवेदन ट्र्याक गर्न) -->
+  <!-- Trace Status Section (ग्राहकका लागि) -->
   <div class="trace-wrapper">
     <h3>निवेदनको स्थिति हेर्नुहोस् (Track Status)</h3>
     <p style="font-size: 13px; color: #555;">पेमेन्ट गरिसक्नुभएको छ भने यहाँ Transaction ID हालेर स्थिति जाँच्नुहोस्:</p>
@@ -225,7 +302,44 @@
       <button onclick="checkGlobalStatus()">Status हेर्नुहोस्</button>
     </div>
     
-    <div id="globalStatus"></div>
+    <div id="globalStatus" style="margin-top: 10px; font-weight: bold;"></div>
+  </div>
+
+  <!-- Admin Login & Panel Section (तपाईंको लागि) -->
+  <div class="admin-wrapper">
+    <h3 style="margin-top: 0; color: #28a745;">🔐 एडमिन लगइन (Admin Control Panel)</h3>
+    
+    <!-- Login Box -->
+    <div id="adminLoginBox" class="admin-login-box">
+      <input type="text" id="adminUser" placeholder="Username (उदा: admin)">
+      <input type="password" id="adminPass" placeholder="Password (उदा: sunil123)">
+      <button onclick="loginAdmin()" class="btn-admin-login">लगइन गर्नुहोस्</button>
+    </div>
+
+    <!-- Hidden Admin Panel (Login भएपछि मात्र देखिने) -->
+    <div id="adminPanel" class="admin-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h4 style="margin: 0; color: #0056b3;">पेमेन्ट अनुरोधहरू व्यवस्थापन गर्नुहोस्:</h4>
+        <button onclick="logoutAdmin()" style="background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Logout</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>निवेदकको नाम</th>
+            <th>निवेदन प्रकार</th>
+            <th>Transaction ID</th>
+            <th>Status</th>
+            <th>कार्य (Action)</th>
+          </tr>
+        </thead>
+        <tbody id="requestTable">
+          <tr>
+            <td colspan="5" style="text-align: center;">डेटा लोड हुँदैछ...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
@@ -240,7 +354,7 @@
     }
     const database = firebase.database();
 
-    // Trace Function
+    // १. Trace Function (ग्राहकहरूका लागि)
     function checkGlobalStatus() {
       const txId = document.getElementById('globalTxId').value.trim();
       const statusBox = document.getElementById('globalStatus');
@@ -261,16 +375,80 @@
           statusBox.innerText = "यो Transaction ID भेटिएन। कृपया सही ID राख्नुहोस्।";
         } else if (data.status === "Approved") {
           statusBox.style.color = "green";
-          const fileToOpen = data.fileName || "janamdarta.html";
-          statusBox.innerHTML = `तपाईंको पेमेन्ट स्वीकृत भइसकेको छ!<br> 
-            <a href="${fileToOpen}" style="color: #007bff; font-weight: bold; text-decoration: underline;">यहाँ थिचेर फारम खोल्नुहोस् र प्रिन्ट गर्नुहोस् ➔</a>`;
+          statusBox.innerHTML = `तपाईंको पेमेन्ट स्वीकृत भइसकेको छ! फारम खोलेर प्रिन्ट गर्न सक्नुहुन्छ।`;
         } else if (data.status === "Pending") {
           statusBox.style.color = "#e67e22";
-          statusBox.innerText = "तपाईंको निवेदन अझै भेरिफिकेसनको पर्खाइमा छ। स्टुडियोबाट Approved भएपछि लिङ्क खुल्नेछ।";
+          statusBox.innerText = "तपाईंको निवेदन अझै भेरिफिकेसनको पर्खाइमा छ। स्वीकृत भएपछि प्रिन्ट हुनेछ।";
         } else if (data.status === "Rejected") {
           statusBox.style.color = "red";
           statusBox.innerText = "यो पेमेन्ट अस्वीकृत (Rejected) भएको छ।";
         }
+      });
+    }
+
+    // २. Admin Login Logic
+    function loginAdmin() {
+      const u = document.getElementById('adminUser').value.trim();
+      const p = document.getElementById('adminPass').value.trim();
+
+      // Username र Password परीक्षण
+      if (u === "admin" && p === "sunil123") {
+        document.getElementById('adminLoginBox').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        loadAdminData();
+      } else {
+        alert("गलत Username वा Password!");
+      }
+    }
+
+    function logoutAdmin() {
+      document.getElementById('adminLoginBox').style.display = 'flex';
+      document.getElementById('adminPanel').style.display = 'none';
+      document.getElementById('adminUser').value = '';
+      document.getElementById('adminPass').value = '';
+    }
+
+    // ३. Admin Data Load & Realtime Sync
+    function loadAdminData() {
+      database.ref('requests').on('value', (snapshot) => {
+        const tableBody = document.getElementById('requestTable');
+        tableBody.innerHTML = '';
+
+        const data = snapshot.val();
+        if (!data) {
+          tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">कुनै अनुरोध भेटिएन।</td></tr>';
+          return;
+        }
+
+        Object.keys(data).reverse().forEach(txId => {
+          const item = data[txId];
+          const row = document.createElement('tr');
+
+          let statusBadge = `<span class="status-pending">Pending</span>`;
+          if (item.status === "Approved") statusBadge = `<span class="status-approved">Approved</span>`;
+          if (item.status === "Rejected") statusBadge = `<span class="status-rejected">Rejected</span>`;
+
+          row.innerHTML = `
+            <td><b>${item.name || 'N/A'}</b></td>
+            <td>${item.docType || 'N/A'}</td>
+            <td><code>${item.transactionId}</code></td>
+            <td>${statusBadge}</td>
+            <td>
+              <button class="btn-approve" onclick="updateStatus('${item.transactionId}', 'Approved')">Approve</button>
+              <button class="btn-reject" onclick="updateStatus('${item.transactionId}', 'Rejected')">Reject</button>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+      });
+    }
+
+    // ४. Update Status
+    function updateStatus(txId, newStatus) {
+      database.ref('requests/' + txId).update({
+        status: newStatus
+      }).then(() => {
+        alert(`Transaction ID: ${txId} लाई ${newStatus} गरियो।`);
       });
     }
   </script>
