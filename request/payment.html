@@ -3,20 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>निवेदन दस्तुर भुक्तानी</title>
+    <title>सेवा दस्तुर भुक्तानी (QR & Payment)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="request.js"></script>
 </head>
-<body class="bg-slate-100 p-6 min-h-screen flex items-center justify-center">
-    <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg text-center">
-        <h2 class="text-2xl font-bold mb-2 text-slate-800">सेवा शुल्क भुक्तानी</h2>
-        <p class="text-sm text-slate-500 mb-4">तपाईंको ट्र्याकिङ टोकन:</p>
-        <div id="tokenDisplay" class="text-2xl font-mono font-bold text-sky-600 bg-sky-50 py-2 rounded-lg mb-6"></div>
-        <p class="text-slate-700 font-semibold mb-6">कुल सेवा दस्तुर: रु. १००/-</p>
+<body class="bg-slate-100 p-4 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full bg-white p-6 rounded-2xl shadow-xl text-center border-t-8 border-sky-600">
+        <h2 class="text-2xl font-bold text-slate-800 mb-1">सेवा दस्तुर भुक्तानी</h2>
+        <p class="text-xs text-slate-500 mb-2">तपाईंको ट्र्याकिङ टोकन नम्बर:</p>
 
-        <button onclick="payFee()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition shadow">
-            eSewa / Khalti बाट भुक्तानी गर्नुहोस्
-        </button>
+        <div id="tokenDisplay" class="text-2xl font-mono font-bold text-sky-600 bg-sky-50 py-2 rounded-xl mb-4 border border-sky-200">
+            N/A
+        </div>
+
+        <!-- eSewa QR Code -->
+        <div class="bg-slate-50 border p-4 rounded-xl mb-4">
+            <p class="text-xs font-bold text-slate-600 mb-2">eSewa / Fonepay QR स्क्यान गर्नुहोस्:</p>
+            <div class="bg-white p-2 inline-block rounded-lg shadow-inner border mb-2">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=eSewa-Sunil-Studio-100" alt="Payment QR Code" class="w-44 h-44 mx-auto">
+            </div>
+            <p class="text-sm font-bold text-slate-800">कुल रकम: रु. १००/-</p>
+        </div>
+
+        <!-- eSewa Code Submission -->
+        <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-4 text-left">
+            <label class="block text-xs font-bold text-amber-900 mb-1">भुक्तानी पछिको eSewa Transaction ID (Ref ID) हाल्नुहोस्:</label>
+            <input type="text" id="esewaCode" placeholder="उदा: 000ABC123XYZ" class="w-full border p-3 rounded-lg text-sm font-mono font-bold mb-3 uppercase outline-amber-600">
+            <button onclick="submitPaymentAndTrack()" class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-bold transition shadow">
+                कोड सबमिट गरी ट्र्याकिङमा जानुहोस् →
+            </button>
+        </div>
     </div>
 
     <script>
@@ -24,10 +40,21 @@
         const token = urlParams.get('token');
         document.getElementById('tokenDisplay').innerText = token || 'N/A';
 
-        async function payFee() {
+        async function submitPaymentAndTrack() {
+            const code = document.getElementById('esewaCode').value.trim();
+            if(!code) {
+                alert('कृपया eSewa/Khalti को Transaction Code (Ref ID) राख्नुहोस्!');
+                return;
+            }
+
             if(token) {
-                await updateRequestField(token, { paymentStatus: 'सफल (Paid)' });
-                alert('भुक्तानी सफल भयो! तपाईंको टोकन नम्बर: ' + token);
+                // Firebase मा eSewa code र Status सेभ गर्ने
+                await updateRequestField(token, {
+                    paymentCode: code,
+                    paymentStatus: 'Verification Pending'
+                });
+
+                alert('भुक्तानी कोड सफलतापूर्वक प्राप्त भयो! अब एडमिनले भेरिफाइ गरेपछि प्रिन्ट डाउनलोड हुनेछ।');
                 window.location.href = `track.html?token=${token}`;
             } else {
                 alert('टोकन फेला परेन!');
