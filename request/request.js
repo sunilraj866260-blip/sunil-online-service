@@ -1,5 +1,5 @@
 // ==========================================
-// SUNIL PHOTOS STUDIO - FIREBASE CONFIG
+// SUNIL PHOTOS STUDIO - FIREBASE CONFIG & API
 // ==========================================
 const firebaseConfig = {
     apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
@@ -13,7 +13,7 @@ const firebaseConfig = {
 
 const API_BASE_URL = firebaseConfig.databaseURL;
 
-// १. क्लाउडमा डाटा सेभ गर्ने फङ्क्सन
+// १. क्लाउडमा डाटा सेभ गर्ने
 async function saveRequestToCloud(type, formData) {
     const token = 'NIV-' + Math.floor(100000 + Math.random() * 900000);
     const currentFileLink = window.location.href.split('?')[0];
@@ -23,7 +23,8 @@ async function saveRequestToCloud(type, formData) {
         type: type || document.title || 'अन्य निवेदन',
         fileLink: currentFileLink,
         data: formData,
-        paymentStatus: 'Pending',
+        paymentStatus: 'Unpaid',
+        paymentCode: '',
         status: 'प्रक्रियामा (Pending)',
         timestamp: Date.now(),
         date: new Date().toLocaleDateString('ne-NP')
@@ -37,9 +38,9 @@ async function saveRequestToCloud(type, formData) {
         });
 
         if (response.ok) return token;
-        throw new Error('Firebase Storage Error');
+        throw new Error('Firebase DB Error');
     } catch (error) {
-        console.error("Cloud Storage Error, LocalStorage used:", error);
+        console.error("Cloud Error, LocalStorage Backup Used:", error);
         let localRequests = JSON.parse(localStorage.getItem('nivedan_requests')) || [];
         localRequests.push(newRequest);
         localStorage.setItem('nivedan_requests', JSON.stringify(localRequests));
@@ -47,7 +48,7 @@ async function saveRequestToCloud(type, formData) {
     }
 }
 
-// २. टोकनबाट डाटाहरू ल्याउने
+// २. टोकन अनुसार डाटाहरू ल्याउने
 async function getRequestByToken(token) {
     try {
         const response = await fetch(`${API_BASE_URL}/requests/${token}.json?key=${firebaseConfig.apiKey}`);
@@ -62,7 +63,7 @@ async function getRequestByToken(token) {
     return localRequests.find(req => req.token === token) || null;
 }
 
-// ३. भुक्तानी वा स्थिति अपडेट गर्ने
+// ३. फिल्ड अपडेट गर्ने (भुक्तानी कोड वा स्टाटस अपडेट)
 async function updateRequestField(token, fieldsToUpdate) {
     try {
         await fetch(`${API_BASE_URL}/requests/${token}.json?key=${firebaseConfig.apiKey}`, {
@@ -75,7 +76,7 @@ async function updateRequestField(token, fieldsToUpdate) {
     }
 }
 
-// ४. इनपुटहरूबाट डाटा स्वतः सङ्कलन गर्ने (Auto Detect)
+// ४. फारामबाट डाटाहरू सङ्कलन गर्ने
 function collectPageData() {
     const formData = {};
     const inputs = document.querySelectorAll('input, select, textarea');
@@ -88,26 +89,32 @@ function collectPageData() {
     return formData;
 }
 
-// ५. फाराम बुझाउने फङ्क्सन
-async function submitPrintRequest() {
+// ५. फाराम सबमिट गरेर भुक्तानीमा पठाउने मुख्य फङ्क्सन
+async function handleFormSubmission(event) {
+    if (event) event.preventDefault();
+    
     const data = collectPageData();
     const token = await saveRequestToCloud(document.title, data);
 
-    alert(`तपाईंको निवेदन दर्ता भयो!\n\nटोकन नम्बर: ${token}\n\nकार्यालयले स्वीकृत गरेपछि प्रिन्ट गर्न सकिनेछ।`);
+    alert(`तपाईंको विवरण दर्ता भयो!\n\nटोकन नम्बर: ${token}\n\nअब भुक्तानी गरेर eSewa/Khalti Code प्रविष्ट गर्नुहोस्।`);
+    
+    // सिधै payment.html मा पठाउने
     window.location.href = `../request/payment.html?token=${token}`;
 }
 
 // ==========================================
-// AUTO-ATTACHMENT TO OLD HTML FORMS
+// PRINT INTERCEPTION & AUTO DETECT LOGIC
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const printToken = urlParams.get('printToken');
 
-    // क. स्वीकृत भएपछि डाटा भरेर अटो-प्रिन्ट गर्ने
+    // क. एडमिनले 'Approved' गरेपछि मात्र प्रिन्ट गर्न पाइने सेक्युरिटी
     if (printToken) {
         const req = await getRequestByToken(printToken);
+        
         if (req && req.status === 'स्वीकृत (Approved)') {
+            // डाटा फाराममा भर्ने
             const inputs = document.querySelectorAll('input, select, textarea');
             inputs.forEach((input, index) => {
                 const key = input.name || input.id || input.placeholder || `फिल्ड_${index + 1}`;
@@ -116,7 +123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
 
-            // प्रिन्ट गर्दा नचाहिने बटनहरू स्वतः लुकाउने CSS
+            // प्रिन्ट गर्दा बटनहरू लुकाउने CSS
             const style = document.createElement('style');
             style.innerHTML = '@media print { button, input[type="button"], input[type="submit"], .no-print { display: none !important; } }';
             document.head.appendChild(style);
@@ -124,25 +131,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             setTimeout(() => {
                 window.print();
             }, 800);
+        } else {
+            alert('⚠️ यो निवेदन अझै कार्यालयबाट स्वीकृत (Verify) भएको छैन। भुक्तानी गरेपछि एडमिनले स्वीकृत गरेपछि मात्र प्रिन्ट गर्न पाइनेछ।');
+            window.location.href = `../request/track.html?token=${printToken}`;
         }
         return;
     }
 
-    // ख. पुराना फारामको बटन वा Form मा स्वतः Event Listener जोड्ने
+    // ख. सिधै window.print() हुनबाट रोक्ने (Override System Print)
+    window.print = function() {
+        handleFormSubmission();
+    };
+
+    // ग. सबै फाराम वा प्रिन्ट बटनहरूमा 'handleFormSubmission' जोड्ने
     const form = document.querySelector('form');
     if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            submitPrintRequest();
-        });
-    } else {
-        const buttons = document.querySelectorAll('button, input[type="button"], input[type="submit"]');
-        if (buttons.length > 0) {
-            const lastBtn = buttons[buttons.length - 1];
-            lastBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                submitPrintRequest();
-            });
-        }
+        form.onsubmit = handleFormSubmission;
     }
+
+    const printButtons = document.querySelectorAll('button, input[type="button"], input[type="submit"]');
+    printButtons.forEach(btn => {
+        // यदि बटनमा Print शब्द छ वा मुख्य बटन हो भने
+        btn.addEventListener('click', function(e) {
+            if (!printToken) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleFormSubmission(e);
+            }
+        }, true);
+    });
 });
