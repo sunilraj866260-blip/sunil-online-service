@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ne">
 <head>
@@ -29,7 +30,7 @@
         <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-4 text-left">
             <label class="block text-xs font-bold text-amber-900 mb-1">भुक्तानी पछिको eSewa Transaction ID (Ref ID) हाल्नुहोस्:</label>
             <input type="text" id="esewaCode" placeholder="उदा: 000ABC123XYZ" class="w-full border p-3 rounded-lg text-sm font-mono font-bold mb-3 uppercase outline-amber-600">
-            <button onclick="submitPaymentAndTrack()" class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-bold transition shadow">
+            <button type="button" onclick="submitPaymentAndTrack()" class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-bold transition shadow">
                 कोड सबमिट गरी ट्र्याकिङमा जानुहोस् →
             </button>
         </div>
@@ -48,13 +49,12 @@
             }
 
             if(token) {
-                // Firebase मा eSewa code र Status सेभ गर्ने
                 await updateRequestField(token, {
                     paymentCode: code,
                     paymentStatus: 'Verification Pending'
                 });
 
-                alert('भुक्तानी कोड सफलतापूर्वक प्राप्त भयो! अब एडमिनले भेरिफाइ गरेपछि प्रिन्ट डाउनलोड हुनेछ।');
+                alert('भुक्तानी कोड प्राप्त भयो! अब एडमिनले भेरिफाइ गरेपछि डाउनलोड/प्रिन्ट हुनेछ।');
                 window.location.href = `track.html?token=${token}`;
             } else {
                 alert('टोकन फेला परेन!');
