@@ -1,148 +1,96 @@
-// ==========================================
-// SUNIL PHOTOS STUDIO - FIREBASE CONFIG
-// ==========================================
-const firebaseConfig = {
-    apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-    authDomain: "sunil-online-service.firebaseapp.com",
-    databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
-    projectId: "sunil-online-service",
-    storageBucket: "sunil-online-service.appspot.com",
-    messagingSenderId: "",
-    appId: ""
-};
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>निवेदन ट्र्याकिङ तथा डाउनलोड</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="request.js"></script>
+</head>
+<body class="bg-slate-100 p-6 min-h-screen">
+    <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
+        <h2 class="text-2xl font-bold mb-6 text-center text-slate-800">निवेदन ट्र्याक तथा डाउनलोड</h2>
+        
+        <div class="flex gap-2 mb-6">
+            <input type="text" id="trackInput" placeholder="टोकन नम्बर (उदा: NIV-123456)" class="flex-1 border p-3 rounded-xl outline-sky-600 font-mono font-bold uppercase">
+            <button onclick="trackRequest()" class="bg-sky-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-sky-700 transition">खोज्नुहोस्</button>
+        </div>
 
-const API_BASE_URL = firebaseConfig.databaseURL;
+        <div id="result" class="hidden border-t pt-6 space-y-4">
+            <div class="bg-slate-50 p-4 rounded-xl space-y-2 text-sm border">
+                <p><strong>निवेदन प्रकार:</strong> <span id="resType"></span></p>
+                <p><strong>दर्ता मिति:</strong> <span id="resDate"></span></p>
+                <p><strong>eSewa Ref ID:</strong> <span id="resPaymentCode" class="font-mono font-bold text-amber-700"></span></p>
+                <p><strong>अवस्था (Status):</strong> <span id="resStatus" class="font-bold"></span></p>
+            </div>
 
-// १. क्लाउडमा डाटा सेभ गर्ने फङ्क्सन
-async function saveRequestToCloud(type, formData) {
-    const token = 'NIV-' + Math.floor(100000 + Math.random() * 900000);
-    const currentFileLink = window.location.href.split('?')[0];
+            <!-- अवस्था अनुसार सन्देश देखाउने -->
+            <div id="statusMessage" class="p-4 rounded-xl text-sm font-semibold"></div>
 
-    const newRequest = {
-        token: token,
-        type: type || document.title || 'अन्य निवेदन',
-        fileLink: currentFileLink,
-        data: formData,
-        paymentStatus: 'Pending',
-        status: 'प्रक्रियामा (Pending)',
-        timestamp: Date.now(),
-        date: new Date().toLocaleDateString('ne-NP')
-    };
+            <!-- Download / Print Button (स्वीकृत भएपछि मात्र देखिने) -->
+            <div id="downloadArea" class="hidden pt-2">
+                <button onclick="downloadDocument()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 rounded-xl font-bold transition shadow-lg flex items-center justify-center gap-2">
+                    🖨️ निवेदन PDF / A4 मा प्रिन्ट/डाउनलोड गर्नुहोस्
+                </button>
+            </div>
+        </div>
+    </div>
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/requests/${token}.json?key=${firebaseConfig.apiKey}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newRequest)
-        });
+    <script>
+        let currentRequest = null;
 
-        if (response.ok) return token;
-        throw new Error('Firebase Storage Error');
-    } catch (error) {
-        console.error("Cloud Storage Error, LocalStorage used:", error);
-        let localRequests = JSON.parse(localStorage.getItem('nivedan_requests')) || [];
-        localRequests.push(newRequest);
-        localStorage.setItem('nivedan_requests', JSON.stringify(localRequests));
-        return token;
-    }
-}
-
-// २. टोकनबाट डाटाहरू ल्याउने
-async function getRequestByToken(token) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/requests/${token}.json?key=${firebaseConfig.apiKey}`);
-        if (response.ok) {
-            const data = await response.json();
-            if (data) return data;
+        // URL बाट आएको टोकन अटो-सर्च गर्ने
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get('token');
+        if(urlToken) {
+            document.getElementById('trackInput').value = urlToken;
+            trackRequest();
         }
-    } catch (error) {
-        console.error("Fetch Error:", error);
-    }
-    const localRequests = JSON.parse(localStorage.getItem('nivedan_requests')) || [];
-    return localRequests.find(req => req.token === token) || null;
-}
 
-// ३. भुक्तानी वा स्थिति अपडेट गर्ने
-async function updateRequestField(token, fieldsToUpdate) {
-    try {
-        await fetch(`${API_BASE_URL}/requests/${token}.json?key=${firebaseConfig.apiKey}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(fieldsToUpdate)
-        });
-    } catch (error) {
-        console.error("Update Error:", error);
-    }
-}
+        async function trackRequest() {
+            const token = document.getElementById('trackInput').value.trim();
+            currentRequest = await getRequestByToken(token);
 
-// ४. इनपुटहरूबाट डाटा स्वतः सङ्कलन गर्ने (Auto Detect)
-function collectPageData() {
-    const formData = {};
-    const inputs = document.querySelectorAll('input, select, textarea');
-    inputs.forEach((input, index) => {
-        if (input.type !== 'button' && input.type !== 'submit') {
-            const key = input.name || input.id || input.placeholder || `फिल्ड_${index + 1}`;
-            formData[key] = input.value;
-        }
-    });
-    return formData;
-}
+            if (currentRequest) {
+                document.getElementById('resType').innerText = currentRequest.type;
+                document.getElementById('resDate').innerText = currentRequest.date || '-';
+                document.getElementById('resPaymentCode').innerText = currentRequest.paymentCode || 'हालिएको छैन';
+                document.getElementById('resStatus').innerText = currentRequest.status;
+                
+                const statusMsg = document.getElementById('statusMessage');
+                const downloadArea = document.getElementById('downloadArea');
 
-// ५. फाराम बुझाउने फङ्क्सन
-async function submitPrintRequest() {
-    const data = collectPageData();
-    const token = await saveRequestToCloud(document.title, data);
-
-    alert(`तपाईंको निवेदन दर्ता भयो!\n\nटोकन नम्बर: ${token}\n\nकार्यालयले स्वीकृत गरेपछि प्रिन्ट गर्न सकिनेछ।`);
-    window.location.href = `../request/payment.html?token=${token}`;
-}
-
-// ==========================================
-// AUTO-ATTACHMENT TO OLD HTML FORMS
-// ==========================================
-document.addEventListener('DOMContentLoaded', async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const printToken = urlParams.get('printToken');
-
-    // क. स्वीकृत भएपछि डाटा भरेर अटो-प्रिन्ट गर्ने
-    if (printToken) {
-        const req = await getRequestByToken(printToken);
-        if (req && req.status === 'स्वीकृत (Approved)') {
-            const inputs = document.querySelectorAll('input, select, textarea');
-            inputs.forEach((input, index) => {
-                const key = input.name || input.id || input.placeholder || `फिल्ड_${index + 1}`;
-                if (req.data && req.data[key] !== undefined) {
-                    input.value = req.data[key];
+                // १. एडमिनले स्वीकृत गरेपछि मात्र प्रिन्ट खोल्ने
+                if (currentRequest.status === 'स्वीकृत (Approved)') {
+                    statusMsg.className = "p-3 rounded-xl text-sm font-semibold bg-green-100 text-green-800 border border-green-200";
+                    statusMsg.innerText = "✓ एडमिनबाट भेरिफाइ भयो! तपाईंको निवेदन तयार छ।";
+                    downloadArea.classList.remove('hidden');
+                } 
+                // २. eSewa code हालेको तर एडमिनले नहेरेको खण्डमा
+                else if (currentRequest.paymentCode) {
+                    statusMsg.className = "p-3 rounded-xl text-sm font-semibold bg-yellow-100 text-yellow-800 border border-yellow-200";
+                    statusMsg.innerText = "⏳ eSewa Code प्राप्त भयो। एडमिन/कार्यालयले भेरिफाइ (Verify) गर्दैछ, कृपया केही समयपछि पुनः ट्र्याक गर्नुहोस्।";
+                    downloadArea.classList.add('hidden');
+                } 
+                // ३. भुक्तानी नै नगरेको खण्डमा
+                else {
+                    statusMsg.className = "p-3 rounded-xl text-sm font-semibold bg-amber-100 text-amber-800 border border-amber-200";
+                    statusMsg.innerText = "⚠️ भुक्तानी बाँकी छ। कृपया QR स्क्यान गरी eSewa Code सबमिट गर्नुहोस्।";
+                    downloadArea.classList.add('hidden');
                 }
-            });
 
-            // प्रिन्ट गर्दा नचाहिने बटनहरू स्वतः लुकाउने CSS
-            const style = document.createElement('style');
-            style.innerHTML = '@media print { button, input[type="button"], input[type="submit"], .no-print { display: none !important; } }';
-            document.head.appendChild(style);
-
-            setTimeout(() => {
-                window.print();
-            }, 800);
+                document.getElementById('result').classList.remove('hidden');
+            } else {
+                alert('यो टोकन नम्बरको निवेदन फेला परेन।');
+            }
         }
-        return;
-    }
 
-    // ख. पुराना फारामको बटन वा Form मा स्वतः Event Listener जोड्ने
-    const form = document.querySelector('form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            submitPrintRequest();
-        });
-    } else {
-        const buttons = document.querySelectorAll('button, input[type="button"], input[type="submit"]');
-        if (buttons.length > 0) {
-            const lastBtn = buttons[buttons.length - 1];
-            lastBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                submitPrintRequest();
-            });
+        function downloadDocument() {
+            if (!currentRequest) return;
+            // सक्कली निवेदन पेजमा डाटा स्वतः भरेर प्रिन्ट गर्ने विन्डो खोल्छ
+            const originalUrl = `${currentRequest.fileLink}?printToken=${currentRequest.token}`;
+            window.open(originalUrl, '_blank');
         }
-    }
-});
+    </script>
+</body>
+</html>
