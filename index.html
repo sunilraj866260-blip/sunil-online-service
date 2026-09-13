@@ -1,488 +1,246 @@
 <!DOCTYPE html>
 <html lang="ne">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>सुनील फोटो स्टुडियो अनलाइन सेवा</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>रोहिणी वडा नं. १ - अनलाइन सिफारिस प्रणाली</title>
+    
+    <!-- Firebase SDK (v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: auto; }
+        
+        .header { background: #1e3799; color: white; padding: 25px; border-radius: 10px; text-align: center; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .header h1 { margin: 0 0 5px 0; font-size: 26px; }
+        .header p { margin: 0; opacity: 0.9; }
 
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f4f7f6;
-      color: #333;
-    }
+        /* Universal eSewa Verification & Print Box */
+        .search-card { background: white; padding: 20px; border-radius: 10px; border-left: 6px solid #27ae60; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 30px; }
+        .search-card h3 { margin: 0 0 10px 0; color: #27ae60; display: flex; align-items: center; gap: 10px; }
+        .search-row { display: flex; gap: 10px; }
+        .search-row input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+        .search-row button { background: #27ae60; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .search-row button:hover { background: #219150; }
 
-    .header-container {
-      max-width: 900px;
-      margin: 0 auto 25px auto;
-      text-align: center;
-      background: #ffffff;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-      border-top: 5px solid #0056b3;
-    }
+        /* Grid Services Menu */
+        .services-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #1e3799; padding-bottom: 5px; color: #1e3799; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        
+        .service-card { background: white; padding: 20px; border-radius: 10px; text-decoration: none; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: 0.2s ease; border: 1px solid #e1e8ed; display: flex; align-items: center; gap: 15px; }
+        .service-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.12); border-color: #1e3799; }
+        .service-card i { font-size: 30px; color: #1e3799; background: #e8ecef; padding: 15px; border-radius: 50%; }
+        .service-card div h4 { margin: 0 0 5px 0; font-size: 17px; color: #1e3799; }
+        .service-card div p { margin: 0; font-size: 13px; color: #666; }
 
-    .header-container h1 { margin: 0 0 8px 0; color: #0056b3; }
-    .header-container p { margin: 0; color: #666; font-size: 14px; }
+        .status-msg { margin-top: 10px; font-weight: bold; }
 
-    .main-wrapper {
-      max-width: 900px;
-      margin: 0 auto;
-    }
+        /* Perfect A4 Print Styling */
+        @media print {
+            @page { size: A4 portrait; margin: 15mm; }
+            html, body { width: 210mm; height: 297mm; background: #fff !important; padding: 0 !important; margin: 0 !important; font-size: 12pt; line-height: 1.8; }
+            .container, .header, .search-card, .grid-container, .services-title { display: none !important; }
+            #print-area { display: block !important; width: 100%; box-sizing: border-box; position: relative; }
+            
+            /* Watermark Style */
+            #print-area.has-watermark::before {
+                content: "UNPAID SAMPLE - नमुना प्रति";
+                position: fixed;
+                top: 40%;
+                left: 10%;
+                width: 80%;
+                text-align: center;
+                font-size: 42pt;
+                font-weight: bold;
+                color: rgba(200, 0, 0, 0.25);
+                transform: rotate(-30deg);
+                z-index: 9999;
+                pointer-events: none;
+            }
 
-    /* Standard Card Section */
-    .card {
-      background: #ffffff;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      margin-bottom: 25px;
-      border: 1px solid #e0e0e0;
-    }
-
-    .card h3 { margin-top: 0; color: #0056b3; border-bottom: 2px solid #f4f7f6; padding-bottom: 10px; }
-
-    .form-group { margin-bottom: 15px; }
-    label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 14px; }
-    input[type="text"], input[type="date"], select, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .btn-primary { background-color: #007bff; color: white; }
-    .btn-primary:hover { background-color: #0056b3; }
-    .btn-success { background-color: #28a745; color: white; }
-    .btn-success:hover { background-color: #218838; }
-    .btn-info { background-color: #17a2b8; color: white; }
-    .btn-info:hover { background-color: #138496; }
-
-    /* Modal Styling */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.65);
-      z-index: 9999;
-    }
-
-    .modal-box {
-      background: #ffffff;
-      max-width: 450px;
-      margin: 50px auto;
-      padding: 25px;
-      border-radius: 8px;
-      position: relative;
-    }
-
-    .close-btn {
-      position: absolute;
-      right: 15px; top: 10px;
-      cursor: pointer; font-size: 24px; font-weight: bold; color: #888;
-    }
-
-    /* Admin Table Styling */
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 13px; }
-    th { background-color: #007bff; color: white; }
-    .btn-sm { padding: 5px 10px; font-size: 12px; margin-right: 3px; }
-    .status-approved { color: green; font-weight: bold; }
-    .status-pending { color: orange; font-weight: bold; }
-    .status-rejected { color: red; font-weight: bold; }
-
-    /* Printable Paper Layout */
-    #printablePaper {
-      display: none;
-      background: #fff;
-      width: 210mm;
-      min-height: 297mm;
-      padding: 20mm;
-      margin: 0 auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.15);
-      box-sizing: border-box;
-      line-height: 1.8;
-      font-size: 16px;
-    }
-
-    /* CSS for Printing */
-    @media print {
-      body * { visibility: hidden; }
-      #printablePaper, #printablePaper * { visibility: visible; }
-      #printablePaper {
-        display: block !important;
-        position: absolute;
-        left: 0; top: 0; width: 100%;
-        box-shadow: none; padding: 10mm;
-      }
-      .no-print { display: none !important; }
-    }
-  </style>
+            .date { text-align: right; margin-bottom: 15px; }
+            .recipient { line-height: 1.5; margin-bottom: 15px; }
+            .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 20px 0; font-size: 15pt; }
+            .content { text-indent: 50px; margin-bottom: 15px; text-align: justify; }
+            .child-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+            .child-table th, .child-table td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 11pt; }
+            .child-table th { background-color: #f2f2f2; }
+            .bottom-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; page-break-inside: avoid; }
+            .attachment-part { width: 55%; font-size: 11pt; line-height: 1.6; }
+            .applicant-part { width: 40%; line-height: 1.6; }
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Web View Containers (प्रिन्ट गर्दा लुक्छन्) -->
-  <div class="no-print">
+<div class="container">
+    <div class="header">
+        <h1>रोहिणी गाउँपालिका, वडा नं. १</h1>
+        <p>रुपन्देही, लुम्बिनी प्रदेश - डिजिटल सिफारिस सेवा पोर्टल</p>
+    </div>
+
+    <!-- Check Status & Print Form -->
+    <div class="search-card">
+        <h3><i class="fa-solid fa-print"></i> eSewa Code हालेर निवेदन प्रिन्ट गर्नुहोस्</h3>
+        <div class="search-row">
+            <input type="text" id="check_esewa_code" placeholder="तपाईँको eSewa Code (Transaction ID) हाल्नुहोस्...">
+            <button type="button" onclick="checkAndPrint()">जाँच / A4 प्रिन्ट</button>
+        </div>
+        <div id="check_status_msg" class="status-msg"></div>
+    </div>
+
+    <div class="services-title">उपलब्ध निवेदन तथा सिफारिस फारमहरू</div>
     
-    <!-- Header -->
-    <div class="header-container">
-      <h1>सुनील फोटो स्टुडियो अनलाइन सेवा</h1>
-      <p>रोहिणी-१, रूपन्देही | अनलाइन सिफारिस फारम तथा भुक्तानी प्रणाली</p>
+    <div class="grid-container">
+        <!-- Link to Janamdarta File -->
+        <a href="janamdarta.html" class="service-card">
+            <i class="fa-solid fa-baby"></i>
+            <div>
+                <h4>जन्म दर्ता सिफारिस</h4>
+                <p>नयाँ जन्मिएका शिशुको दर्ता निवेदन</p>
+            </div>
+        </a>
+
+        <a href="vivah_darta.html" class="service-card">
+            <i class="fa-solid fa-rings-wedding"></i>
+            <div>
+                <h4>विवाह दर्ता सिफारिस</h4>
+                <p>विवाह दर्ता प्रमाणपत्र सिफारिस</p>
+            </div>
+        </a>
+
+        <a href="mrityu_darta.html" class="service-card">
+            <i class="fa-solid fa-book-dead"></i>
+            <div>
+                <h4>मृत्यु दर्ता सिफारिस</h4>
+                <p>मृत्यु दर्ता प्रमाणपत्र सिफारिस</p>
+            </div>
+        </a>
+
+        <a href="charitra_pramanit.html" class="service-card">
+            <i class="fa-solid fa-user-check"></i>
+            <div>
+                <h4>चारित्रिक सिफारिस</h4>
+                <p>चारित्रिक प्रमाणपत्रको निवेदन</p>
+            </div>
+        </a>
+
+        <a href="ghar_jagga.html" class="service-card">
+            <i class="fa-solid fa-house-chimney"></i>
+            <div>
+                <h4>घर-जग्गा नामसारी</h4>
+                <p>नामसारी तथा हकदाबी सिफारिस</p>
+            </div>
+        </a>
     </div>
+</div>
 
-    <div class="main-wrapper">
+<!-- Dynamic Printable Document Section -->
+<div id="print-area" style="display:none;">
+    <div class="date">मिति: <span id="p_today"></span></div>
+    <div class="recipient">श्रीमान् वडा अध्यक्ष ज्यू,<br>रोहिणी गाउँपालिका, वडा नं. १,<br>रुपन्देही, नेपाल।</div>
+    <div id="p_subject" class="subject">विषय : जन्म दर्ता गरिपाऊँ।</div>
+    <p>महोदय,</p>
+    <div id="p_content" class="content"></div>
+    
+    <div id="p_children_table_wrapper"></div>
 
-      <!-- १. फारम सेक्सन -->
-      <div class="card">
-        <h3>१. निवेदन फारम भर्नुहोस्</h3>
-        
-        <div class="form-group">
-          <label>निवेदनको प्रकार:</label>
-          <select id="docType">
-            <option value="जन्मदर्ता सिफारिस">जन्मदर्ता सिफारिस</option>
-            <option value="विवाह दर्ता सिफारिस">विवाह दर्ता सिफारिस</option>
-            <option value="नागरिकता सिफारिस">नागरिकता सिफारिस</option>
-            <option value="नाता प्रमाणित सिफारिस">नाता प्रमाणित सिफारिस</option>
-            <option value="बसोबास प्रमाणित सिफारिस">बसोबास प्रमाणित सिफारिस</option>
-          </select>
+    <div class="bottom-container">
+        <div class="attachment-part">
+            <strong>संलग्न कागजातहरू:</strong><br>
+            १. बाबु-आमाको नागरिकता प्रतिलिपि<br>
+            २. अस्पतालको जन्म डिस्चार्ज पुर्जी<br>
+            ३. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि
         </div>
-
-        <div class="form-group">
-          <label>निवेदकको पुरा नाम:</label>
-          <input type="text" id="applicantName" placeholder="नाम थर लेख्नुहोस्">
+        <div class="applicant-part">
+            <strong>निवेदक:</strong><br><br>
+            सही: ...........................<br>
+            नाम: <strong id="p_f_name">………………</strong><br>
+            ठेगाना: रोहिणी-१, रुपन्देही<br>
+            फोन: <span id="p_phone">9817423830</span>
         </div>
-
-        <div class="form-group">
-          <label>ठेगाना:</label>
-          <input type="text" id="applicantAddress" placeholder="उदा: रोहिणी वडा नं. १, रूपन्देही">
-        </div>
-
-        <div class="form-group">
-          <label>मिति:</label>
-          <input type="date" id="docDate">
-        </div>
-
-        <div class="form-group">
-          <label>निवेदनको मुख्य विवरण:</label>
-          <textarea id="docDetails" rows="4" placeholder="निवेदनको थप विवरण यहाँ लेख्नुहोस्..."></textarea>
-        </div>
-
-        <button class="btn btn-success" onclick="openPaymentModal()" style="width: 100%; padding: 12px; font-size: 16px;">
-          💳 अनलाइन पेमेन्ट र निवेदन दर्ता गर्नुहोस्
-        </button>
-      </div>
-
-      <!-- २. Trace Section -->
-      <div class="card" style="background: #fff8e6; border-left: 5px solid #ffc107;">
-        <h3 style="color: #856404; border-bottom-color: #ffeeba;">२. स्थिति जाँच्नुहोस् र प्रिन्ट गर्नुहोस् (Trace & Print)</h3>
-        <p style="font-size: 13px; color: #666;">पेमेन्ट अनुरोध पठाइसक्नुभएको छ भने Transaction ID हालेर स्थिति चेक गरी प्रिन्ट गर्नुहोस्:</p>
-        
-        <div style="display: flex; gap: 10px;">
-          <input type="text" id="traceTxId" placeholder="eSewa / Khalti Transaction ID">
-          <button class="btn btn-info" onclick="traceAndPrint()">Trace & Print</button>
-        </div>
-        <div id="traceStatus" style="margin-top: 12px; font-weight: bold;"></div>
-      </div>
-
-      <!-- ३. Admin Panel Section -->
-      <div class="card" style="border-top: 5px solid #28a745;">
-        <h3 style="color: #28a745;">🔐 एडमिन कन्ट्रोल प्यानल (Admin Panel)</h3>
-        
-        <!-- Login Form -->
-        <div id="adminLoginForm" style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <input type="text" id="adminUser" placeholder="Username" style="flex: 1;">
-          <input type="password" id="adminPass" placeholder="Password" style="flex: 1;">
-          <button class="btn btn-primary" onclick="adminLogin()">लगइन</button>
-        </div>
-
-        <!-- Dashboard Table (Login पछि मात्र देखिने) -->
-        <div id="adminDashboard" style="display: none; margin-top: 15px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <b style="color: #0056b3;">पेमेन्ट/निवेदन अनुरोधहरू:</b>
-            <button class="btn btn-info btn-sm" onclick="adminLogout()">Logout</button>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>नाम</th>
-                <th>प्रकार</th>
-                <th>Txn ID</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="adminTableBody">
-              <tr><td colspan="5" style="text-align: center;">डेटा लोड हुँदैछ...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
     </div>
-  </div>
+</div>
 
-
-  <!-- Payment Modal -->
-  <div id="paymentModal" class="modal-overlay no-print">
-    <div class="modal-box">
-      <span class="close-btn" onclick="closePaymentModal()">&times;</span>
-      <h3 style="margin-top: 0; color: #0056b3; text-align: center;">अनलाइन भुक्तानी</h3>
-      <p style="font-size: 13px; color: #555; text-align: center;">
-        eSewa / Khalti QR मा शुल्क भुक्तानी गरी प्राप्त भएको Transaction ID तल हालेर पेमेन्ट अनुरोध पठाउनुहोस्।
-      </p>
-
-      <div class="form-group">
-        <label>Transaction ID:</label>
-        <input type="text" id="custTxId" placeholder="उदा: 8X92K1L">
-      </div>
-
-      <button class="btn btn-primary" onclick="sendPaymentRequest()" style="width: 100%;">अगाडि बढाउनुहोस् (Submit Request)</button>
-      <div id="modalStatus" style="margin-top: 12px; text-align: center; font-weight: bold;"></div>
-    </div>
-  </div>
-
-
-  <!-- ================= A4 PRINTABLE PAPER TEMPLATE ================= -->
-  <div id="printablePaper">
-    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 25px;">
-      <h2 style="margin: 0; font-size: 24px; color: #000;">रोहिणी गाउँपालिका</h2>
-      <h3 style="margin: 5px 0; font-size: 18px; color: #000;">१ नं. वडा कार्यालय</h3>
-      <p style="margin: 0; font-size: 14px;">लुम्बिनी प्रदेश, रूपन्देही, नेपाल</p>
-    </div>
-
-    <div style="text-align: right; font-size: 14px; margin-bottom: 20px;">
-      <b>मिति:</b> <span id="printDate"></span>
-    </div>
-
-    <div style="text-align: center; margin-bottom: 30px;">
-      <h3 id="printDocType" style="text-decoration: underline; margin: 0; font-size: 20px;"></h3>
-    </div>
-
-    <div style="text-align: justify; font-size: 16px; line-height: 1.8;">
-      <p><b>श्री जो जससँग सम्बन्ध छ।</b></p>
-      <p>
-        प्रस्तुत विषयमा जिल्ला रूपन्देही, रोहिणी गाउँपालिका वडा नं. १ स्थायी ठेगाना भएका 
-        <b>श्री / श्रीमती / सुश्री <span id="printName"></span></b> ले दिनुभएको निवेदन अनुसार 
-        तपसिल बमोजिमको विवरण प्रमाणित तथा सिफारिस गरिन्छ।
-      </p>
-      
-      <div style="background: #f9f9f9; padding: 15px; border: 1px dashed #ccc; margin: 20px 0;">
-        <b>निवेदनको विवरण:</b><br>
-        <span id="printDetails"></span>
-      </div>
-
-      <p style="margin-top: 30px;">
-        भुक्तानी / ट्रेस कोड (Txn ID): <b><span id="printTxId"></span></b><br>
-        भेरिफिकेसन स्थिति: <b>स्वीकृत (Approved)</b>
-      </p>
-    </div>
-
-    <div style="margin-top: 80px; display: flex; justify-content: space-between; align-items: flex-end;">
-      <div>
-        <p style="margin: 0; font-size: 12px; color: #555;">सुनील फोटो स्टुडियो डिजिटल प्रणालीबाट उत्पादित।</p>
-      </div>
-      <div style="text-align: center; border-top: 1px dashed #000; width: 200px; padding-top: 5px;">
-        <b>वडा अध्यक्ष / अधिकृत</b>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ================= JAVASCRIPT ================= -->
-  <script>
-    // १. Firebase Setup
+<script>
     const firebaseConfig = {
-      apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-      databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
+        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
     };
-
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
+    firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Default Date Set
-    document.getElementById('docDate').valueAsDate = new Date();
+    function populatePrintDetails(req) {
+        document.getElementById('p_today').innerText = req.today || '';
+        document.getElementById('p_f_name').innerText = req.applicant_name || '';
+        document.getElementById('p_phone').innerText = req.phone || '';
 
-    // Modal Controls
-    function openPaymentModal() {
-      const name = document.getElementById('applicantName').value.trim();
-      if (!name) {
-        alert("कृपया पहिले निवेदकको नाम भर्नुहोस्!");
-        return;
-      }
-      document.getElementById('paymentModal').style.display = 'block';
-    }
+        let content = `उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने <strong>${req.grandpa_name || '…………'}</strong> को ${req.grandpa_rel || 'नाति'}, तथा श्री <strong>${req.father_name || '…………'}</strong> को ${req.father_rel || 'छोरा'} <strong>${req.applicant_name || '…………'}</strong> हूँ। मिति <strong>${req.marriage_date || '…………'}</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।`;
+        document.getElementById('p_content').innerHTML = content;
 
-    function closePaymentModal() {
-      document.getElementById('paymentModal').style.display = 'none';
-      document.getElementById('modalStatus').innerText = '';
-    }
+        let tableHtml = `<table class="child-table">
+            <thead>
+                <tr><th>क्र.सं.</th><th>बच्चाको नाम</th><th>लिङ्ग</th><th>जन्म मिति</th><th>जन्मस्थान</th><th>टोकन नम्बर</th></tr>
+            </thead><tbody>`;
 
-    // २. Request पठाउने फसन
-    function sendPaymentRequest() {
-      const name = document.getElementById('applicantName').value.trim();
-      const address = document.getElementById('applicantAddress').value.trim();
-      const docType = document.getElementById('docType').value;
-      const date = document.getElementById('docDate').value;
-      const details = document.getElementById('docDetails').value.trim();
-      const txId = document.getElementById('custTxId').value.trim();
-      const statusBox = document.getElementById('modalStatus');
-
-      if (!txId) {
-        alert("कृपया Transaction ID भर्नुहोस्!");
-        return;
-      }
-
-      statusBox.style.color = "blue";
-      statusBox.innerText = "अनुरोध पठाइँदै छ...";
-
-      database.ref('requests/' + txId).set({
-        name: name,
-        address: address,
-        docType: docType,
-        date: date,
-        details: details,
-        transactionId: txId,
-        status: "Pending",
-        timestamp: Date.now()
-      }).then(() => {
-        statusBox.style.color = "green";
-        statusBox.innerHTML = `अनुरोध दर्ता भयो!<br><span style='color:red;'>Transaction ID: ${txId}</span> सुरक्षित राख्नुहोस्। स्वीकृत भएपछि Trace गरी प्रिन्ट गर्नुहोस्।`;
-      }).catch(error => {
-        statusBox.style.color = "red";
-        statusBox.innerText = "त्रुटि: " + error.message;
-      });
-    }
-
-    // ३. Trace गर्ने र Approved छ भने Same Page मा A4 Paper Print/Download गर्ने
-    function traceAndPrint() {
-      const txId = document.getElementById('traceTxId').value.trim();
-      const statusBox = document.getElementById('traceStatus');
-
-      if (!txId) {
-        alert("कृपया Transaction ID राख्नुहोस्!");
-        return;
-      }
-
-      statusBox.style.color = "blue";
-      statusBox.innerText = "जाँचिँदै छ...";
-
-      database.ref('requests/' + txId).once('value').then((snapshot) => {
-        const data = snapshot.val();
-
-        if (!data) {
-          statusBox.style.color = "red";
-          statusBox.innerText = "यो Transaction ID भेटिएन। कृपया सही ID हाल्नुहोस्।";
-        } else if (data.status === "Approved") {
-          statusBox.style.color = "green";
-          statusBox.innerText = "भुक्तानी स्वीकृत भइसकेको छ! कागजात प्रिन्ट हुँदैछ...";
-
-          // A4 कागजातमा डेटा भर्ने
-          document.getElementById('printDocType').innerText = data.docType || 'सिफारिस पत्र';
-          document.getElementById('printName').innerText = data.name || '';
-          document.getElementById('printDate').innerText = data.date || new Date().toLocaleDateString('ne-NP');
-          document.getElementById('printDetails').innerText = data.details || 'कुनै अतिरिक्त विवरण नभएको।';
-          document.getElementById('printTxId').innerText = data.transactionId || '';
-
-          // A4 Div देखाएर Sojhai Print Dialog खोल्ने
-          setTimeout(() => {
-            document.getElementById('printablePaper').style.display = 'block';
-            window.print();
-            document.getElementById('printablePaper').style.display = 'none';
-          }, 600);
-
-        } else if (data.status === "Pending") {
-          statusBox.style.color = "#e67e22";
-          statusBox.innerText = "तपाईंको निवेदन अझै भेरिफिकेसनको पर्खाइमा छ। स्टुडियोबाट Approved भएपछि पुनः प्रयास गर्नुहोस्।";
-        } else if (data.status === "Rejected") {
-          statusBox.style.color = "red";
-          statusBox.innerText = "यो पेमेन्ट अस्वीकृत (Rejected) भएको छ।";
+        if (req.children) {
+            req.children.forEach((c, i) => {
+                tableHtml += `<tr>
+                    <td>${i + 1}</td>
+                    <td><strong>${c.name || ''}</strong></td>
+                    <td>${c.gender || ''}</td>
+                    <td>${c.dob || ''}</td>
+                    <td>${c.birthplace || ''}</td>
+                    <td><strong>${c.token || ''}</strong></td>
+                </tr>`;
+            });
         }
-      });
+        tableHtml += `</tbody></table>`;
+        document.getElementById('p_children_table_wrapper').innerHTML = tableHtml;
     }
 
-    // ४. Admin Login & Dashboard Logic
-    function adminLogin() {
-      const u = document.getElementById('adminUser').value.trim();
-      const p = document.getElementById('adminPass').value.trim();
+    function checkAndPrint() {
+        const code = document.getElementById('check_esewa_code').value.trim();
+        const msg = document.getElementById('check_status_msg');
+        const printArea = document.getElementById('print-area');
+        
+        if (!code) { alert("कृपया eSewa Code हाल्नुहोस्!"); return; }
 
-      if (u === "admin" && p === "sunil123") {
-        document.getElementById('adminLoginForm').style.display = 'none';
-        document.getElementById('adminDashboard').style.display = 'block';
-        loadAdminRequests();
-      } else {
-        alert("गलत Username वा Password!");
-      }
-    }
+        msg.style.color = "#d35400";
+        msg.innerText = "🔍 खोजी हुँदैछ...";
 
-    function adminLogout() {
-      document.getElementById('adminLoginForm').style.display = 'flex';
-      document.getElementById('adminDashboard').style.display = 'none';
-      document.getElementById('adminUser').value = '';
-      document.getElementById('adminPass').value = '';
-    }
+        database.ref('requests').orderByChild('esewa_code').equalTo(code).once('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                msg.style.color = "#c0392b";
+                msg.innerText = "❌ यो eSewa Code सँग मिल्दो अनुरोध भेटिएन!";
+                return;
+            }
 
-    function loadAdminRequests() {
-      database.ref('requests').on('value', (snapshot) => {
-        const tbody = document.getElementById('adminTableBody');
-        tbody.innerHTML = '';
+            snapshot.forEach((childSnapshot) => {
+                const req = childSnapshot.val();
+                populatePrintDetails(req);
 
-        const data = snapshot.val();
-        if (!data) {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">कुनै अनुरोध प्राप्त भएको छैन।</td></tr>';
-          return;
-        }
+                if (req.status !== 'APPROVED') {
+                    msg.style.color = "#e67e22";
+                    msg.innerText = "⚠️ भुक्तानी अझै रुजु (Verify) भएको छैन। वाटरमार्क सहितको नमुना प्रिन्ट खुल्दैछ...";
+                    // Add watermark for unverified/free print
+                    printArea.classList.add('has-watermark');
+                } else {
+                    msg.style.color = "#27ae60";
+                    msg.innerText = "✅ भुक्तानी स्वीकृत भएको छ! सफा A4 प्रिन्ट खुल्दैछ...";
+                    // Remove watermark for paid/approved print
+                    printArea.classList.remove('has-watermark');
+                }
 
-        Object.keys(data).reverse().forEach(txId => {
-          const item = data[txId];
-          const tr = document.createElement('tr');
-
-          let statusTag = `<span class="status-pending">Pending</span>`;
-          if (item.status === "Approved") statusTag = `<span class="status-approved">Approved</span>`;
-          if (item.status === "Rejected") statusTag = `<span class="status-rejected">Rejected</span>`;
-
-          tr.innerHTML = `
-            <td><b>${item.name || 'N/A'}</b></td>
-            <td>${item.docType || 'N/A'}</td>
-            <td><code>${item.transactionId}</code></td>
-            <td>${statusTag}</td>
-            <td>
-              <button class="btn btn-success btn-sm" onclick="updateStatus('${item.transactionId}', 'Approved')">Approve</button>
-              <button class="btn btn-primary btn-sm" style="background:#dc3545;" onclick="updateStatus('${item.transactionId}', 'Rejected')">Reject</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
+                setTimeout(() => { window.print(); }, 500);
+            });
         });
-      });
     }
-
-    function updateStatus(txId, newStatus) {
-      database.ref('requests/' + txId).update({
-        status: newStatus
-      }).then(() => {
-        alert(`Transaction ID: ${txId} लाई ${newStatus} गरियो।`);
-      });
-    }
-  </script>
-
+</script>
 </body>
 </html>
