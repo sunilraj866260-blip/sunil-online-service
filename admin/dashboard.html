@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="../config/firebase-config.js"></script>
+</head>
+<body>
+
+    <div class="admin-sidebar">
+        <h2 style="text-align:center;">Admin Panel</h2>
+        <a href="dashboard.html" class="active">सबै निवेदनहरू</a>
+        <a href="pending.html">Pending निवेदन</a>
+        <a href="approved.html">Approved निवेदन</a>
+        <a href="rejected.html">Rejected निवेदन</a>
+        <a href="../index.html" style="color:#e74c3c;">Logout</a>
+    </div>
+
+    <div class="admin-content">
+        <h2>सबै दर्ता भएका निवेदनहरूको सूची</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>निवेदन प्रकार</th>
+                    <th>आवेदकको नाम</th>
+                    <th>मोबाइल</th>
+                    <th>भुक्तानी</th>
+                    <th>स्थिति</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="adminTableBody">
+                <!-- Realtime Dynamic Data -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        db.ref('nivedans').on('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '';
+
+            Object.values(data).forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.formType}</td>
+                        <td>${item.applicantName}</td>
+                        <td>${item.mobileNumber}</td>
+                        <td>${item.paymentType} (${item.esewaCode || 'N/A'})</td>
+                        <td><b>${item.status}</b></td>
+                        <td>
+                            <button onclick="setStatus('${item.id}', 'Approved')" style="background:green; color:white;">Approve</button>
+                            <button onclick="setStatus('${item.id}', 'Rejected')" style="background:red; color:white;">Reject</button>
+                            <a href="../user/print.html?id=${item.id}" target="_blank">View</a>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+
+        function setStatus(id, newStatus) {
+            db.ref('nivedans/' + id).update({ status: newStatus });
+        }
+    </script>
+</body>
+</html>
