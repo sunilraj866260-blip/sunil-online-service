@@ -3,325 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nivedan System - Full Single File Test</title>
+    <title>डिजिटल निवेदन प्रणाली - Nivedan System</title>
+    <link rel="stylesheet" href="css/style.css">
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="config/firebase-config.js"></script>
     <style>
-        :root { --primary: #2c3e50; --secondary: #27ae60; --danger: #e74c3c; }
-        body { font-family: 'kalimati', Arial, sans-serif; margin: 0; padding: 20px; background: #f4f6f9; }
-        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
-        nav button { padding: 10px 15px; border: none; background: var(--primary); color: white; border-radius: 4px; cursor: pointer; }
-        nav button:hover { background: #34495e; }
-        .tab-content { display: none; }
-        .active { display: block; }
-        form { display: flex; flex-direction: column; gap: 10px; }
-        input, select, button { padding: 8px; font-size: 16px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        table, th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: var(--primary); color: white; }
-        
-        /* Watermark & Print Styles */
-        .print-container { position: relative; border: 2px solid #333; padding: 30px; background: #fff; margin-top: 20px; }
-        .watermark {
-            position: absolute; top: 30%; left: 15%; font-size: 65px;
-            color: rgba(231, 76, 60, 0.25); transform: rotate(-30deg);
-            font-weight: bold; pointer-events: none; user-select: none;
-        }
-        @media print {
-            body * { visibility: hidden; }
-            .print-container, .print-container * { visibility: visible; }
-            .print-container { position: absolute; left: 0; top: 0; width: 100%; border: none; }
-            .no-print { display: none !important; }
-        }
+        :root { --primary: #2c3e50; --secondary: #27ae60; }
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f9; }
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; }
+        nav { display: flex; justify-content: center; gap: 10px; background: #34495e; padding: 10px; flex-wrap: wrap; }
+        nav a { color: white; text-decoration: none; padding: 8px 15px; background: rgba(255,255,255,0.1); border-radius: 4px; font-weight: bold; }
+        nav a:hover { background: var(--secondary); }
+        .main-container { max-width: 1100px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; margin-top: 20px; }
+        .card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; background: #fafafa; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-3px); border-color: var(--secondary); }
+        .card h3 { margin-top: 0; color: var(--primary); }
+        .card a { display: inline-block; margin-top: 10px; padding: 8px 15px; background: var(--secondary); color: white; text-decoration: none; border-radius: 4px; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ccc; border-radius: 6px; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h2>डिजिटल निवेदन प्रणाली (Nivedan System)</h2>
-    </div>
+<header>
+    <h2>डिजिटल निवेदन प्रणाली (Nivedan System)</h2>
+    <p>स्थानीय तह/वडा कार्यालयका सबै अनलाइन निवेदनहरू</p>
+</header>
 
-    <!-- MAIN NAVIGATION -->
-    <nav class="no-print">
-        <button onclick="showTab('forms-tab')">निवेदन फारमहरू</button>
-        <button onclick="showTab('trace-tab')">TRACE (स्थिति हेर्नुहोस्)</button>
-        <button onclick="showTab('admin-tab')">Admin Dashboard</button>
-    </nav>
+<nav>
+    <a href="index.html">🏠 होम (Home)</a>
+    <a href="trace/trace.html">🔍 निवेदन ट्र्याक (TRACE)</a>
+    <a href="payment/payment.html">💳 भुक्तानी (Payment)</a>
+    <a href="admin/dashboard.html">👨‍💼 Admin Dashboard</a>
+</nav>
 
-    <!-- 1. FORMS TAB -->
-    <div id="forms-tab" class="tab-content active no-print">
-        <h3>नयाँ निवेदन भर्नुहोस्</h3>
-        <form id="nivedanForm">
-            <label>निवेदनको प्रकार:</label>
-            <select id="formType" required>
-                <option value="जन्म दर्ता">जन्म दर्ता (Janma)</option>
-                <option value="विवाह दर्ता">विवाह दर्ता (Bibaha)</option>
-                <option value="मृत्यु दर्ता">मृत्यु दर्ता (Mrityu)</option>
-                <option value="बसाइँसराई">बसाइँसराई (Basaisarai)</option>
-                <option value="नागरिकता सिफारिश">नागरिकता सिफारिश (Nagarikata)</option>
-                <option value="चारकिल्ला प्रमाण">चारकिल्ला प्रमाण (Charkilla)</option>
-            </select>
-
-            <label>आवेदकको पूरा नाम:</label>
-            <input type="text" id="applicantName" placeholder="नेपालीमा नाम" required>
-
-            <label>मोबाइल नम्बर:</label>
-            <input type="tel" id="mobileNumber" placeholder="98XXXXXXXX" pattern="[0-9]{10}" required>
-
-            <label>निवेदन विवरण:</label>
-            <textarea id="details" rows="3" placeholder="थप विवरण लेख्नुहोस्..." required></textarea>
-
-            <button type="submit" style="background:var(--secondary); color:white;">निवेदन बुझाउनुहोस् (Save)</button>
-        </form>
-    </div>
-
-    <!-- 2. TRACE & PAYMENT TAB -->
-    <div id="trace-tab" class="tab-content no-print">
-        <h3>निवेदन खोज्नुहोस् र ट्र्याक गर्नुहोस्</h3>
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <input type="text" id="traceSearchInput" placeholder="मोबाइल नम्बर वा eSewa Code" style="flex:1;">
-            <button onclick="traceApplication()">खोज्नुहोस्</button>
+<div class="main-container">
+    <h3>📋 पुराना तथा नयाँ निवेदन छान्नुहोस्:</h3>
+    <div class="grid-container">
+        <div class="card">
+            <h3>👶 जन्म दर्ता</h3>
+            <p>जन्म दर्ताको लागि निवेदन फारम</p>
+            <a href="forms/janma.html">निवेदन खोल्नुहोस्</a>
         </div>
-        <div id="traceResult"></div>
-    </div>
-
-    <!-- 3. ADMIN DASHBOARD -->
-    <div id="admin-tab" class="tab-content no-print">
-        <h3>Admin Control Panel</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>प्रकार</th>
-                    <th>नाम</th>
-                    <th>मोबाइल</th>
-                    <th>भुक्तानी कोड</th>
-                    <th>स्थिति</th>
-                    <th>कार्य (Action)</th>
-                </tr>
-            </thead>
-            <tbody id="adminTableBody">
-                <!-- Dynamic Data -->
-            </tbody>
-        </table>
-    </div>
-
-    <!-- 4. PRINT VIEW & WATERMARK -->
-    <div id="printView" style="display:none;">
-        <hr class="no-print" style="margin: 30px 0;">
-        <div class="print-container" id="printableArea">
-            <div id="watermarkOverlay" class="watermark" style="display:none;">FREE COPY</div>
-            <div style="text-align: center;">
-                <h3>अनुसूची - १</h3>
-                <h4>श्री वडा अध्यक्ष ज्यु, वडा नं. १ कार्यालय</h4>
-                <h3 id="pFormType" style="text-decoration: underline;">निवेदन</h3>
-            </div>
-            <p><strong>मिति:</strong> <span id="pDate"></span></p>
-            <p><strong>आवेदक:</strong> <span id="pName"></span></p>
-            <p><strong>सम्पर्क:</strong> <span id="pMobile"></span></p>
-            <p><strong>विषय:</strong> <span id="pFormTypeSub"></span> सम्बन्धमा।</p>
-            <br>
-            <p id="pDetails" style="min-height: 80px;"></p>
-            <br><br>
-            <div style="display: flex; justify-content: space-between;">
-                <div>भुक्तानी स्थिति: <b id="pPaymentStatus">FREE</b></div>
-                <div>निवेदकको दस्तखत: ____________</div>
-            </div>
+        <div class="card">
+            <h3>💍 विवाह दर्ता</h3>
+            <p>विवाह दर्ताको लागि निवेदन फारम</p>
+            <a href="forms/bibaha.html">निवेदन खोल्नुहोस्</a>
         </div>
-        <div class="no-print" style="margin-top: 15px;">
-            <button onclick="window.print()" style="background:var(--secondary); color:white;">Print Page</button>
-            <button onclick="closePrintView()">X Close</button>
+        <div class="card">
+            <h3>⚰️ मृत्यु दर्ता</h3>
+            <p>मृत्यु दर्ताको लागि निवेदन फारम</p>
+            <a href="forms/mrityu.html">निवेदन खोल्नुहोस्</a>
+        </div>
+        <div class="card">
+            <h3>🏠 बसाइँसराई</h3>
+            <p>बसाइँसराई सिफारिश फारम</p>
+            <a href="forms/basaisarai.html">निवेदन खोल्नुहोस्</a>
+        </div>
+        <div class="card">
+            <h3>🪪 नागरिकता सिफारिश</h3>
+            <p>नागरिकता सिफारिश निवेदन</p>
+            <a href="forms/nagarikata.html">निवेदन खोल्नुहोस्</a>
+        </div>
+        <div class="card">
+            <h3>🗺️ चारकिल्ला प्रमाण</h3>
+            <p>चारकिल्ला प्रमाणित फारम</p>
+            <a href="forms/charkilla.html">निवेदन खोल्नुहोस्</a>
+        </div>
+        <div class="card">
+            <h3>👨‍👩‍👧 नाता प्रमाणित</h3>
+            <p>नाता प्रमाणित सिफारिश फारम</p>
+            <a href="forms/nata.html">निवेदन खोल्नुहोस्</a>
+        </div>
+        <div class="card">
+            <h3>📜 सम्बन्ध विच्छेद</h3>
+            <p>सम्बन्ध विच्छेद सिफारिश फारम</p>
+            <a href="forms/divorce.html">निवेदन खोल्नुहोस्</a>
         </div>
     </div>
 </div>
 
-<script>
-    // ==========================================
-    // 1. UPDATED FIREBASE CONFIG WITH YOUR DETAILS
-    // ==========================================
-    const firebaseConfig = {
-        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-        authDomain: "sunil-online-service.firebaseapp.com",
-        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
-        projectId: "sunil-online-service",
-        storageBucket: "sunil-online-service.appspot.com",
-        messagingSenderId: "",
-        appId: ""
-    };
-
-    let db = null;
-    let allNivedansData = {};
-
-    try {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
-        
-        // Listen to Data changes in Firebase Realtime Database
-        db.ref('nivedans').on('value', (snapshot) => {
-            allNivedansData = snapshot.val() || {};
-            loadAdminDashboard();
-        });
-    } catch(e) {
-        console.error("Firebase init error:", e);
-    }
-
-    // Navigation Switch
-    function showTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        if(tabId === 'admin-tab') loadAdminDashboard();
-    }
-
-    // ==========================================
-    // 2. FORM SUBMIT -> FIREBASE
-    // ==========================================
-    document.getElementById('nivedanForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const id = 'NIV-' + Date.now();
-        const newNivedan = {
-            id: id,
-            formType: document.getElementById('formType').value,
-            applicantName: document.getElementById('applicantName').value,
-            mobileNumber: document.getElementById('mobileNumber').value,
-            details: document.getElementById('details').value,
-            status: 'Pending',
-            paymentType: 'FREE',
-            esewaCode: '',
-            date: new Date().toLocaleDateString('ne-NP')
-        };
-
-        if(db) {
-            db.ref('nivedans/' + id).set(newNivedan, (error) => {
-                if(error) {
-                    alert("डाटा सेभ गर्न समस्या भयो! Firebase Security Rules चेक गर्नुहोस्।");
-                } else {
-                    alert('निवेदन सफलतापूर्वक सेभ भयो!');
-                    document.getElementById('nivedanForm').reset();
-                    showTab('trace-tab');
-                    document.getElementById('traceSearchInput').value = newNivedan.mobileNumber;
-                    traceApplication();
-                }
-            });
-        }
-    });
-
-    // ==========================================
-    // 3. TRACE & PAYMENT (Firebase Connected)
-    // ==========================================
-    function traceApplication() {
-        const query = document.getElementById('traceSearchInput').value.trim();
-        const container = document.getElementById('traceResult');
-        container.innerHTML = '';
-
-        const results = Object.values(allNivedansData).filter(item => 
-            item.mobileNumber === query || item.esewaCode === query || item.id === query
-        );
-
-        if(results.length === 0) {
-            container.innerHTML = '<p style="color:red;">कुनै पनि निवेदन भेटिएन।</p>';
-            return;
-        }
-
-        results.forEach(item => {
-            const card = document.createElement('div');
-            card.style.cssText = "border:1px solid #ccc; padding:15px; margin-top:10px; border-radius:5px;";
-            card.innerHTML = `
-                <h4>${item.formType} (${item.id})</h4>
-                <p><strong>आवेदक:</strong> ${item.applicantName} | <strong>मोबाइल:</strong> ${item.mobileNumber}</p>
-                <p><strong>स्थिति:</strong> <span style="color:blue">${item.status}</span> | <strong>प्रकार:</strong> ${item.paymentType}</p>
-                
-                ${item.paymentType === 'FREE' ? `
-                    <div style="background:#fff3cd; padding:10px; margin:10px 0;">
-                        <p><strong>PAID PRINT (Rs. 50 eSewa QR):</strong></p>
-                        <input type="text" id="esewa_in_${item.id}" placeholder="eSewa Txn Code">
-                        <button onclick="submitPayment('${item.id}')">Code Save</button>
-                    </div>
-                ` : `<p><b>eSewa Ref Code:</b> ${item.esewaCode}</p>`}
-
-                <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white;">Print / View</button>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    function submitPayment(id) {
-        const code = document.getElementById(`esewa_in_${id}`).value.trim();
-        if(!code) return alert('कृपया eSewa Code हाल्नुहोस्');
-
-        if(db) {
-            db.ref('nivedans/' + id).update({
-                paymentType: 'PAID',
-                esewaCode: code
-            }).then(() => {
-                alert('भुक्तानी कोड अपडेट भयो!');
-                traceApplication();
-            });
-        }
-    }
-
-    // ==========================================
-    // 4. ADMIN DASHBOARD
-    // ==========================================
-    function loadAdminDashboard() {
-        const tbody = document.getElementById('adminTableBody');
-        tbody.innerHTML = '';
-        const list = Object.values(allNivedansData);
-
-        list.forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${item.formType}</td>
-                <td>${item.applicantName}</td>
-                <td>${item.mobileNumber}</td>
-                <td>${item.esewaCode || 'N/A'} (${item.paymentType})</td>
-                <td><b>${item.status}</b></td>
-                <td>
-                    <button onclick="updateStatus('${item.id}', 'Approved')">Approve</button>
-                    <button onclick="updateStatus('${item.id}', 'Rejected')">Reject</button>
-                    <button onclick="openPrintModal('${item.id}')">View</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function updateStatus(id, newStatus) {
-        if(db) {
-            db.ref('nivedans/' + id).update({ status: newStatus });
-        }
-    }
-
-    // ==========================================
-    // 5. PRINT & WATERMARK CONTROL
-    // ==========================================
-    function openPrintModal(id) {
-        const item = allNivedansData[id];
-        if(!item) return;
-
-        document.getElementById('pFormType').innerText = item.formType;
-        document.getElementById('pFormTypeSub').innerText = item.formType;
-        document.getElementById('pDate').innerText = item.date;
-        document.getElementById('pName').innerText = item.applicantName;
-        document.getElementById('pMobile').innerText = item.mobileNumber;
-        document.getElementById('pDetails').innerText = item.details;
-        document.getElementById('pPaymentStatus').innerText = item.paymentType;
-
-        const watermark = document.getElementById('watermarkOverlay');
-        if(item.paymentType === 'FREE') {
-            watermark.style.display = 'block';
-        } else {
-            watermark.style.display = 'none';
-        }
-
-        document.getElementById('printView').style.display = 'block';
-        window.scrollTo(0, document.getElementById('printView').offsetTop);
-    }
-
-    function closePrintView() {
-        document.getElementById('printView').style.display = 'none';
-    }
-</script>
 </body>
 </html>
