@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approved Nivedans - Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="../config/firebase-config.js"></script>
+</head>
+<body>
+
+<div style="padding: 20px;">
+    <h2>✅ स्वीकृत निवेदनहरू (Approved Applications)</h2>
+    <a href="dashboard.html" style="text-decoration: none; font-weight: bold;">← ड्यासबोर्डमा फर्कनुहोस्</a>
+    <hr style="margin: 15px 0;">
+
+    <table>
+        <thead>
+            <tr>
+                <th>Tracking ID</th>
+                <th>प्रकार</th>
+                <th>निवेदकको नाम</th>
+                <th>सम्पर्क</th>
+                <th>अवस्था</th>
+                <th>प्रिन्ट गर्नुहोस्</th>
+            </tr>
+        </thead>
+        <tbody id="approvedTableBody">
+            <!-- Data will load here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+if(localStorage.getItem('adminLoggedIn') !== 'true') {
+    window.location.href = 'login.html';
+}
+
+function loadApproved() {
+    db.ref('nivedans').on('value', snapshot => {
+        const tbody = document.getElementById('approvedTableBody');
+        tbody.innerHTML = '';
+        let count = 0;
+
+        snapshot.forEach(child => {
+            const key = child.key;
+            const val = child.val();
+            
+            if (val.status === 'Approved') {
+                count++;
+                let row = `<tr>
+                    <td>${key}</td>
+                    <td>${val.formType}</td>
+                    <td>${val.applicantName}</td>
+                    <td>${val.mobileNumber || '-'}</td>
+                    <td><span class="status-badge status-approved">Approved</span></td>
+                    <td>
+                        <a href="../user/print.html?id=${key}" target="_blank" style="background: #2980b9; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 14px;">🖨️ सिफारिस प्रिन्ट</a>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            }
+        });
+
+        if (count === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">स्वीकृत भएका निवेदनहरू फेला परेनन्।</td></tr>';
+        }
+    });
+}
+
+loadApproved();
+</script>
+</body>
+</html>
