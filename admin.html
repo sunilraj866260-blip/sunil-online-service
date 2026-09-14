@@ -1,112 +1,856 @@
 <!DOCTYPE html>
 <html lang="ne">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>एडमिन प्यानल - रोहिणी वडा</title>
-    
-    <!-- Firebase SDK (v8) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-    <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .header { background: #1e3799; color: white; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .header h2 { margin: 0; font-size: 24px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
-        th { background-color: #1e3799; color: white; font-size: 15px; }
-        tr:hover { background-color: #f8f9fa; }
-        
-        .badge { padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; display: inline-block; }
-        .badge-pending { background: #ffeaa7; color: #d35400; border: 1px solid #e67e22; }
-        .badge-approved { background: #badc58; color: #27ae60; border: 1px solid #27ae60; }
-        
-        .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
-        .btn-approve { background: #27ae60; color: white; margin-right: 5px; }
-        .btn-approve:hover { background: #219150; }
-        .btn-delete { background: #e74c3c; color: white; }
-        .btn-delete:hover { background: #c0392b; }
-    </style>
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1.0"
+>
+
+<title>
+Admin - निवेदन प्रणाली
+</title>
+
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,"Noto Sans Devanagari",sans-serif;
+    background:#f1f4f7;
+}
+
+.login{
+    max-width:400px;
+    margin:80px auto;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 4px 15px rgba(0,0,0,.1);
+}
+
+.login h2{
+    text-align:center;
+    color:#1769aa;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin:6px 0 12px;
+    border:1px solid #aaa;
+    border-radius:6px;
+    font-size:16px;
+}
+
+button{
+    padding:10px 15px;
+    border:0;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.login-btn{
+    width:100%;
+    background:#1769aa;
+    color:white;
+    font-size:16px;
+}
+
+.dashboard{
+    display:none;
+}
+
+header{
+    background:#1769aa;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
+}
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.logout{
+    background:#dc3545;
+    color:white;
+}
+
+.refresh{
+    background:#1769aa;
+    color:white;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+}
+
+th,
+td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:left;
+}
+
+th{
+    background:#1769aa;
+    color:white;
+}
+
+.verify{
+    background:#198754;
+    color:white;
+}
+
+.reject{
+    background:#dc3545;
+    color:white;
+}
+
+.print{
+    background:#0d6efd;
+    color:white;
+}
+
+.status{
+    font-weight:bold;
+}
+
+.pending{
+    color:#856404;
+}
+
+.verified{
+    color:#198754;
+}
+
+.rejected{
+    color:#dc3545;
+}
+
+.printed{
+    color:#0c5460;
+}
+
+.message{
+    background:#fff3cd;
+    padding:12px;
+    margin-bottom:15px;
+}
+
+@media(max-width:800px){
+
+    .container{
+        padding:8px;
+        overflow-x:auto;
+    }
+
+    table{
+        min-width:900px;
+    }
+
+}
+
+</style>
+
 </head>
+
+
 <body>
 
-<div class="header">
-    <h2>एडमिन प्यानल (Admin Dashboard)</h2>
+
+<!-- ==================================
+     LOGIN
+================================== -->
+
+<div
+class="login"
+id="loginBox"
+>
+
+<h2>
+🔐 Admin Login
+</h2>
+
+
+<label>
+Username
+</label>
+
+<input
+id="username"
+type="text"
+placeholder="Username"
+>
+
+
+<label>
+Password
+</label>
+
+<input
+id="password"
+type="password"
+placeholder="Password"
+>
+
+
+<button
+class="login-btn"
+onclick="login()"
+>
+Login
+</button>
+
+
+<p
+id="loginError"
+style="color:red;"
+></p>
+
 </div>
+
+
+
+<!-- ==================================
+     DASHBOARD
+================================== -->
+
+<div
+class="dashboard"
+id="dashboard"
+>
+
+
+<header>
+
+<h1>
+Admin Dashboard
+</h1>
+
+<p>
+रोहिणी गाउँपालिका वडा नं. १
+</p>
+
+</header>
+
 
 <div class="container">
-    <h3 style="margin-top:0; color:#1e3799;">प्राप्त निवेदनहरू (eSewa Verification)</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>निवेदकको नाम</th>
-                <th>मोबाइल नं.</th>
-                <th>eSewa Code</th>
-                <th>अवस्था (Status)</th>
-                <th>कार्य (Action)</th>
-            </tr>
-        </thead>
-        <tbody id="requestTableBody">
-            <tr><td colspan="5" style="text-align: center;">लोड हुँदैछ...</td></tr>
-        </tbody>
-    </table>
+
+
+<div class="top">
+
+<h2>
+📋 निवेदन सूची
+</h2>
+
+
+<div>
+
+<button
+class="refresh"
+onclick="loadRequests()"
+>
+🔄 Refresh
+</button>
+
+
+<button
+class="logout"
+onclick="logout()"
+>
+Logout
+</button>
+
 </div>
 
+</div>
+
+
+<div class="message">
+
+<b>
+Admin ले eSewa Code manually verify गर्नुहोस्।
+</b>
+
+<br>
+
+Verify गरेपछि customer ले clean print गर्न सक्छ।
+
+</div>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+नाम
+</th>
+
+<th>
+Mobile
+</th>
+
+<th>
+eSewa Code
+</th>
+
+<th>
+निवेदन
+</th>
+
+<th>
+Status
+</th>
+
+<th>
+Action
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody
+id="requestTable"
+>
+
+<tr>
+
+<td
+colspan="6"
+>
+Loading...
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+
+</div>
+
+</div>
+
+
+
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
 
-    database.ref('requests').on('value', (snapshot) => {
-        const tableBody = document.getElementById('requestTableBody');
-        tableBody.innerHTML = '';
 
-        if (!snapshot.exists()) {
-            tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">कुनै अनुरोध भेटिएन।</td></tr>`;
-            return;
-        }
+/* ==================================
+   FIREBASE
+================================== */
 
-        const data = snapshot.val();
-        Object.keys(data).reverse().forEach((key) => {
-            const req = data[key];
-            const isApproved = req.status === 'APPROVED';
+const DB =
+"https://sunil-online-service-default-rtdb.firebaseio.com";
 
-            let statusBadge = isApproved 
-                ? '<span class="badge badge-approved">VERIFIED</span>' 
-                : '<span class="badge badge-pending">PENDING</span>';
 
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><b>${req.applicant_name || '-'}</b></td>
-                <td>${req.phone || '-'}</td>
-                <td><strong style="color:#2e7d32; font-size:15px;">${req.esewa_code || '-'}</strong></td>
-                <td>${statusBadge}</td>
-                <td>
-                    ${!isApproved ? `<button class="btn btn-approve" onclick="verifyPayment('${key}')">Approve</button>` : ''}
-                    <button class="btn btn-delete" onclick="deleteRequest('${key}')">Delete</button>
-                </td>
+/* ==================================
+   LOGIN
+================================== */
+
+function login(){
+
+    const username =
+        document.getElementById(
+            "username"
+        ).value;
+
+    const password =
+        document.getElementById(
+            "password"
+        ).value;
+
+
+    if(
+        username === "admin"
+        &&
+        password === "1234"
+    ){
+
+        sessionStorage.setItem(
+            "adminLogin",
+            "yes"
+        );
+
+
+        document.getElementById(
+            "loginBox"
+        ).style.display =
+        "none";
+
+
+        document.getElementById(
+            "dashboard"
+        ).style.display =
+        "block";
+
+
+        loadRequests();
+
+    }
+
+    else{
+
+        document.getElementById(
+            "loginError"
+        ).innerText =
+        "❌ Username वा Password गलत छ।";
+
+    }
+
+}
+
+
+/* ==================================
+   CHECK LOGIN
+================================== */
+
+window.onload = function(){
+
+    if(
+        sessionStorage.getItem(
+            "adminLogin"
+        )
+        ===
+        "yes"
+    ){
+
+        document.getElementById(
+            "loginBox"
+        ).style.display =
+        "none";
+
+
+        document.getElementById(
+            "dashboard"
+        ).style.display =
+        "block";
+
+
+        loadRequests();
+
+    }
+
+};
+
+
+/* ==================================
+   LOAD REQUESTS
+================================== */
+
+async function loadRequests(){
+
+    const table =
+        document.getElementById(
+            "requestTable"
+        );
+
+
+    table.innerHTML = `
+        <tr>
+            <td colspan="6">
+                ⏳ Loading...
+            </td>
+        </tr>
+    `;
+
+
+    try{
+
+        const response =
+            await fetch(
+                DB + "/requests.json"
+            );
+
+
+        const data =
+            await response.json();
+
+
+        table.innerHTML = "";
+
+
+        if(!data){
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="6">
+                        कुनै request छैन।
+                    </td>
+                </tr>
             `;
-            tableBody.appendChild(row);
-        });
-    });
 
-    function verifyPayment(key) {
-        if (confirm("eSewa मा रकम प्राप्त भएको हो? Approve गरेपछि Watermark हट्नेछ।")) {
-            database.ref('requests/' + key).update({ status: 'APPROVED' });
+            return;
+
         }
+
+
+        /*
+           नयाँ request माथि
+        */
+
+        const entries =
+            Object.entries(data)
+            .reverse();
+
+
+        entries.forEach(
+            function([id,item]){
+
+                addRow(
+                    id,
+                    item
+                );
+
+            }
+        );
+
     }
 
-    function deleteRequest(key) {
-        if (confirm('के तपाईँ यो निवेदन हटाउन चाहनुहुन्छ?')) {
-            database.ref('requests/' + key).remove();
-        }
+    catch(error){
+
+        console.error(error);
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    ❌ Firebase error
+                </td>
+            </tr>
+        `;
+
     }
+
+}
+
+
+/* ==================================
+   ADD TABLE ROW
+================================== */
+
+function addRow(id,data){
+
+    const table =
+        document.getElementById(
+            "requestTable"
+        );
+
+
+    const status =
+        data.status || "Pending";
+
+
+    let statusClass =
+        "pending";
+
+
+    if(status === "Verified")
+        statusClass = "verified";
+
+    if(status === "Rejected")
+        statusClass = "rejected";
+
+    if(status === "Printed")
+        statusClass = "printed";
+
+
+    let action = "";
+
+
+    if(status === "Pending"){
+
+        action = `
+
+            <button
+                class="verify"
+                onclick="verifyRequest('${id}')"
+            >
+                ✅ Verify
+            </button>
+
+            <button
+                class="reject"
+                onclick="rejectRequest('${id}')"
+            >
+                ❌ Reject
+            </button>
+
+        `;
+
+    }
+
+
+    else if(status === "Verified"){
+
+        action = `
+
+            <button
+                class="print"
+                onclick="openCustomerForm('${id}')"
+            >
+                🖨️ Print
+            </button>
+
+        `;
+
+    }
+
+
+    else if(status === "Printed"){
+
+        action = `
+
+            <button
+                class="print"
+                onclick="openCustomerForm('${id}')"
+            >
+                🖨️ Open
+            </button>
+
+        `;
+
+    }
+
+
+    table.innerHTML += `
+
+        <tr>
+
+            <td>
+                ${safe(data.name)}
+            </td>
+
+            <td>
+                ${safe(data.mobile)}
+            </td>
+
+            <td>
+                ${safe(data.esewa)}
+            </td>
+
+            <td>
+                ${safe(data.formName)}
+            </td>
+
+            <td class="status ${statusClass}">
+                ${status}
+            </td>
+
+            <td>
+                ${action}
+            </td>
+
+        </tr>
+
+    `;
+
+}
+
+
+/* ==================================
+   VERIFY
+================================== */
+
+async function verifyRequest(id){
+
+    const ok =
+        confirm(
+            "यो eSewa Code verify गर्न निश्चित हुनुहुन्छ?"
+        );
+
+
+    if(!ok)
+        return;
+
+
+    try{
+
+        await fetch(
+            DB +
+            "/requests/" +
+            id +
+            ".json",
+            {
+
+                method:"PATCH",
+
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body:JSON.stringify({
+
+                    status:"Verified",
+
+                    verifiedAt:
+                    new Date().toISOString()
+
+                })
+
+            }
+        );
+
+
+        alert(
+            "✅ Request Verified भयो।"
+        );
+
+
+        loadRequests();
+
+    }
+
+    catch(error){
+
+        alert(
+            "❌ Verify गर्न सकिएन।"
+        );
+
+    }
+
+}
+
+
+/* ==================================
+   REJECT
+================================== */
+
+async function rejectRequest(id){
+
+    const ok =
+        confirm(
+            "यो request Reject गर्ने?"
+        );
+
+
+    if(!ok)
+        return;
+
+
+    try{
+
+        await fetch(
+            DB +
+            "/requests/" +
+            id +
+            ".json",
+            {
+
+                method:"PATCH",
+
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body:JSON.stringify({
+
+                    status:"Rejected",
+
+                    rejectedAt:
+                    new Date().toISOString()
+
+                })
+
+            }
+        );
+
+
+        alert(
+            "Request Reject भयो।"
+        );
+
+
+        loadRequests();
+
+    }
+
+    catch(error){
+
+        alert(
+            "Reject गर्न सकिएन।"
+        );
+
+    }
+
+}
+
+
+/* ==================================
+   OPEN FORM
+================================== */
+
+function openCustomerForm(id){
+
+    window.open(
+        "forms/janma.html?request=" +
+        encodeURIComponent(id),
+        "_blank"
+    );
+
+}
+
+
+/* ==================================
+   LOGOUT
+================================== */
+
+function logout(){
+
+    sessionStorage.removeItem(
+        "adminLogin"
+    );
+
+    location.reload();
+
+}
+
+
+/* ==================================
+   SAFE HTML
+================================== */
+
+function safe(value){
+
+    return String(value || "-")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
 </script>
+
 </body>
+
 </html>
