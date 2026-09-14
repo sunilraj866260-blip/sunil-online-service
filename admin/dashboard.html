@@ -2,6 +2,7 @@
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../css/admin.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -10,63 +11,71 @@
 </head>
 <body>
 
-    <div class="admin-sidebar">
-        <h2 style="text-align:center;">Admin Panel</h2>
-        <a href="dashboard.html" class="active">सबै निवेदनहरू</a>
-        <a href="pending.html">Pending निवेदन</a>
-        <a href="approved.html">Approved निवेदन</a>
-        <a href="rejected.html">Rejected निवेदन</a>
-        <a href="../index.html" style="color:#e74c3c;">Logout</a>
-    </div>
+<div style="padding: 20px;">
+    <h2>📊 एडमिन ड्यासबोर्ड (निवेदन व्यवस्थापन)</h2>
+    <button onclick="logout()" style="float: right; background: red; color: white; padding: 5px 10px; border: none; border-radius: 4px;">लगआउट</button>
+    <hr style="margin: 20px 0;">
 
-    <div class="admin-content">
-        <h2>सबै दर्ता भएका निवेदनहरूको सूची</h2>
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>निवेदन प्रकार</th>
-                    <th>आवेदकको नाम</th>
-                    <th>मोबाइल</th>
-                    <th>भुक्तानी</th>
-                    <th>स्थिति</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="adminTableBody">
-                <!-- Realtime Dynamic Data -->
-            </tbody>
-        </table>
-    </div>
+    <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse; background: white;">
+        <thead>
+            <tr style="background: #2c3e50; color: white;">
+                <th>ID</th>
+                <th>प्रकार</th>
+                <th>निवेदक</th>
+                <th>सम्पर्क</th>
+                <th>भुक्तानी</th>
+                <th>अवस्था</th>
+                <th>कार्य (Action)</th>
+            </tr>
+        </thead>
+        <tbody id="adminTableBody">
+            <!-- डाटा लोड हुनेछ -->
+        </tbody>
+    </table>
+</div>
 
-    <script>
-        db.ref('nivedans').on('value', (snapshot) => {
-            const data = snapshot.val() || {};
-            const tbody = document.getElementById('adminTableBody');
-            tbody.innerHTML = '';
+<script>
+if(localStorage.getItem('adminLoggedIn') !== 'true') {
+    window.location.href = 'login.html';
+}
 
-            Object.values(data).forEach(item => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${item.id}</td>
-                        <td>${item.formType}</td>
-                        <td>${item.applicantName}</td>
-                        <td>${item.mobileNumber}</td>
-                        <td>${item.paymentType} (${item.esewaCode || 'N/A'})</td>
-                        <td><b>${item.status}</b></td>
-                        <td>
-                            <button onclick="setStatus('${item.id}', 'Approved')" style="background:green; color:white;">Approve</button>
-                            <button onclick="setStatus('${item.id}', 'Rejected')" style="background:red; color:white;">Reject</button>
-                            <a href="../user/print.html?id=${item.id}" target="_blank">View</a>
-                        </td>
-                    </tr>
-                `;
-            });
+function logout() {
+    localStorage.removeItem('adminLoggedIn');
+    window.location.href = 'login.html';
+}
+
+function loadNivedans() {
+    db.ref('nivedans').on('value', snapshot => {
+        const tbody = document.getElementById('adminTableBody');
+        tbody.innerHTML = '';
+        snapshot.forEach(child => {
+            const key = child.key;
+            const val = child.val();
+            
+            let row = `<tr>
+                <td>${key}</td>
+                <td>${val.formType}</td>
+                <td>${val.applicantName}</td>
+                <td>${val.mobileNumber || '-'}</td>
+                <td>${val.paymentType || 'Unpaid'}</td>
+                <td><b>${val.status || 'Pending'}</b></td>
+                <td>
+                    <button onclick="updateStatus('${key}', 'Approved')" style="background: green; color: white; border:none; padding: 5px;">स्वीकृत</button>
+                    <button onclick="updateStatus('${key}', 'Rejected')" style="background: red; color: white; border:none; padding: 5px;">अस्वीकृत</button>
+                </td>
+            </tr>`;
+            tbody.innerHTML += row;
         });
+    });
+}
 
-        function setStatus(id, newStatus) {
-            db.ref('nivedans/' + id).update({ status: newStatus });
-        }
-    </script>
+function updateStatus(id, status) {
+    db.ref('nivedans/' + id).update({
+        status: status
+    }).then(() => alert('अवस्था अद्यावधिक भयो: ' + status));
+}
+
+loadNivedans();
+</script>
 </body>
 </html>
