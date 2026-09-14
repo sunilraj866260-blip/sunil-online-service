@@ -3,23 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard - निवेदन व्यवस्थापन</title>
     <link rel="stylesheet" href="../css/admin.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="../config/firebase-config.js"></script>
+    <style>
+        /* Modal (Popup) Style */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .close-btn {
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .detail-row {
+            margin: 10px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .action-btns {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .action-btns button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-approve { background-color: #27ae60; }
+        .btn-reject { background-color: #e74c3c; }
+    </style>
 </head>
 <body>
 
 <div style="padding: 20px;">
     <h2>📊 एडमिन ड्यासबोर्ड (निवेदन व्यवस्थापन)</h2>
-    <button onclick="logout()" style="float: right; background: red; color: white; padding: 5px 10px; border: none; border-radius: 4px;">लगआउट</button>
+    <div style="margin-bottom: 15px;">
+        <a href="pending.html" style="margin-right: 15px;">⏳ Pending</a>
+        <a href="approved.html" style="margin-right: 15px;">✅ Approved</a>
+        <a href="rejected.html" style="margin-right: 15px;">❌ Rejected</a>
+        <a href="printed.html" style="margin-right: 15px;">🖨️ Printed</a>
+        <button onclick="logout()" style="float: right; background: red; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">लगआउट</button>
+    </div>
     <hr style="margin: 20px 0;">
 
     <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse; background: white;">
         <thead>
             <tr style="background: #2c3e50; color: white;">
-                <th>ID</th>
+                <th>Tracking ID</th>
                 <th>प्रकार</th>
                 <th>निवेदक</th>
                 <th>सम्पर्क</th>
@@ -29,9 +84,24 @@
             </tr>
         </thead>
         <tbody id="adminTableBody">
-            <!-- डाटा लोड हुनेछ -->
+            <!-- डाटा यहाँ लोड हुनेछ -->
         </tbody>
     </table>
+</div>
+
+<!-- View Details Modal -->
+<div id="viewModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h3>📄 निवेदन विवरण</h3>
+        <hr>
+        <div id="modalDetails"></div>
+        
+        <div class="action-btns">
+            <button class="btn-approve" id="approveBtn">✅ स्वीकृत गर्नुहोस् (Approve)</button>
+            <button class="btn-reject" id="rejectBtn">❌ अस्वीकृत गर्नुहोस् (Reject)</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -44,24 +114,31 @@ function logout() {
     window.location.href = 'login.html';
 }
 
+let currentSelectedKey = null;
+
 function loadNivedans() {
     db.ref('nivedans').on('value', snapshot => {
         const tbody = document.getElementById('adminTableBody');
         tbody.innerHTML = '';
+        
+        if (!snapshot.exists()) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">कुनै पनि निवेदन फेला परेन।</td></tr>';
+            return;
+        }
+
         snapshot.forEach(child => {
             const key = child.key;
             const val = child.val();
             
             let row = `<tr>
-                <td>${key}</td>
-                <td>${val.formType}</td>
-                <td>${val.applicantName}</td>
+                <td><b>${key}</b></td>
+                <td>${val.formType || '-'}</td>
+                <td>${val.applicantName || '-'}</td>
                 <td>${val.mobileNumber || '-'}</td>
                 <td>${val.paymentType || 'Unpaid'}</td>
-                <td><b>${val.status || 'Pending'}</b></td>
+                <td><span class="status-badge status-${(val.status || 'pending').toLowerCase()}">${val.status || 'Pending'}</span></td>
                 <td>
-                    <button onclick="updateStatus('${key}', 'Approved')" style="background: green; color: white; border:none; padding: 5px;">स्वीकृत</button>
-                    <button onclick="updateStatus('${key}', 'Rejected')" style="background: red; color: white; border:none; padding: 5px;">अस्वीकृत</button>
+                    <button onclick="viewDetails('${key}')" style="background: #2980b9; color: white; border:none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">🔍 View Details</button>
                 </td>
             </tr>`;
             tbody.innerHTML += row;
@@ -69,10 +146,55 @@ function loadNivedans() {
     });
 }
 
+function viewDetails(key) {
+    currentSelectedKey = key;
+    db.ref('nivedans/' + key).once('value').then(snapshot => {
+        if(snapshot.exists()) {
+            const val = snapshot.val();
+            let detailsHtml = '';
+            
+            // सबै डाटा डाइनामिक रूपमा देखाउने
+            for (let prop in val) {
+                if (val.hasOwnProperty(prop)) {
+                    detailsHtml += `<div class="detail-row"><strong>${prop}:</strong> ${val[prop]}</div>`;
+                }
+            }
+
+            document.getElementById('modalDetails').innerHTML = detailsHtml;
+            document.getElementById('viewModal').style.display = 'block';
+
+            // Button Click Handlers setup
+            document.getElementById('approveBtn').onclick = function() {
+                updateStatus(key, 'Approved');
+            };
+            document.getElementById('rejectBtn').onclick = function() {
+                updateStatus(key, 'Rejected');
+            };
+        }
+    });
+}
+
+function closeModal() {
+    document.getElementById('viewModal').style.display = 'none';
+}
+
 function updateStatus(id, status) {
     db.ref('nivedans/' + id).update({
         status: status
-    }).then(() => alert('अवस्था अद्यावधिक भयो: ' + status));
+    }).then(() => {
+        alert('निवेदनको अवस्था सफलतापुर्वक अद्यावधिक भयो: ' + status);
+        closeModal();
+    }).catch(err => {
+        alert('त्रुटि: ' + err.message);
+    });
+}
+
+// Modal बाहिर क्लिक गर्दा बन्द हुने
+window.onclick = function(event) {
+    const modal = document.getElementById('viewModal');
+    if (event.target == modal) {
+        closeModal();
+    }
 }
 
 loadNivedans();
