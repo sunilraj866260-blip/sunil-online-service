@@ -1,189 +1,882 @@
-// ==========================================
-// SUNIL PHOTOS STUDIO - FIREBASE CONFIG & API
-// ==========================================
-const firebaseConfig = {
-    apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-    databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
+/* =====================================================
+   ROHINI-1 NIVEDAN COMMON REQUEST SYSTEM
+   Firebase Realtime Database
+===================================================== */
+
+const NIVEDAN_DB =
+"https://sunil-online-service-default-rtdb.firebaseio.com";
+
+
+const NivedanRequest = {
+
+    currentRequestId: null,
+
+
+    /* -----------------------------------------------
+       START
+    ------------------------------------------------ */
+
+    init: function(options){
+
+        options = options || {};
+
+        const formName =
+            options.formName ||
+            document.title ||
+            "निवेदन";
+
+        const printButtonId =
+            options.printButtonId ||
+            "printBtn";
+
+
+        const btn =
+            document.getElementById(printButtonId);
+
+
+        if(!btn){
+
+            console.warn(
+                "Print button not found:",
+                printButtonId
+            );
+
+            return;
+        }
+
+
+        btn.addEventListener(
+            "click",
+            function(e){
+
+                e.preventDefault();
+
+                NivedanRequest.handlePrint(
+                    formName
+                );
+
+            }
+        );
+
+    },
+
+
+    /* -----------------------------------------------
+       PRINT BUTTON
+    ------------------------------------------------ */
+
+    handlePrint: async function(formName){
+
+        let requestId =
+            localStorage.getItem(
+                NivedanRequest.storageKey()
+            );
+
+
+        /* Existing request */
+
+        if(requestId){
+
+            const request =
+                await NivedanRequest.getRequest(
+                    requestId
+                );
+
+
+            if(request){
+
+                await NivedanRequest.processPrint(
+                    requestId,
+                    request
+                );
+
+                return;
+            }
+        }
+
+
+        /* New request */
+
+        NivedanRequest.showPaymentBox(
+            formName
+        );
+
+    },
+
+
+    /* -----------------------------------------------
+       MOBILE + ESEWA FORM
+    ------------------------------------------------ */
+
+    showPaymentBox: function(formName){
+
+        const old =
+            document.getElementById(
+                "nivedanPaymentModal"
+            );
+
+        if(old) old.remove();
+
+
+        const modal =
+        document.createElement("div");
+
+        modal.id =
+            "nivedanPaymentModal";
+
+
+        modal.innerHTML = `
+
+        <div class="nr-overlay">
+
+            <div class="nr-modal">
+
+                <h2>📝 निवेदन दर्ता</h2>
+
+                <p>
+                    Print गर्नु अघि आफ्नो
+                    विवरण राख्नुहोस्।
+                </p>
+
+                <input
+                    id="nrName"
+                    type="text"
+                    placeholder="नाम">
+
+                <input
+                    id="nrMobile"
+                    type="text"
+                    placeholder="Mobile Number">
+
+                <input
+                    id="nrEsewa"
+                    type="text"
+                    placeholder="eSewa Code">
+
+                <button id="nrSaveBtn">
+                    SAVE & PRINT
+                </button>
+
+                <button
+                    id="nrCancelBtn"
+                    class="nr-cancel">
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+
+        `;
+
+
+        document.body.appendChild(modal);
+
+
+        document.getElementById(
+            "nrCancelBtn"
+        ).onclick=function(){
+
+            modal.remove();
+
+        };
+
+
+        document.getElementById(
+            "nrSaveBtn"
+        ).onclick=function(){
+
+            NivedanRequest.createRequest(
+                formName
+            );
+
+        };
+
+    },
+
+
+    /* -----------------------------------------------
+       CREATE FIREBASE REQUEST
+    ------------------------------------------------ */
+
+    createRequest: async function(formName){
+
+        const name =
+            document.getElementById("nrName")
+            .value.trim();
+
+        const mobile =
+            document.getElementById("nrMobile")
+            .value.trim();
+
+        const esewa =
+            document.getElementById("nrEsewa")
+            .value.trim();
+
+
+        if(!name){
+
+            alert("नाम राख्नुहोस्।");
+            return;
+        }
+
+
+        if(!mobile){
+
+            alert("Mobile Number राख्नुहोस्।");
+            return;
+        }
+
+
+        if(!esewa){
+
+            alert("eSewa Code राख्नुहोस्।");
+            return;
+        }
+
+
+        const request = {
+
+            name: name,
+
+            mobile: mobile,
+
+            esewa: esewa,
+
+            formName: formName,
+
+            formUrl:
+                window.location.pathname,
+
+            status:
+                "Pending",
+
+            createdAt:
+                new Date().toISOString(),
+
+            updatedAt:
+                new Date().toISOString()
+
+        };
+
+
+        try{
+
+            const response =
+                await fetch(
+                    NIVEDAN_DB +
+                    "/requests.json",
+                    {
+
+                        method:"POST",
+
+                        headers:{
+                            "Content-Type":
+                            "application/json"
+                        },
+
+                        body:
+                        JSON.stringify(request)
+
+                    }
+                );
+
+
+            if(!response.ok){
+
+                throw new Error(
+                    "Firebase error"
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            const requestId =
+                data.name;
+
+
+            localStorage.setItem(
+                NivedanRequest.storageKey(),
+                requestId
+            );
+
+
+            document
+            .getElementById(
+                "nivedanPaymentModal"
+            )
+            .remove();
+
+
+            alert(
+                "निवेदन Firebase मा save भयो।"
+            );
+
+
+            const savedRequest =
+                await NivedanRequest.getRequest(
+                    requestId
+                );
+
+
+            await NivedanRequest.processPrint(
+                requestId,
+                savedRequest
+            );
+
+
+        }catch(error){
+
+            console.error(error);
+
+            alert(
+                "❌ Request save भएन। Firebase check गर्नुहोस्।"
+            );
+
+        }
+
+    },
+
+
+    /* -----------------------------------------------
+       GET REQUEST
+    ------------------------------------------------ */
+
+    getRequest: async function(id){
+
+        try{
+
+            const response =
+                await fetch(
+                    NIVEDAN_DB +
+                    "/requests/" +
+                    id +
+                    ".json"
+                );
+
+
+            if(!response.ok)
+                return null;
+
+
+            return await response.json();
+
+        }catch(error){
+
+            console.error(error);
+
+            return null;
+
+        }
+
+    },
+
+
+    /* -----------------------------------------------
+       PROCESS PRINT
+    ------------------------------------------------ */
+
+    processPrint: async function(
+        requestId,
+        request
+    ){
+
+        if(!request){
+
+            alert("Request भेटिएन।");
+            return;
+        }
+
+
+        /* Rejected */
+
+        if(request.status==="Rejected"){
+
+            alert(
+                "❌ Payment Reject गरिएको छ।"
+            );
+
+            return;
+        }
+
+
+        /* Pending */
+
+        if(request.status==="Pending"){
+
+            NivedanRequest.addWatermark();
+
+            NivedanRequest.showQR(
+                requestId
+            );
+
+
+            alert(
+                "⚠️ Payment अझै Verify भएको छैन।\n\n"+
+                "यो print मा WATERMARK हुनेछ।\n\n"+
+                "Admin ले eSewa verify गरेपछि "+
+                "clean print गर्न सकिन्छ।"
+            );
+
+
+            window.print();
+
+            return;
+        }
+
+
+        /* Verified */
+
+        if(request.status==="Verified"){
+
+            NivedanRequest.removeWatermark();
+
+            NivedanRequest.showQR(
+                requestId
+            );
+
+
+            window.print();
+
+
+            await NivedanRequest.updateStatus(
+                requestId,
+                "Printed"
+            );
+
+            return;
+        }
+
+
+        /* Printed */
+
+        if(request.status==="Printed"){
+
+            NivedanRequest.removeWatermark();
+
+            NivedanRequest.showQR(
+                requestId
+            );
+
+            window.print();
+
+        }
+
+    },
+
+
+    /* -----------------------------------------------
+       WATERMARK
+    ------------------------------------------------ */
+
+    addWatermark: function(){
+
+        NivedanRequest.removeWatermark();
+
+
+        const div =
+            document.createElement("div");
+
+        div.id =
+            "nivedanWatermark";
+
+
+        div.innerHTML =
+            "UNPAID / PAYMENT PENDING";
+
+
+        document.body.appendChild(div);
+
+
+        const style =
+            document.createElement("style");
+
+
+        style.id =
+            "nivedanWatermarkStyle";
+
+
+        style.innerHTML = `
+
+        #nivedanWatermark{
+
+            position:fixed;
+
+            top:45%;
+
+            left:10%;
+
+            width:80%;
+
+            text-align:center;
+
+            font-size:55px;
+
+            font-weight:bold;
+
+            color:rgba(200,0,0,.18);
+
+            transform:
+            rotate(-25deg);
+
+            z-index:999999;
+
+            pointer-events:none;
+
+        }
+
+        @media print{
+
+            #nivedanWatermark{
+
+                display:block !important;
+
+            }
+
+        }
+
+        `;
+
+
+        document.head.appendChild(style);
+
+    },
+
+
+    removeWatermark: function(){
+
+        const w =
+            document.getElementById(
+                "nivedanWatermark"
+            );
+
+        if(w) w.remove();
+
+
+        const s =
+            document.getElementById(
+                "nivedanWatermarkStyle"
+            );
+
+        if(s) s.remove();
+
+    },
+
+
+    /* -----------------------------------------------
+       QR CODE
+       Demo QR using Google Chart API
+    ------------------------------------------------ */
+
+    showQR: function(requestId){
+
+        NivedanRequest.removeQR();
+
+
+        const box =
+            document.createElement("div");
+
+        box.id =
+            "nivedanQR";
+
+
+        const trackUrl =
+            window.location.origin +
+            "/index.html";
+
+
+        const qrData =
+            encodeURIComponent(
+                "Nivedan ID: " +
+                requestId +
+                "\nTrack: " +
+                trackUrl
+            );
+
+
+        box.innerHTML = `
+
+            <div class="nr-qr-title">
+                NIVEDAN TRACK
+            </div>
+
+            <img
+                src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${qrData}"
+                alt="QR">
+
+            <div class="nr-qr-id">
+                Request Saved
+            </div>
+
+        `;
+
+
+        document.body.appendChild(box);
+
+
+        const style =
+            document.createElement("style");
+
+
+        style.id =
+            "nivedanQRStyle";
+
+
+        style.innerHTML = `
+
+        #nivedanQR{
+
+            position:fixed;
+
+            right:15px;
+
+            bottom:15px;
+
+            background:white;
+
+            padding:8px;
+
+            border:1px solid #555;
+
+            text-align:center;
+
+            z-index:99999;
+
+            font-family:Arial;
+
+        }
+
+        #nivedanQR img{
+
+            width:100px;
+
+            height:100px;
+
+        }
+
+        .nr-qr-title{
+
+            font-weight:bold;
+
+            font-size:12px;
+
+        }
+
+        .nr-qr-id{
+
+            font-size:9px;
+
+        }
+
+        @media print{
+
+            #nivedanQR{
+
+                display:block;
+
+            }
+
+        }
+
+        `;
+
+
+        document.head.appendChild(style);
+
+    },
+
+
+    removeQR: function(){
+
+        const q =
+            document.getElementById(
+                "nivedanQR"
+            );
+
+        if(q) q.remove();
+
+
+        const s =
+            document.getElementById(
+                "nivedanQRStyle"
+            );
+
+        if(s) s.remove();
+
+    },
+
+
+    /* -----------------------------------------------
+       UPDATE STATUS
+    ------------------------------------------------ */
+
+    updateStatus: async function(
+        id,
+        status
+    ){
+
+        try{
+
+            await fetch(
+                NIVEDAN_DB +
+                "/requests/" +
+                id +
+                ".json",
+                {
+
+                    method:"PATCH",
+
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body:JSON.stringify({
+
+                        status:status,
+
+                        updatedAt:
+                        new Date().toISOString()
+
+                    })
+
+                }
+            );
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    },
+
+
+    /* -----------------------------------------------
+       LOCAL STORAGE KEY
+    ------------------------------------------------ */
+
+    storageKey: function(){
+
+        return (
+            "nivedan_request_" +
+            window.location.pathname
+        );
+
+    }
+
 };
 
-const API_BASE_URL = firebaseConfig.databaseURL;
-const nativePrint = window.print;
 
-// १. क्लाउड (Firebase) मा नयाँ डाटा सेभ गर्ने
-async function saveRequestToCloud(type, formData) {
-    const token = 'NIV-' + Math.floor(100000 + Math.random() * 900000);
-    const currentFileLink = window.location.href.split('?')[0];
+/* =====================================================
+   DEFAULT CSS FOR MODAL
+===================================================== */
 
-    // निवेदकको नाम र फोन नम्बर विभिन्न फारामका नामहरूबाट पत्ता लगाउने
-    const applicantName = formData['applicant_name'] || formData['नाम'] || formData['fullname'] || formData['name'] || 'अज्ञात निवेदक';
-    const phoneNum = formData['phone'] || formData['मोबाइल'] || formData['सम्पर्क'] || formData['mobile'] || '-';
+(function(){
 
-    const newRequest = {
-        token: token,
-        type: type || document.title || 'अन्य निवेदन',
-        fileLink: currentFileLink,
-        applicant_name: applicantName,
-        phone: phoneNum,
-        esewa_code: '',
-        status: 'PENDING',
-        today: new Date().toLocaleDateString('ne-NP'),
-        timestamp: Date.now(),
-        data: formData
-    };
+    const style =
+        document.createElement("style");
 
-    // Firebase database मा 'requests/TOKEN' मा सेभ गर्ने
-    try {
-        await fetch(`${API_BASE_URL}/requests/${token}.json?key=${firebaseConfig.apiKey}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newRequest)
-        });
-    } catch (error) {
-        console.warn("Firebase Storage Error:", error);
+
+    style.innerHTML = `
+
+    .nr-overlay{
+
+        position:fixed;
+
+        inset:0;
+
+        background:rgba(0,0,0,.6);
+
+        display:flex;
+
+        align-items:center;
+
+        justify-content:center;
+
+        z-index:100000;
+
     }
 
-    // Backup LocalStorage
-    let localRequests = JSON.parse(localStorage.getItem('nivedan_requests')) || [];
-    localRequests.push(newRequest);
-    localStorage.setItem('nivedan_requests', JSON.stringify(localRequests));
+    .nr-modal{
 
-    return token;
-}
+        width:90%;
 
-// २. टोकनबाट डाटा तान्ने
-async function getRequestByToken(token) {
-    if (!token) return null;
-    try {
-        const response = await fetch(`${API_BASE_URL}/requests/${token}.json?key=${firebaseConfig.apiKey}`);
-        if (response.ok) {
-            const data = await response.json();
-            if (data) return data;
-        }
-    } catch (error) {
-        console.warn("Firebase Fetch Error:", error);
-    }
-    const localRequests = JSON.parse(localStorage.getItem('nivedan_requests')) || [];
-    return localRequests.find(req => req.token === token) || null;
-}
+        max-width:420px;
 
-// ३. eSewa Code वा Status अपडेट गर्ने
-async function updateRequestField(token, fieldsToUpdate) {
-    try {
-        await fetch(`${API_BASE_URL}/requests/${token}.json?key=${firebaseConfig.apiKey}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(fieldsToUpdate)
-        });
-    } catch (error) {
-        console.error("Update Error:", error);
+        background:white;
+
+        padding:25px;
+
+        border-radius:12px;
+
+        box-shadow:0 5px 30px #0005;
+
     }
 
-    let localRequests = JSON.parse(localStorage.getItem('nivedan_requests')) || [];
-    let index = localRequests.findIndex(r => r.token === token);
-    if (index !== -1) {
-        localRequests[index] = { ...localRequests[index], ...fieldsToUpdate };
-        localStorage.setItem('nivedan_requests', JSON.stringify(localRequests));
-    }
-}
+    .nr-modal h2{
 
-// ४. फारामका Data सङ्कलन गर्ने
-function collectPageData() {
-    const formData = {};
-    const inputs = document.querySelectorAll('input, select, textarea');
-    inputs.forEach((input, index) => {
-        if (input.type !== 'button' && input.type !== 'submit') {
-            const key = input.name || input.id || input.placeholder || `फिल्ड_${index + 1}`;
-            formData[key] = input.value || '-';
-        }
-    });
-    return formData;
-}
+        margin-top:0;
 
-// ५. फाराम सबमिट इन्टरसेप्ट गर्ने
-async function handleFormSubmission(event) {
-    if (event) {
-        event.preventDefault();
-        if (event.stopPropagation) event.stopPropagation();
-    }
-    
-    const data = collectPageData();
-    const token = await saveRequestToCloud(document.title, data);
+        text-align:center;
 
-    alert(`तपाईंको विवरण दर्ता भयो!\n\nटोकन नम्बर: ${token}\n\nअब QR स्क्यान गरी भुक्तानी गर्नुहोस्।`);
-    window.location.href = `../request/payment.html?token=${token}`;
-}
-
-// ==========================================
-// AUTO DETECT & PRINT OVERRIDE LOGIC
-// ==========================================
-(function() {
-    const currentPath = window.location.pathname.toLowerCase();
-    const urlParams = new URLSearchParams(window.location.search);
-    const printToken = urlParams.get('printToken');
-
-    if (currentPath.includes('track.html') || currentPath.includes('payment.html') || currentPath.includes('admin')) {
-        return;
     }
 
-    if (!printToken) {
-        window.print = function() {
-            handleFormSubmission();
-        };
+    .nr-modal p{
+
+        text-align:center;
+
     }
+
+    .nr-modal input{
+
+        width:100%;
+
+        padding:13px;
+
+        margin:6px 0;
+
+        border:1px solid #bbb;
+
+        border-radius:7px;
+
+        font-size:16px;
+
+    }
+
+    .nr-modal button{
+
+        width:100%;
+
+        padding:13px;
+
+        margin-top:8px;
+
+        border:0;
+
+        border-radius:7px;
+
+        background:#0b5ed7;
+
+        color:white;
+
+        font-size:16px;
+
+    }
+
+    .nr-modal .nr-cancel{
+
+        background:#777;
+
+    }
+
+    `;
+
+
+    document.head.appendChild(style);
+
 })();
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const printToken = urlParams.get('printToken');
-    const currentPath = window.location.pathname.toLowerCase();
-
-    if (currentPath.includes('track.html') || currentPath.includes('payment.html') || currentPath.includes('admin')) {
-        return;
-    }
-
-    // स्वीकृत भएपछि स्वतः डाटा भरेर प्रिन्ट गर्ने
-    if (printToken) {
-        const req = await getRequestByToken(printToken);
-        
-        if (req && req.status === 'APPROVED') {
-            const inputs = document.querySelectorAll('input, select, textarea');
-            inputs.forEach((input, index) => {
-                const key = input.name || input.id || input.placeholder || `फिल्ड_${index + 1}`;
-                if (req.data && req.data[key] !== undefined) {
-                    input.value = req.data[key];
-                }
-            });
-
-            const style = document.createElement('style');
-            style.innerHTML = '@media print { button, input[type="button"], input[type="submit"], .no-print { display: none !important; } }';
-            document.head.appendChild(style);
-
-            setTimeout(() => { 
-                nativePrint.call(window); 
-            }, 800);
-        } else {
-            alert('⚠️ यो निवेदन अझै स्वीकृत (APPROVED) भएको छैन।');
-            window.location.href = `../request/track.html?token=${printToken}`;
-        }
-        return;
-    }
-
-    // Button click intercepts
-    const printButtons = document.querySelectorAll('button, input[type="button"], input[type="submit"]');
-    printButtons.forEach(btn => {
-        btn.onclick = function(e) {
-            e.preventDefault();
-            handleFormSubmission(e);
-            return false;
-        };
-    });
-
-    const form = document.querySelector('form');
-    if (form) {
-        form.onsubmit = function(e) {
-            e.preventDefault();
-            handleFormSubmission(e);
-            return false;
-        };
-    }
-});
