@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printed Nivedans Record - Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="../config/firebase-config.js"></script>
+</head>
+<body>
+
+<div style="padding: 20px;">
+    <h2>🖨️ प्रिन्ट भइसकेका सिफारिसहरू (Printed History)</h2>
+    <a href="dashboard.html" style="text-decoration: none; font-weight: bold;">← ड्यासबोर्डमा फर्कनुहोस्</a>
+    <hr style="margin: 15px 0;">
+
+    <table>
+        <thead>
+            <tr>
+                <th>Tracking ID</th>
+                <th>प्रकार</th>
+                <th>निवेदकको नाम</th>
+                <th>प्रिन्ट स्थिति</th>
+                <th>पुनः प्रिन्ट गर्नुहोस्</th>
+            </tr>
+        </thead>
+        <tbody id="printedTableBody">
+            <!-- Data will load here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+if(localStorage.getItem('adminLoggedIn') !== 'true') {
+    window.location.href = 'login.html';
+}
+
+function loadPrinted() {
+    db.ref('nivedans').on('value', snapshot => {
+        const tbody = document.getElementById('printedTableBody');
+        tbody.innerHTML = '';
+        let count = 0;
+
+        snapshot.forEach(child => {
+            const key = child.key;
+            const val = child.val();
+            
+            // Checks for status Printed or Approved
+            if (val.status === 'Printed' || val.isPrinted === true) {
+                count++;
+                let row = `<tr>
+                    <td>${key}</td>
+                    <td>${val.formType}</td>
+                    <td>${val.applicantName}</td>
+                    <td><span class="status-badge status-approved">Printed</span></td>
+                    <td>
+                        <a href="../user/print.html?id=${key}" target="_blank" style="background: #27ae60; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 14px;">📄 पुनः प्रिन्ट</a>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            }
+        });
+
+        if (count === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">प्रिन्ट भएका सिफारिसहरूको रेकर्ड छैन।</td></tr>';
+        }
+    });
+}
+
+loadPrinted();
+</script>
+</body>
+</html>
