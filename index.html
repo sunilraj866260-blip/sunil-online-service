@@ -1,235 +1,666 @@
 <!DOCTYPE html>
 <html lang="ne">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>रोहिणी वडा नं. १ - अनलाइन सिफारिस प्रणाली</title>
-    
-    <!-- Firebase SDK (v8) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 1000px; margin: auto; }
-        
-        .header { background: #1e3799; color: white; padding: 25px; border-radius: 10px; text-align: center; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .header h1 { margin: 0 0 5px 0; font-size: 26px; }
-        .header p { margin: 0; opacity: 0.9; }
+<title>निवेदन प्रणाली - रोहिणी १</title>
 
-        .search-card { background: white; padding: 20px; border-radius: 10px; border-left: 6px solid #27ae60; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 30px; }
-        .search-card h3 { margin: 0 0 10px 0; color: #27ae60; display: flex; align-items: center; gap: 10px; }
-        .search-row { display: flex; gap: 10px; }
-        .search-row input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
-        .search-row button { background: #27ae60; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .search-row button:hover { background: #219150; }
+<style>
 
-        .services-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #1e3799; padding-bottom: 5px; color: #1e3799; }
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        
-        .service-card { background: white; padding: 20px; border-radius: 10px; text-decoration: none; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: 0.2s ease; border: 1px solid #e1e8ed; display: flex; align-items: center; gap: 15px; }
-        .service-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.12); border-color: #1e3799; }
-        .service-card i { font-size: 30px; color: #1e3799; background: #e8ecef; padding: 15px; border-radius: 50%; }
-        .service-card div h4 { margin: 0 0 5px 0; font-size: 17px; color: #1e3799; }
-        .service-card div p { margin: 0; font-size: 13px; color: #666; }
+*{
+    box-sizing:border-box;
+}
 
-        .status-msg { margin-top: 10px; font-weight: bold; }
+body{
+    margin:0;
+    font-family:Arial,"Noto Sans Devanagari",sans-serif;
+    background:#f1f4f7;
+    color:#222;
+}
 
-        /* A4 Print & Dynamic Watermark Styling */
-        @media print {
-            @page { size: A4 portrait; margin: 15mm; }
-            html, body { width: 210mm; height: 297mm; background: #fff !important; padding: 0 !important; margin: 0 !important; font-size: 12pt; line-height: 1.8; }
-            .container, .header, .search-card, .grid-container, .services-title { display: none !important; }
-            #print-area { display: block !important; width: 100%; box-sizing: border-box; position: relative; }
-            
-            /* Unpaid Watermark Overlay */
-            #print-area.has-watermark::before {
-                content: "UNPAID SAMPLE - नमुना प्रति";
-                position: fixed;
-                top: 40%;
-                left: 5%;
-                width: 90%;
-                text-align: center;
-                font-size: 40pt;
-                font-weight: bold;
-                color: rgba(217, 83, 79, 0.25);
-                transform: rotate(-30deg);
-                z-index: 9999;
-                pointer-events: none;
-            }
+header{
+    background:#1769aa;
+    color:white;
+    text-align:center;
+    padding:25px 15px;
+}
 
-            .date { text-align: right; margin-bottom: 15px; }
-            .recipient { line-height: 1.5; margin-bottom: 15px; }
-            .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 20px 0; font-size: 15pt; }
-            .content { text-indent: 50px; margin-bottom: 15px; text-align: justify; }
-            .child-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-            .child-table th, .child-table td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 11pt; }
-            .child-table th { background-color: #f2f2f2; }
-            .bottom-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; page-break-inside: avoid; }
-            .attachment-part { width: 55%; font-size: 11pt; line-height: 1.6; }
-            .applicant-part { width: 40%; line-height: 1.6; }
-        }
-    </style>
+header h1{
+    margin:0;
+    font-size:27px;
+}
+
+header p{
+    margin:8px 0 0;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    padding:22px;
+    margin-bottom:20px;
+    border-radius:10px;
+    box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.card h2{
+    color:#1769aa;
+    margin-top:0;
+}
+
+.track-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border:1px solid #aaa;
+    border-radius:6px;
+    font-size:16px;
+}
+
+button{
+    padding:12px 20px;
+    border:0;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.track-btn{
+    margin-top:15px;
+    background:#1769aa;
+    color:white;
+}
+
+.forms{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+}
+
+.form-link{
+    display:block;
+    text-align:center;
+    text-decoration:none;
+    padding:15px;
+    border:1px solid #ddd;
+    border-radius:7px;
+    color:#1769aa;
+    background:white;
+    font-weight:bold;
+}
+
+.form-link:hover{
+    background:#eef7ff;
+}
+
+.result{
+    margin-top:20px;
+}
+
+.result-box{
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:18px;
+    background:#fafafa;
+}
+
+.result-row{
+    padding:8px 0;
+    border-bottom:1px solid #eee;
+}
+
+.status{
+    display:inline-block;
+    padding:7px 14px;
+    border-radius:20px;
+    font-weight:bold;
+}
+
+.pending{
+    background:#fff3cd;
+    color:#856404;
+}
+
+.verified{
+    background:#d4edda;
+    color:#155724;
+}
+
+.rejected{
+    background:#f8d7da;
+    color:#721c24;
+}
+
+.printed{
+    background:#d1ecf1;
+    color:#0c5460;
+}
+
+.open-btn{
+    background:#198754;
+    color:white;
+    margin-top:15px;
+}
+
+.error{
+    background:#f8d7da;
+    color:#721c24;
+    padding:12px;
+    border-radius:6px;
+}
+
+.info{
+    background:#fff3cd;
+    color:#856404;
+    padding:12px;
+    border-radius:6px;
+}
+
+footer{
+    text-align:center;
+    padding:20px;
+    color:#666;
+}
+
+@media(max-width:600px){
+
+    .track-grid{
+        grid-template-columns:1fr;
+    }
+
+    header h1{
+        font-size:21px;
+    }
+
+}
+
+</style>
 </head>
+
 <body>
 
+<header>
+
+    <h1>
+        निवेदन प्रणाली
+    </h1>
+
+    <p>
+        रोहिणी गाउँपालिका वडा नं. १, रुपन्देही
+    </p>
+
+</header>
+
+
 <div class="container">
-    <div class="header">
-        <h1>रोहिणी गाउँपालिका, वडा नं. १</h1>
-        <p>रुपन्देही, लुम्बिनी प्रदेश - डिजिटल सिफारिस सेवा पोर्टल</p>
-    </div>
 
-    <div class="search-card">
-        <h3><i class="fa-solid fa-print"></i> eSewa Code हालेर निवेदन प्रिन्ट गर्नुहोस्</h3>
-        <div class="search-row">
-            <input type="text" id="check_esewa_code" placeholder="तपाईँको eSewa Code (Transaction ID) हाल्नुहोस्...">
-            <button type="button" onclick="checkAndPrint()">जाँच / A4 प्रिन्ट</button>
+
+<!-- ==============================
+     TRACK
+================================ -->
+
+<div class="card">
+
+    <h2>🔎 निवेदन Track गर्नुहोस्</h2>
+
+    <p>
+        Mobile Number र eSewa Code प्रयोग गरेर
+        आफ्नो निवेदनको अवस्था हेर्नुहोस्।
+    </p>
+
+
+    <div class="track-grid">
+
+        <div>
+
+            <label>
+                मोबाइल नम्बर
+            </label>
+
+            <input
+                id="mobile"
+                type="tel"
+                placeholder="98XXXXXXXX"
+            >
+
         </div>
-        <div id="check_status_msg" class="status-msg"></div>
+
+
+        <div>
+
+            <label>
+                eSewa Code
+            </label>
+
+            <input
+                id="esewa"
+                type="text"
+                placeholder="eSewa Code"
+            >
+
+        </div>
+
     </div>
 
-    <div class="services-title">उपलब्ध निवेदन तथा सिफारिस फारमहरू</div>
-    
-    <div class="grid-container">
-        <a href="janamdarta.html" class="service-card">
-            <i class="fa-solid fa-baby"></i>
-            <div>
-                <h4>जन्म दर्ता सिफारिस</h4>
-                <p>नयाँ जन्मिएका शिशुको दर्ता निवेदन</p>
-            </div>
-        </a>
-        <a href="vivah_darta.html" class="service-card">
-            <i class="fa-solid fa-rings-wedding"></i>
-            <div>
-                <h4>विवाह दर्ता सिफारिस</h4>
-                <p>विवाह दर्ता प्रमाणपत्र सिफारिस</p>
-            </div>
-        </a>
-        <a href="mrityu_darta.html" class="service-card">
-            <i class="fa-solid fa-book-dead"></i>
-            <div>
-                <h4>मृत्यु दर्ता सिफारिस</h4>
-                <p>मृत्यु दर्ता प्रमाणपत्र सिफारिस</p>
-            </div>
-        </a>
-        <a href="charitra_pramanit.html" class="service-card">
-            <i class="fa-solid fa-user-check"></i>
-            <div>
-                <h4>चारित्रिक सिफारिस</h4>
-                <p>चारित्रिक प्रमाणपत्रको निवेदन</p>
-            </div>
-        </a>
-        <a href="ghar_jagga.html" class="service-card">
-            <i class="fa-solid fa-house-chimney"></i>
-            <div>
-                <h4>घर-जग्गा नामसारी</h4>
-                <p>नामसारी तथा हकदाबी सिफारिस</p>
-            </div>
-        </a>
-    </div>
+
+    <button
+        class="track-btn"
+        onclick="trackRequest()"
+    >
+        🔎 Track
+    </button>
+
+
+    <div
+        id="result"
+        class="result"
+    ></div>
+
 </div>
 
-<div id="print-area" style="display:none;">
-    <div class="date">मिति: <span id="p_today"></span></div>
-    <div class="recipient">श्रीमान् वडा अध्यक्ष ज्यू,<br>रोहिणी गाउँपालिका, वडा नं. १,<br>रुपन्देही, नेपाल।</div>
-    <div id="p_subject" class="subject">विषय : जन्म दर्ता गरिपाऊँ।</div>
-    <p>महोदय,</p>
-    <div id="p_content" class="content"></div>
-    
-    <div id="p_children_table_wrapper"></div>
 
-    <div class="bottom-container">
-        <div class="attachment-part">
-            <strong>संलग्न कागजातहरू:</strong><br>
-            १. बाबु-आमाको नागरिकता प्रतिलिपि<br>
-            २. अस्पतालको जन्म डिस्चार्ज पुर्जी<br>
-            ३. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि
-        </div>
-        <div class="applicant-part">
-            <strong>निवेदक:</strong><br><br>
-            सही: ...........................<br>
-            नाम: <strong id="p_f_name">………………</strong><br>
-            ठेगाना: रोहिणी-१, रुपन्देही<br>
-            फोन: <span id="p_phone">9817423830</span>
-        </div>
+
+<!-- ==============================
+     FORMS
+================================ -->
+
+<div class="card">
+
+    <h2>
+        📄 निवेदन फारम
+    </h2>
+
+
+    <div class="forms">
+
+        <a
+            class="form-link"
+            href="forms/janma.html"
+        >
+            जन्मदर्ता
+        </a>
+
+
+        <!-- पछि थप्नुहोस् -->
+
+        <a
+            class="form-link"
+            href="#"
+        >
+            विवाहदर्ता
+        </a>
+
+
+        <a
+            class="form-link"
+            href="#"
+        >
+            मृत्युदर्ता
+        </a>
+
+
+        <a
+            class="form-link"
+            href="#"
+        >
+            बसाइँसराइ
+        </a>
+
+
+        <a
+            class="form-link"
+            href="#"
+        >
+            नागरिकता सिफारिस
+        </a>
+
+
+        <a
+            class="form-link"
+            href="#"
+        >
+            चारकिल्ला
+        </a>
+
     </div>
+
 </div>
+
+
+</div>
+
+
+<footer>
+
+    © रोहिणी गाउँपालिका वडा नं. १
+
+</footer>
+
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
 
-    function populatePrintDetails(req) {
-        document.getElementById('p_today').innerText = req.today || '';
-        document.getElementById('p_f_name').innerText = req.applicant_name || '';
-        document.getElementById('p_phone').innerText = req.phone || '';
+const DB =
+"https://sunil-online-service-default-rtdb.firebaseio.com";
 
-        let content = `उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने <strong>${req.grandpa_name || '…………'}</strong> को ${req.grandpa_rel || 'नाति'}, तथा श्री <strong>${req.father_name || '…………'}</strong> को ${req.father_rel || 'छोरा'} <strong>${req.applicant_name || '…………'}</strong> हूँ। मिति <strong>${req.marriage_date || '…………'}</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।`;
-        document.getElementById('p_content').innerHTML = content;
 
-        let tableHtml = `<table class="child-table">
-            <thead>
-                <tr><th>क्र.सं.</th><th>बच्चाको नाम</th><th>लिङ्ग</th><th>जन्म मिति</th><th>जन्मस्थान</th><th>टोकन नम्बर</th></tr>
-            </thead><tbody>`;
+async function trackRequest(){
 
-        if (req.children) {
-            req.children.forEach((c, i) => {
-                tableHtml += `<tr>
-                    <td>${i + 1}</td>
-                    <td><strong>${c.name || ''}</strong></td>
-                    <td>${c.gender || ''}</td>
-                    <td>${c.dob || ''}</td>
-                    <td>${c.birthplace || ''}</td>
-                    <td><strong>${c.token || ''}</strong></td>
-                </tr>`;
-            });
-        }
-        tableHtml += `</tbody></table>`;
-        document.getElementById('p_children_table_wrapper').innerHTML = tableHtml;
+    const mobile =
+        document.getElementById("mobile")
+        .value.trim();
+
+    const esewa =
+        document.getElementById("esewa")
+        .value.trim();
+
+    const result =
+        document.getElementById("result");
+
+
+    if(!mobile || !esewa){
+
+        result.innerHTML = `
+            <div class="error">
+                Mobile Number र eSewa Code दुवै राख्नुहोस्।
+            </div>
+        `;
+
+        return;
+
     }
 
-    function checkAndPrint() {
-        const code = document.getElementById('check_esewa_code').value.trim();
-        const msg = document.getElementById('check_status_msg');
-        const printArea = document.getElementById('print-area');
-        
-        if (!code) { alert("कृपया eSewa Code हाल्नुहोस्!"); return; }
 
-        msg.style.color = "#d35400";
-        msg.innerText = "🔍 खोजी हुँदैछ...";
+    result.innerHTML = `
+        <div class="info">
+            ⏳ खोजिँदैछ...
+        </div>
+    `;
 
-        database.ref('requests').orderByChild('esewa_code').equalTo(code).once('value', (snapshot) => {
-            if (!snapshot.exists()) {
-                msg.style.color = "#c0392b";
-                msg.innerText = "❌ यो eSewa Code सँग मिल्दो अनुरोध भेटिएन!";
-                return;
+
+    try{
+
+        const response =
+            await fetch(
+                DB + "/requests.json"
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if(!data){
+
+            result.innerHTML = `
+                <div class="error">
+                    कुनै request भेटिएन।
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        let found = null;
+
+
+        for(const id in data){
+
+            const item = data[id];
+
+
+            if(
+                String(item.mobile || "")
+                .trim()
+                === mobile
+                &&
+                String(item.esewa || "")
+                .trim()
+                === esewa
+            ){
+
+                found = {
+                    id:id,
+                    ...item
+                };
+
             }
 
-            snapshot.forEach((childSnapshot) => {
-                const req = childSnapshot.val();
-                populatePrintDetails(req);
+        }
 
-                if (req.status !== 'APPROVED') {
-                    msg.style.color = "#e67e22";
-                    msg.innerText = "⚠️ भुक्तानी अझै रुजु (Verify) भएको छैन। वाटरमार्क सहितको नमुना प्रिन्ट खुल्दैछ...";
-                    printArea.classList.add('has-watermark');
-                } else {
-                    msg.style.color = "#27ae60";
-                    msg.innerText = "✅ स्वीकृत भयो! सफा (Clear) A4 प्रिन्ट खुल्दैछ...";
-                    printArea.classList.remove('has-watermark');
-                }
 
-                setTimeout(() => { window.print(); }, 500);
-            });
-        });
+        if(!found){
+
+            result.innerHTML = `
+                <div class="error">
+                    ❌ Mobile Number वा eSewa Code गलत छ।
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        showResult(found);
+
     }
+
+    catch(error){
+
+        console.error(error);
+
+        result.innerHTML = `
+            <div class="error">
+                Firebase connection error।
+            </div>
+        `;
+
+    }
+
+}
+
+
+function showResult(data){
+
+    let status =
+        data.status || "Pending";
+
+
+    let statusClass =
+        "pending";
+
+    let statusText =
+        "⏳ Pending";
+
+
+    if(status === "Verified"){
+
+        statusClass = "verified";
+        statusText = "✅ Verified";
+
+    }
+
+    else if(status === "Rejected"){
+
+        statusClass = "rejected";
+        statusText = "❌ Rejected";
+
+    }
+
+    else if(status === "Printed"){
+
+        statusClass = "printed";
+        statusText = "🖨️ Printed";
+
+    }
+
+
+    let button = "";
+
+
+    if(
+        status === "Verified"
+        ||
+        status === "Printed"
+    ){
+
+        button = `
+            <button
+                class="open-btn"
+                onclick="openForm('${data.id}')"
+            >
+                🖨️ Print / Open Form
+            </button>
+        `;
+
+    }
+
+
+    document.getElementById("result")
+    .innerHTML = `
+
+        <div class="result-box">
+
+            <h3>
+                निवेदन भेटियो
+            </h3>
+
+            <div class="result-row">
+                <b>नाम:</b>
+                ${escapeHtml(data.name || "-")}
+            </div>
+
+            <div class="result-row">
+                <b>मोबाइल:</b>
+                ${escapeHtml(data.mobile || "-")}
+            </div>
+
+            <div class="result-row">
+                <b>eSewa Code:</b>
+                ${escapeHtml(data.esewa || "-")}
+            </div>
+
+            <div class="result-row">
+                <b>निवेदन:</b>
+                ${escapeHtml(data.formName || "-")}
+            </div>
+
+            <div class="result-row">
+                <b>Status:</b>
+                <span class="status ${statusClass}">
+                    ${statusText}
+                </span>
+            </div>
+
+            ${statusMessage(status)}
+
+            ${button}
+
+        </div>
+    `;
+
+}
+
+
+function statusMessage(status){
+
+    if(status === "Pending"){
+
+        return `
+            <br>
+            <div class="info">
+                ⏳ Admin ले eSewa Code verify गर्न बाँकी छ।
+            </div>
+        `;
+
+    }
+
+
+    if(status === "Verified"){
+
+        return `
+            <br>
+            <div style="
+                background:#d4edda;
+                color:#155724;
+                padding:12px;
+                border-radius:6px;">
+                ✅ Payment Verify भयो।
+                अब Print गर्न सकिन्छ।
+            </div>
+        `;
+
+    }
+
+
+    if(status === "Rejected"){
+
+        return `
+            <br>
+            <div class="error">
+                ❌ यो request Reject गरिएको छ।
+            </div>
+        `;
+
+    }
+
+
+    if(status === "Printed"){
+
+        return `
+            <br>
+            <div style="
+                background:#d1ecf1;
+                color:#0c5460;
+                padding:12px;
+                border-radius:6px;">
+                🖨️ यो निवेदन Print भइसकेको छ।
+            </div>
+        `;
+
+    }
+
+    return "";
+
+}
+
+
+function openForm(id){
+
+    window.open(
+        "forms/janma.html?request=" +
+        encodeURIComponent(id),
+        "_blank"
+    );
+
+}
+
+
+function escapeHtml(value){
+
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
 </script>
+
 </body>
 </html>
