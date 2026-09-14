@@ -2,12 +2,11 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>निवेदन प्रणाली - रोहिणी १</title>
+<title>निवेदन प्रणाली - रोहिणी वडा नं. १</title>
 
 <style>
-
 *{
     box-sizing:border-box;
 }
@@ -15,24 +14,24 @@
 body{
     margin:0;
     font-family:Arial,"Noto Sans Devanagari",sans-serif;
-    background:#f1f4f7;
+    background:#f1f5f9;
     color:#222;
 }
 
 header{
-    background:#1769aa;
+    background:#0b5ed7;
     color:white;
+    padding:22px 15px;
     text-align:center;
-    padding:25px 15px;
 }
 
 header h1{
-    margin:0;
-    font-size:27px;
+    margin:0 0 6px;
+    font-size:26px;
 }
 
 header p{
-    margin:8px 0 0;
+    margin:0;
 }
 
 .container{
@@ -43,87 +42,78 @@ header p{
 
 .card{
     background:white;
-    padding:22px;
+    padding:20px;
     margin-bottom:20px;
-    border-radius:10px;
-    box-shadow:0 3px 12px rgba(0,0,0,.08);
+    border-radius:12px;
+    box-shadow:0 3px 12px #0001;
 }
 
 .card h2{
-    color:#1769aa;
     margin-top:0;
-}
-
-.track-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-}
-
-input{
-    width:100%;
-    padding:12px;
-    border:1px solid #aaa;
-    border-radius:6px;
-    font-size:16px;
-}
-
-button{
-    padding:12px 20px;
-    border:0;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:16px;
-}
-
-.track-btn{
-    margin-top:15px;
-    background:#1769aa;
-    color:white;
+    text-align:center;
 }
 
 .forms{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:12px;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:15px;
 }
 
-.form-link{
+.form-btn{
     display:block;
-    text-align:center;
     text-decoration:none;
-    padding:15px;
-    border:1px solid #ddd;
-    border-radius:7px;
-    color:#1769aa;
-    background:white;
+    background:#fff;
+    border:2px solid #0b5ed7;
+    color:#0b5ed7;
+    padding:18px 10px;
+    border-radius:10px;
+    text-align:center;
+    font-size:17px;
     font-weight:bold;
+    transition:.2s;
 }
 
-.form-link:hover{
-    background:#eef7ff;
+.form-btn:hover{
+    background:#0b5ed7;
+    color:white;
+}
+
+input{
+    width:100%;
+    padding:13px;
+    margin:7px 0;
+    border:1px solid #bbb;
+    border-radius:7px;
+    font-size:16px;
+}
+
+button{
+    width:100%;
+    padding:13px;
+    border:0;
+    border-radius:7px;
+    background:#0b5ed7;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#084298;
 }
 
 .result{
-    margin-top:20px;
-}
-
-.result-box{
-    border:1px solid #ddd;
+    margin-top:15px;
+    padding:15px;
     border-radius:8px;
-    padding:18px;
-    background:#fafafa;
-}
-
-.result-row{
-    padding:8px 0;
-    border-bottom:1px solid #eee;
+    background:#f8fafc;
+    display:none;
 }
 
 .status{
+    padding:8px;
+    border-radius:5px;
     display:inline-block;
-    padding:7px 14px;
-    border-radius:20px;
     font-weight:bold;
 }
 
@@ -133,38 +123,27 @@ button{
 }
 
 .verified{
-    background:#d4edda;
-    color:#155724;
+    background:#d1e7dd;
+    color:#0f5132;
 }
 
 .rejected{
     background:#f8d7da;
-    color:#721c24;
+    color:#842029;
 }
 
 .printed{
-    background:#d1ecf1;
-    color:#0c5460;
+    background:#cff4fc;
+    color:#055160;
 }
 
-.open-btn{
-    background:#198754;
-    color:white;
+.admin-link{
+    text-align:center;
     margin-top:15px;
 }
 
-.error{
-    background:#f8d7da;
-    color:#721c24;
-    padding:12px;
-    border-radius:6px;
-}
-
-.info{
-    background:#fff3cd;
-    color:#856404;
-    padding:12px;
-    border-radius:6px;
+.admin-link a{
+    color:#555;
 }
 
 footer{
@@ -172,179 +151,88 @@ footer{
     padding:20px;
     color:#666;
 }
-
-@media(max-width:600px){
-
-    .track-grid{
-        grid-template-columns:1fr;
-    }
-
-    header h1{
-        font-size:21px;
-    }
-
-}
-
 </style>
 </head>
 
 <body>
 
 <header>
-
-    <h1>
-        निवेदन प्रणाली
-    </h1>
-
-    <p>
-        रोहिणी गाउँपालिका वडा नं. १, रुपन्देही
-    </p>
-
+    <h1>रोहिणी गाउँपालिका वडा नं. १</h1>
+    <p>डिजिटल निवेदन प्रणाली</p>
 </header>
-
 
 <div class="container">
 
+    <!-- NIVEDAN -->
+    <div class="card">
+        <h2>📋 निवेदन / सिफारिस छनोट गर्नुहोस्</h2>
 
-<!-- ==============================
-     TRACK
-================================ -->
+        <div class="forms">
 
-<div class="card">
+            <a class="form-btn" href="forms/janma.html">
+                जन्मदर्ता
+            </a>
 
-    <h2>🔎 निवेदन Track गर्नुहोस्</h2>
+            <a class="form-btn" href="forms/bibaha.html">
+                विवाहदर्ता
+            </a>
 
-    <p>
-        Mobile Number र eSewa Code प्रयोग गरेर
-        आफ्नो निवेदनको अवस्था हेर्नुहोस्।
-    </p>
+            <a class="form-btn" href="forms/mrityu.html">
+                मृत्युदर्ता
+            </a>
 
+            <a class="form-btn" href="forms/nagarikata.html">
+                नागरिकता सिफारिस
+            </a>
 
-    <div class="track-grid">
-
-        <div>
-
-            <label>
-                मोबाइल नम्बर
-            </label>
-
-            <input
-                id="mobile"
-                type="tel"
-                placeholder="98XXXXXXXX"
-            >
+            <a class="form-btn" href="forms/charkilla.html">
+                चारकिल्ला सिफारिस
+            </a>
 
         </div>
+    </div>
 
 
-        <div>
+    <!-- TRACK -->
+    <div class="card">
 
-            <label>
-                eSewa Code
-            </label>
+        <h2>🔎 निवेदन Track गर्नुहोस्</h2>
 
-            <input
-                id="esewa"
-                type="text"
-                placeholder="eSewa Code"
-            >
+        <p>
+            आफ्नो Mobile Number र eSewa Code राखेर
+            निवेदनको अवस्था हेर्नुहोस्।
+        </p>
 
-        </div>
+        <input
+            type="text"
+            id="trackMobile"
+            placeholder="Mobile Number">
+
+        <input
+            type="text"
+            id="trackEsewa"
+            placeholder="eSewa Code">
+
+        <button onclick="trackRequest()">
+            🔎 TRACK
+        </button>
+
+        <div id="result" class="result"></div>
 
     </div>
 
 
-    <button
-        class="track-btn"
-        onclick="trackRequest()"
-    >
-        🔎 Track
-    </button>
-
-
-    <div
-        id="result"
-        class="result"
-    ></div>
-
-</div>
-
-
-
-<!-- ==============================
-     FORMS
-================================ -->
-
-<div class="card">
-
-    <h2>
-        📄 निवेदन फारम
-    </h2>
-
-
-    <div class="forms">
-
-        <a
-            class="form-link"
-            href="forms/janma.html"
-        >
-            जन्मदर्ता
+    <!-- ADMIN -->
+    <div class="card admin-link">
+        <a href="admin.html">
+            🔐 Admin Login
         </a>
-
-
-        <!-- पछि थप्नुहोस् -->
-
-        <a
-            class="form-link"
-            href="#"
-        >
-            विवाहदर्ता
-        </a>
-
-
-        <a
-            class="form-link"
-            href="#"
-        >
-            मृत्युदर्ता
-        </a>
-
-
-        <a
-            class="form-link"
-            href="#"
-        >
-            बसाइँसराइ
-        </a>
-
-
-        <a
-            class="form-link"
-            href="#"
-        >
-            नागरिकता सिफारिस
-        </a>
-
-
-        <a
-            class="form-link"
-            href="#"
-        >
-            चारकिल्ला
-        </a>
-
     </div>
 
 </div>
-
-
-</div>
-
 
 <footer>
-
-    © रोहिणी गाउँपालिका वडा नं. १
-
+    © Rohini-1 Digital Nivedan System
 </footer>
 
 
@@ -357,307 +245,174 @@ const DB =
 async function trackRequest(){
 
     const mobile =
-        document.getElementById("mobile")
-        .value.trim();
+        document.getElementById("trackMobile").value.trim();
 
     const esewa =
-        document.getElementById("esewa")
-        .value.trim();
+        document.getElementById("trackEsewa").value.trim();
 
     const result =
         document.getElementById("result");
 
-
     if(!mobile || !esewa){
 
-        result.innerHTML = `
-            <div class="error">
-                Mobile Number र eSewa Code दुवै राख्नुहोस्।
-            </div>
-        `;
-
+        alert("Mobile Number र eSewa Code दुवै राख्नुहोस्।");
         return;
-
     }
 
-
-    result.innerHTML = `
-        <div class="info">
-            ⏳ खोजिँदैछ...
-        </div>
-    `;
-
+    result.style.display="block";
+    result.innerHTML="Loading...";
 
     try{
 
         const response =
-            await fetch(
-                DB + "/requests.json"
-            );
-
+            await fetch(DB + "/requests.json");
 
         const data =
             await response.json();
 
+        let found=null;
+        let id=null;
 
-        if(!data){
+        if(data){
 
-            result.innerHTML = `
-                <div class="error">
-                    कुनै request भेटिएन।
-                </div>
-            `;
+            for(const key in data){
 
-            return;
+                const item=data[key];
 
-        }
+                if(
+                    String(item.mobile) === String(mobile) &&
+                    String(item.esewa) === String(esewa)
+                ){
 
-
-        let found = null;
-
-
-        for(const id in data){
-
-            const item = data[id];
-
-
-            if(
-                String(item.mobile || "")
-                .trim()
-                === mobile
-                &&
-                String(item.esewa || "")
-                .trim()
-                === esewa
-            ){
-
-                found = {
-                    id:id,
-                    ...item
-                };
-
+                    found=item;
+                    id=key;
+                    break;
+                }
             }
-
         }
-
 
         if(!found){
 
-            result.innerHTML = `
-                <div class="error">
-                    ❌ Mobile Number वा eSewa Code गलत छ।
-                </div>
-            `;
+            result.innerHTML=
+            "<b>❌ निवेदन भेटिएन।</b><br><br>"+
+            "Mobile Number वा eSewa Code जाँच गर्नुहोस्।";
 
             return;
-
         }
 
 
-        showResult(found);
+        let statusClass="pending";
 
-    }
+        if(found.status==="Verified")
+            statusClass="verified";
 
-    catch(error){
+        if(found.status==="Rejected")
+            statusClass="rejected";
+
+        if(found.status==="Printed")
+            statusClass="printed";
+
+
+        let html=`
+
+            <h3>निवेदन भेटियो ✅</h3>
+
+            <p>
+                <b>नाम:</b>
+                ${escapeHTML(found.name || "-")}
+            </p>
+
+            <p>
+                <b>Mobile:</b>
+                ${escapeHTML(found.mobile || "-")}
+            </p>
+
+            <p>
+                <b>निवेदन:</b>
+                ${escapeHTML(found.formName || "-")}
+            </p>
+
+            <p>
+                <b>eSewa Code:</b>
+                ${escapeHTML(found.esewa || "-")}
+            </p>
+
+            <p>
+                <b>Status:</b>
+                <span class="status ${statusClass}">
+                ${escapeHTML(found.status || "Pending")}
+                </span>
+            </p>
+        `;
+
+
+        if(
+            found.status==="Verified" ||
+            found.status==="Printed"
+        ){
+
+            html += `
+                <br>
+                <button onclick="openPrint('${id}')">
+                    🖨️ PRINT / OPEN
+                </button>
+            `;
+        }
+
+        if(found.status==="Pending"){
+
+            html += `
+                <p>
+                ⏳ Admin ले payment verify गर्न बाँकी छ।
+                </p>
+            `;
+        }
+
+        if(found.status==="Rejected"){
+
+            html += `
+                <p>
+                ❌ Payment verify भएन।
+                Admin सँग सम्पर्क गर्नुहोस्।
+                </p>
+            `;
+        }
+
+
+        result.innerHTML=html;
+
+    }catch(error){
 
         console.error(error);
 
-        result.innerHTML = `
-            <div class="error">
-                Firebase connection error।
-            </div>
-        `;
-
+        result.innerHTML=
+        "❌ Firebase connection error";
     }
-
 }
 
 
-function showResult(data){
+function openPrint(id){
 
-    let status =
-        data.status || "Pending";
-
-
-    let statusClass =
-        "pending";
-
-    let statusText =
-        "⏳ Pending";
-
-
-    if(status === "Verified"){
-
-        statusClass = "verified";
-        statusText = "✅ Verified";
-
-    }
-
-    else if(status === "Rejected"){
-
-        statusClass = "rejected";
-        statusText = "❌ Rejected";
-
-    }
-
-    else if(status === "Printed"){
-
-        statusClass = "printed";
-        statusText = "🖨️ Printed";
-
-    }
-
-
-    let button = "";
-
-
-    if(
-        status === "Verified"
-        ||
-        status === "Printed"
-    ){
-
-        button = `
-            <button
-                class="open-btn"
-                onclick="openForm('${data.id}')"
-            >
-                🖨️ Print / Open Form
-            </button>
-        `;
-
-    }
-
-
-    document.getElementById("result")
-    .innerHTML = `
-
-        <div class="result-box">
-
-            <h3>
-                निवेदन भेटियो
-            </h3>
-
-            <div class="result-row">
-                <b>नाम:</b>
-                ${escapeHtml(data.name || "-")}
-            </div>
-
-            <div class="result-row">
-                <b>मोबाइल:</b>
-                ${escapeHtml(data.mobile || "-")}
-            </div>
-
-            <div class="result-row">
-                <b>eSewa Code:</b>
-                ${escapeHtml(data.esewa || "-")}
-            </div>
-
-            <div class="result-row">
-                <b>निवेदन:</b>
-                ${escapeHtml(data.formName || "-")}
-            </div>
-
-            <div class="result-row">
-                <b>Status:</b>
-                <span class="status ${statusClass}">
-                    ${statusText}
-                </span>
-            </div>
-
-            ${statusMessage(status)}
-
-            ${button}
-
-        </div>
-    `;
-
-}
-
-
-function statusMessage(status){
-
-    if(status === "Pending"){
-
-        return `
-            <br>
-            <div class="info">
-                ⏳ Admin ले eSewa Code verify गर्न बाँकी छ।
-            </div>
-        `;
-
-    }
-
-
-    if(status === "Verified"){
-
-        return `
-            <br>
-            <div style="
-                background:#d4edda;
-                color:#155724;
-                padding:12px;
-                border-radius:6px;">
-                ✅ Payment Verify भयो।
-                अब Print गर्न सकिन्छ।
-            </div>
-        `;
-
-    }
-
-
-    if(status === "Rejected"){
-
-        return `
-            <br>
-            <div class="error">
-                ❌ यो request Reject गरिएको छ।
-            </div>
-        `;
-
-    }
-
-
-    if(status === "Printed"){
-
-        return `
-            <br>
-            <div style="
-                background:#d1ecf1;
-                color:#0c5460;
-                padding:12px;
-                border-radius:6px;">
-                🖨️ यो निवेदन Print भइसकेको छ।
-            </div>
-        `;
-
-    }
-
-    return "";
-
-}
-
-
-function openForm(id){
-
-    window.open(
-        "forms/janma.html?request=" +
-        encodeURIComponent(id),
-        "_blank"
+    localStorage.setItem(
+        "nivedan_track_request",
+        id
     );
 
+    alert(
+        "यो request को original form खोल्नुपर्छ। "+
+        "Demo मा form पुनः खोलिनेछ।"
+    );
 }
 
 
-function escapeHtml(value){
+function escapeHTML(value){
 
     return String(value)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
-
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
 </script>
