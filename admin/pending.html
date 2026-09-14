@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Nivedans - Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="../config/firebase-config.js"></script>
+</head>
+<body>
+
+<div style="padding: 20px;">
+    <h2>⏳ विचाराधीन निवेदनहरू (Pending Applications)</h2>
+    <a href="dashboard.html" style="text-decoration: none; font-weight: bold;">← ड्यासबोर्डमा फर्कनुहोस्</a>
+    <hr style="margin: 15px 0;">
+
+    <table>
+        <thead>
+            <tr>
+                <th>Tracking ID</th>
+                <th>प्रकार</th>
+                <th>निवेदकको नाम</th>
+                <th>सम्पर्क</th>
+                <th>भुक्तानी</th>
+                <th>कार्य (Action)</th>
+            </tr>
+        </thead>
+        <tbody id="pendingTableBody">
+            <!-- Data will load here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+if(localStorage.getItem('adminLoggedIn') !== 'true') {
+    window.location.href = 'login.html';
+}
+
+function loadPending() {
+    db.ref('nivedans').on('value', snapshot => {
+        const tbody = document.getElementById('pendingTableBody');
+        tbody.innerHTML = '';
+        let count = 0;
+
+        snapshot.forEach(child => {
+            const key = child.key;
+            const val = child.val();
+            
+            // Only show Pending requests
+            if (!val.status || val.status === 'Pending') {
+                count++;
+                let row = `<tr>
+                    <td>${key}</td>
+                    <td>${val.formType}</td>
+                    <td>${val.applicantName}</td>
+                    <td>${val.mobileNumber || '-'}</td>
+                    <td>${val.paymentType || 'Unpaid'}</td>
+                    <td>
+                        <button onclick="updateStatus('${key}', 'Approved')" style="background: #27ae60; color: white; border:none; padding: 6px 12px; cursor:pointer; border-radius:3px;">स्वीकृत गर्नुहोस्</button>
+                        <button onclick="updateStatus('${key}', 'Rejected')" style="background: #e74c3c; color: white; border:none; padding: 6px 12px; cursor:pointer; border-radius:3px;">अस्वीकृत गर्नुहोस्</button>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            }
+        });
+
+        if (count === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">कुनै पनि पेन्डिङ निवेदन छैन।</td></tr>';
+        }
+    });
+}
+
+function updateStatus(id, status) {
+    db.ref('nivedans/' + id).update({
+        status: status
+    }).then(() => {
+        alert('निवेदनको अवस्था अद्यावधिक भयो: ' + status);
+    });
+}
+
+loadPending();
+</script>
+</body>
+</html>
