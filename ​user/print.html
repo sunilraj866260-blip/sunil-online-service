@@ -2,62 +2,195 @@
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
-    <title>निवेदन प्रिन्ट</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/print.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>निवेदन प्रिन्ट - A4 Size View</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="../config/firebase-config.js"></script>
-    <script src="../common/watermark.js"></script>
-    <script src="../common/print.js"></script>
+    <style>
+        :root { --primary: #2c3e50; --secondary: #27ae60; --danger: #e74c3c; }
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 10px; 
+            background: #f4f6f9; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 📱 Mobile Container Wrapper */
+        .wrapper {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* 🖨️ Mobile Preview Adaptive Container */
+        .a4-wrapper {
+            width: 100%;
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto; /* मोबाइलमा नअटेमा सुरक्षित स्क्रोल गराउन */
+        }
+
+        /* 📄 Strict A4 Dimensions (Standard Paper Size) */
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.15);
+            font-size: 13pt;
+            line-height: 1.8;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* 📱 Responsive Scaling for Mobile Screens */
+        @media screen and (max-width: 768px) {
+            .a4-wrapper {
+                padding: 5px;
+            }
+            .a4-page {
+                width: 100% !important; /* मोबाइल स्क्रिनमा १००% फिट हुने */
+                min-height: auto;
+                padding: 15px !important; /* मोबाइलमा सुहाउँदो मार्जिन */
+                font-size: 10.5pt !important;
+                box-shadow: none;
+            }
+        }
+
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        table, th, td { border: 1px solid #333; padding: 6px; text-align: left; }
+
+        .btn-box { 
+            display: flex; 
+            gap: 10px; 
+            margin: 15px 0; 
+            width: 100%;
+            max-width: 900px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+        .btn-print { background: var(--secondary); color: white; }
+        .btn-back { background: var(--primary); color: white; }
+
+        /* 🖨️ Strict A4 Printing Rules */
+        @media print {
+            body { background: white; padding: 0; }
+            .btn-box { display: none !important; }
+            .a4-wrapper { padding: 0; background: transparent; }
+            .a4-page {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 210mm !important;
+                height: 297mm !important;
+                padding: 20mm !important;
+                font-size: 13pt !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="no-print" style="margin-bottom:20px;">
-            <button onclick="printDocument(currentId)" class="btn btn-success">Print Document</button>
-            <a href="../trace/trace.html" class="btn btn-danger">पछाडि फर्कनुहोस्</a>
-        </div>
 
-        <div class="print-container" id="printableArea">
-            <div id="watermarkOverlay" class="watermark" style="display:none;">FREE COPY</div>
-            <div style="text-align:center;">
-                <h2>अनुसूची - १</h2>
-                <h3>श्री वडा अध्यक्ष ज्यु, वडा नं. १ कार्यालय</h3>
-                <h2 id="pFormType" style="text-decoration:underline;">निवेदन</h2>
+<div class="btn-box">
+    <a href="javascript:history.back()" class="btn btn-back">⬅️ पछाडि फर्कनुहोस्</a>
+    <button onclick="window.print()" class="btn btn-print">🖨️ A4 प्रिन्ट गर्नुहोस्</button>
+</div>
+
+<div class="wrapper">
+    <div class="a4-wrapper">
+        <div class="a4-page" id="printablePaper">
+            <div style="text-align: right;">मिति: <span id="p_date">Loading...</span></div>
+            
+            <div style="margin-top: 15px;">
+                श्रीमान् वडा अध्यक्ष ज्यू,<br>
+                रोहिणी गाउँपालिका, वडा नं. १,<br>
+                रुपन्देही, नेपाल।
             </div>
-            <br>
-            <p><strong>मिति:</strong> <span id="pDate"></span></p>
-            <p><strong>आवेदक:</strong> <span id="pName"></span></p>
-            <p><strong>सम्पर्क:</strong> <span id="pMobile"></span></p>
-            <br>
-            <p id="pDetails" style="min-height:150px; line-height:1.6;"></p>
-            <br><br>
-            <div style="display:flex; justify-content:space-between;">
-                <div>भुक्तानी स्थिति: <b id="pPayment">FREE</b></div>
-                <div>निवेदकको दस्तखत: ____________</div>
+
+            <div style="text-align: center; font-weight: bold; text-decoration: underline; margin: 25px 0; font-size: 15pt;">
+                विषय: <span id="p_subject"></span>
+            </div>
+
+            <p>महोदय,</p>
+            <div id="p_content" style="text-indent: 40px; text-align: justify;">
+                विवरण लोड हुँदैछ...
+            </div>
+
+            <div id="p_table_box"></div>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 50px; flex-wrap: wrap; gap: 20px;">
+                <div style="flex: 1; min-width: 180px; font-size: 10pt;">
+                    <strong>संलग्न कागजातहरू:</strong><br>
+                    १. नागरिकताको प्रतिलिपि<br>
+                    २. सम्बन्धित सिफारिस कागजात
+                </div>
+                <div style="flex: 1; min-width: 180px;">
+                    <strong>निवेदक:</strong><br><br>
+                    सही: ...........................<br>
+                    नाम: <strong id="p_name">...</strong><br>
+                    फोन: <span id="p_phone">...</span>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const currentId = urlParams.get('id');
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const nivedanId = urlParams.get('id');
 
-        if(currentId) {
-            db.ref('nivedans/' + currentId).once('value').then(snap => {
-                const data = snap.val();
-                if(data) {
-                    document.getElementById('pFormType').innerText = data.formType;
-                    document.getElementById('pDate').innerText = data.date;
-                    document.getElementById('pName').innerText = data.applicantName;
-                    document.getElementById('pMobile').innerText = data.mobileNumber;
-                    document.getElementById('pDetails').innerText = data.details;
-                    document.getElementById('pPayment').innerText = data.paymentType;
-                    
-                    applyWatermark(data.paymentType);
+    if (nivedanId) {
+        // Firebase बाट डाटा तान्ने
+        firebase.database().ref('nivedans/' + nivedanId).once('value').then((snapshot) => {
+            const item = snapshot.val();
+            if (item) {
+                document.getElementById('p_date').innerText = item.date || new Date().toLocaleDateString('ne-NP');
+                document.getElementById('p_subject').innerText = (item.formType || 'निवेदन') + ' गरिपाऊँ।';
+                document.getElementById('p_name').innerText = item.applicantName || 'N/A';
+                document.getElementById('p_phone').innerText = item.mobileNumber || 'N/A';
+
+                document.getElementById('p_content').innerHTML = `
+                    उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने 
+                    <strong>${item.grandpaName || '…………'}</strong> को ${item.grandpaRel || 'नाति'}, तथा श्री 
+                    <strong>${item.fatherName || '…………'}</strong> को ${item.fatherRel || 'छोरा'} 
+                    <strong>${item.applicantName}</strong> हूँ। मेरो नियमानुसार <strong>${item.formType}</strong> आवश्यक परेको हुँदा यो निवेदन पेश गरेको छु।
+                `;
+
+                if(item.children && item.children.length > 0) {
+                    let t = `<table><thead><tr><th>क्र.सं.</th><th>नाम</th><th>लिङ्ग</th><th>जन्म मिति</th></tr></thead><tbody>`;
+                    item.children.forEach((c, i) => {
+                        t += `<tr><td>${i+1}</td><td>${c.name}</td><td>${c.gender}</td><td>${c.dob}</td></tr>`;
+                    });
+                    t += `</tbody></table>`;
+                    document.getElementById('p_table_box').innerHTML = t;
                 }
-            });
-        }
-    </script>
+            } else {
+                alert('निवेदन फेला परेन!');
+            }
+        });
+    } else {
+        alert('गलत Tracking ID!');
+    }
+</script>
+
 </body>
 </html>
