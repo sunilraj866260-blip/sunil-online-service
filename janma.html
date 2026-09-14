@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ne">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1.0"
+>
+
+<title>
+जन्मदर्ता - रोहिणी १
+</title>
+
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    padding:15px;
+    background:#eee;
+    font-family:Arial,"Noto Sans Devanagari",sans-serif;
+}
+
+.page{
+    width:210mm;
+    min-height:297mm;
+    max-width:100%;
+    margin:auto;
+    padding:15mm;
+    background:white;
+    position:relative;
+}
+
+h1{
+    text-align:center;
+    margin:0;
+    font-size:22px;
+}
+
+h2{
+    text-align:center;
+    margin:5px 0 20px;
+    font-size:18px;
+}
+
+.section{
+    border:1px solid #999;
+    padding:12px;
+    margin-top:15px;
+}
+
+.section-title{
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.field{
+    margin-bottom:10px;
+}
+
+label{
+    display:block;
+    font-weight:bold;
+    margin-bottom:5px;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:9px;
+    border:1px solid #999;
+    border-radius:4px;
+    font-size:15px;
+}
+
+textarea{
+    min-height:65px;
+}
+
+.action{
+    max-width:800px;
+    margin:15px auto;
+    padding:15px;
+    background:white;
+    border-radius:8px;
+}
+
+.action button{
+    padding:12px 20px;
+    border:0;
+    border-radius:5px;
+    color:white;
+    background:#1769aa;
+    font-size:16px;
+    cursor:pointer;
+}
+
+#status{
+    margin-top:12px;
+    padding:10px;
+    background:#f5f5f5;
+}
+
+.pending-watermark::after{
+
+    content:"UNPAID / PENDING";
+
+    position:fixed;
+
+    top:45%;
+
+    left:10%;
+
+    font-size:65px;
+
+    font-weight:bold;
+
+    color:rgba(255,0,0,.13);
+
+    transform:rotate(-30deg);
+
+    z-index:9999;
+
+    pointer-events:none;
+
+}
+
+
+@media(max-width:600px){
+
+    body{
+        padding:5px;
+    }
+
+    .page{
+        width:100%;
+        padding:15px;
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+
+@media print{
+
+    body{
+        padding:0;
+        background:white;
+    }
+
+    .action{
+        display:none;
+    }
+
+    .page{
+        width:210mm;
+        min-height:297mm;
+        margin:0;
+        box-shadow:none;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div
+class="page"
+id="printPage"
+>
+
+
+<h1>
+रोहिणी गाउँपालिका
+</h1>
+
+<h2>
+वडा नं. १, रुपन्देही
+</h2>
+
+<h2>
+जन्मदर्ता निवेदन फारम
+</h2>
+
+
+<!-- CHILD -->
+
+<div class="section">
+
+<div class="section-title">
+१. बालबालिकाको विवरण
+</div>
+
+
+<div class="grid">
+
+<div class="field">
+
+<label>
+बालक/बालिकाको नाम
+</label>
+
+<input
+id="childName"
+type="text"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>
+लिङ्ग
+</label>
+
+<select id="gender">
+
+<option value="">
+छान्नुहोस्
+</option>
+
+<option>
+पुरुष
+</option>
+
+<option>
+महिला
+</option>
+
+<option>
+अन्य
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="field">
+
+<label>
+जन्म मिति
+</label>
+
+<input
+id="birthDate"
+type="date"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>
+जन्म स्थान
+</label>
+
+<input
+id="birthPlace"
+type="text"
+>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- FATHER -->
+
+<div class="section">
+
+<div class="section-title">
+२. बाबुको विवरण
+</div>
+
+<div class="grid">
+
+<div class="field">
+
+<label>
+बाबुको नाम
+</label>
+
+<input
+id="father"
+type="text"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>
+बाबुको ठेगाना
+</label>
+
+<input
+id="fatherAddress"
+value="रोहिणी गाउँपालिका वडा नं. १, रुपन्देही"
+>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- MOTHER -->
+
+<div class="section">
+
+<div class="section-title">
+३. आमाको विवरण
+</div>
+
+<div class="grid">
+
+<div class="field">
+
+<label>
+आमाको नाम
+</label>
+
+<input
+id="mother"
+type="text"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>
+आमाको ठेगाना
+</label>
+
+<input
+id="motherAddress"
+value="रोहिणी गाउँपालिका वडा नं. १, रुपन्देही"
+>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- APPLICANT -->
+
+<div class="section">
+
+<div class="section-title">
+४. निवेदकको विवरण
+</div>
+
+
+<div class="grid">
+
+<div class="field">
+
+<label>
+निवेदकको नाम
+</label>
+
+<input
+id="name"
+type="text"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>
+मोबाइल नम्बर
+</label>
+
+<input
+id="mobile"
+type="tel"
+placeholder="98XXXXXXXX"
+>
+
+</div>
+
+</div>
+
+
+<div class="field">
+
+<label>
+ठेगाना
+</label>
+
+<textarea id="address">
+रोहिणी गाउँपालिका वडा नं. १, रुपन्देही
+</textarea>
+
+</div>
+
+</div>
+
+
+<!-- PAYMENT -->
+
+<div class="section">
+
+<div class="section-title">
+५. eSewa भुक्तानी
+</div>
+
+<div class="field">
+
+<label>
+eSewa Code
+</label>
+
+<input
+id="esewa"
+type="text"
+placeholder="eSewa Code"
+>
+
+</div>
+
+</div>
+
+
+<br><br>
+
+
+<div style="text-align:right">
+
+निवेदकको हस्ताक्षर:
+
+____________________
+
+</div>
+
+
+</div>
+
+
+
+<!-- ACTION -->
+
+<div class="action">
+
+<h3>
+निवेदन Submit / Print
+</h3>
+
+<p>
+नाम, मोबाइल र eSewa Code राखेर
+Submit & Print थिच्नुहोस्।
+</p>
+
+
+<button
+onclick="submitPrint()"
+>
+📝 Submit & Print
+</button>
+
+
+<div id="status">
+Request तयार भएको छैन।
+</div>
+
+</div>
+
+
+
+<script>
+
+
+/* ==================================
+   FIREBASE
+================================== */
+
+const DB =
+"https://sunil-online-service-default-rtdb.firebaseio.com";
+
+
+const STORAGE =
+"JANMA_REQUEST_ID";
+
+
+const FORM_NAME =
+"जन्मदर्ता";
+
+
+const FORM_URL =
+"forms/janma.html";
+
+
+/* ==================================
+   PAGE LOAD
+================================== */
+
+window.onload = function(){
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const requestId =
+        params.get("request");
+
+
+    if(requestId){
+
+        localStorage.setItem(
+            STORAGE,
+            requestId
+        );
+
+        loadRequest(requestId);
+
+    }
+
+};
+
+
+/* ==================================
+   SUBMIT PRINT
+================================== */
+
+async function submitPrint(){
+
+    const name =
+        document.getElementById("name")
+        .value.trim();
+
+    const mobile =
+        document.getElementById("mobile")
+        .value.trim();
+
+    const esewa =
+        document.getElementById("esewa")
+        .value.trim();
+
+
+    if(!name){
+
+        alert(
+            "निवेदकको नाम राख्नुहोस्।"
+        );
+
+        return;
+
+    }
+
+
+    if(!mobile){
+
+        alert(
+            "मोबाइल नम्बर राख्नुहोस्।"
+        );
+
+        return;
+
+    }
+
+
+    if(!esewa){
+
+        alert(
+            "eSewa Code राख्नुहोस्।"
+        );
+
+        return;
+
+    }
+
+
+    const oldId =
+        localStorage.getItem(STORAGE);
+
+
+    /*
+       पहिले request छ भने
+       नयाँ request नबनाउने
+    */
+
+    if(oldId){
+
+        await loadRequest(oldId);
+
+        return;
+
+    }
+
+
+    setStatus(
+        "⏳ Firebase मा Submit हुँदैछ..."
+    );
+
+
+    const data = {
+
+        name:name,
+
+        mobile:mobile,
+
+        esewa:esewa,
+
+        formName:FORM_NAME,
+
+        formUrl:FORM_URL,
+
+        status:"Pending",
+
+        childName:
+            document.getElementById(
+                "childName"
+            ).value,
+
+        gender:
+            document.getElementById(
+                "gender"
+            ).value,
+
+        birthDate:
+            document.getElementById(
+                "birthDate"
+            ).value,
+
+        birthPlace:
+            document.getElementById(
+                "birthPlace"
+            ).value,
+
+        father:
+            document.getElementById(
+                "father"
+            ).value,
+
+        fatherAddress:
+            document.getElementById(
+                "fatherAddress"
+            ).value,
+
+        mother:
+            document.getElementById(
+                "mother"
+            ).value,
+
+        motherAddress:
+            document.getElementById(
+                "motherAddress"
+            ).value,
+
+        address:
+            document.getElementById(
+                "address"
+            ).value,
+
+        createdAt:
+            new Date().toISOString()
+
+    };
+
+
+    try{
+
+        const response =
+            await fetch(
+                DB + "/requests.json",
+                {
+
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body:
+                    JSON.stringify(data)
+
+                }
+            );
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Firebase error"
+            );
+
+        }
+
+
+        const result =
+            await response.json();
+
+
+        /*
+           Firebase ID
+        */
+
+        localStorage.setItem(
+            STORAGE,
+            result.name
+        );
+
+
+        setStatus(
+            "✅ Request Submit भयो।"
+        );
+
+
+        /*
+           अब status check
+        */
+
+        await loadRequest(
+            result.name
+        );
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        setStatus(
+            "❌ Submit भएन। Firebase Rules जाँच गर्नुहोस्।"
+        );
+
+    }
+
+}
+
+
+/* ==================================
+   LOAD REQUEST
+================================== */
+
+async function loadRequest(id){
+
+    try{
+
+        const response =
+            await fetch(
+                DB +
+                "/requests/" +
+                id +
+                ".json"
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if(!data){
+
+            setStatus(
+                "❌ Request भेटिएन।"
+            );
+
+            return;
+
+        }
+
+
+        fillForm(data);
+
+
+        const status =
+            data.status || "Pending";
+
+
+        /* =========================
+           VERIFIED
+        ========================= */
+
+        if(status === "Verified"){
+
+            document.body
+                .classList
+                .remove(
+                    "pending-watermark"
+                );
+
+
+            setStatus(
+                "✅ Verified भयो। Clean Print खुल्दैछ..."
+            );
+
+
+            setTimeout(
+                function(){
+
+                    window.print();
+
+                },
+                700
+            );
+
+        }
+
+
+        /* =========================
+           PRINTED
+        ========================= */
+
+        else if(status === "Printed"){
+
+            document.body
+                .classList
+                .remove(
+                    "pending-watermark"
+                );
+
+
+            setStatus(
+                "🖨️ Printed"
+            );
+
+
+        }
+
+
+        /* =========================
+           REJECTED
+        ========================= */
+
+        else if(status === "Rejected"){
+
+            document.body
+                .classList
+                .add(
+                    "pending-watermark"
+                );
+
+
+            setStatus(
+                "❌ Admin ले Reject गरेको छ।"
+            );
+
+        }
+
+
+        /* =========================
+           PENDING
+        ========================= */
+
+        else{
+
+            document.body
+                .classList
+                .add(
+                    "pending-watermark"
+                );
+
+
+            setStatus(
+                "⏳ Pending — Admin Verification बाँकी छ।"
+            );
+
+
+            /*
+               Pending हुँदा पनि print
+            */
+
+            setTimeout(
+                function(){
+
+                    window.print();
+
+                },
+                700
+            );
+
+        }
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        setStatus(
+            "❌ Firebase error"
+        );
+
+    }
+
+}
+
+
+/* ==================================
+   FILL FORM
+================================== */
+
+function fillForm(data){
+
+    if(data.name)
+        document.getElementById(
+            "name"
+        ).value = data.name;
+
+
+    if(data.mobile)
+        document.getElementById(
+            "mobile"
+        ).value = data.mobile;
+
+
+    if(data.esewa)
+        document.getElementById(
+            "esewa"
+        ).value = data.esewa;
+
+
+    if(data.childName)
+        document.getElementById(
+            "childName"
+        ).value = data.childName;
+
+
+    if(data.gender)
+        document.getElementById(
+            "gender"
+        ).value = data.gender;
+
+
+    if(data.birthDate)
+        document.getElementById(
+            "birthDate"
+        ).value = data.birthDate;
+
+
+    if(data.birthPlace)
+        document.getElementById(
+            "birthPlace"
+        ).value = data.birthPlace;
+
+
+    if(data.father)
+        document.getElementById(
+            "father"
+        ).value = data.father;
+
+
+    if(data.fatherAddress)
+        document.getElementById(
+            "fatherAddress"
+        ).value =
+        data.fatherAddress;
+
+
+    if(data.mother)
+        document.getElementById(
+            "mother"
+        ).value = data.mother;
+
+
+    if(data.motherAddress)
+        document.getElementById(
+            "motherAddress"
+        ).value =
+        data.motherAddress;
+
+
+    if(data.address)
+        document.getElementById(
+            "address"
+        ).value = data.address;
+
+}
+
+
+/* ==================================
+   STATUS
+================================== */
+
+function setStatus(text){
+
+    document.getElementById(
+        "status"
+    ).innerHTML = text;
+
+}
+
+
+/* ==================================
+   AFTER PRINT
+================================== */
+
+window.onafterprint = async function(){
+
+    const id =
+        localStorage.getItem(STORAGE);
+
+
+    if(!id){
+
+        return;
+
+    }
+
+
+    /*
+       केवल Verified request लाई
+       Printed बनाउने
+    */
+
+    try{
+
+        const response =
+            await fetch(
+                DB +
+                "/requests/" +
+                id +
+                ".json"
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if(
+            data &&
+            data.status === "Verified"
+        ){
+
+            await fetch(
+                DB +
+                "/requests/" +
+                id +
+                ".json",
+                {
+
+                    method:"PATCH",
+
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body:JSON.stringify({
+
+                        status:"Printed",
+
+                        printedAt:
+                        new Date().toISOString()
+
+                    })
+
+                }
+            );
+
+
+            setStatus(
+                "🖨️ Print भयो। Status: Printed"
+            );
+
+        }
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+    }
+
+};
+
+</script>
+
+</body>
+
+</html>
