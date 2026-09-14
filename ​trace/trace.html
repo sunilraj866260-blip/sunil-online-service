@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <title>निवेदन स्थिति Tracing</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="../config/firebase-config.js"></script>
+    <script src="../common/trace.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>निवेदन ट्र्याक (Search Status)</h2>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <input type="text" id="searchInput" placeholder="मोबाइल नम्बर वा Tracking ID हाल्नुहोस्" style="flex:1; padding:10px;">
+            <button onclick="doSearch()" class="btn btn-primary">खोज्नुहोस्</button>
+        </div>
+
+        <div id="resultsArea"></div>
+    </div>
+
+    <script>
+        function doSearch() {
+            const q = document.getElementById('searchInput').value.trim();
+            if(!q) return;
+
+            searchNivedan(q, function(list) {
+                const res = document.getElementById('resultsArea');
+                res.innerHTML = '';
+                if(list.length === 0) {
+                    res.innerHTML = '<p style="color:red;">कुनै पनि विवरण भेटिएन!</p>';
+                    return;
+                }
+                list.forEach(item => {
+                    res.innerHTML += `
+                        <div style="border:1px solid #ddd; padding:15px; margin-bottom:10px; border-radius:5px;">
+                            <h3>${item.formType} (${item.id})</h3>
+                            <p><b>आवेदक:</b> ${item.applicantName} | <b>मोबाइल:</b> ${item.mobileNumber}</p>
+                            <p><b>स्थिति:</b> <span style="color:blue;">${item.status}</span> | <b>प्रकार:</b> ${item.paymentType}</p>
+                            <a href="../user/print.html?id=${item.id}" class="btn btn-success">View & Print</a>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // Auto Search if Query Param exists
+        const urlParams = new URLSearchParams(window.location.search);
+        const autoId = urlParams.get('id');
+        if(autoId) {
+            document.getElementById('searchInput').value = autoId;
+            doSearch();
+        }
+    </script>
+</body>
+</html>
