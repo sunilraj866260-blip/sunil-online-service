@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejected Nivedans - Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="../config/firebase-config.js"></script>
+</head>
+<body>
+
+<div style="padding: 20px;">
+    <h2>❌ अस्वीकृत निवेदनहरू (Rejected Applications)</h2>
+    <a href="dashboard.html" style="text-decoration: none; font-weight: bold;">← ड्यासबोर्डमा फर्कनुहोस्</a>
+    <hr style="margin: 15px 0;">
+
+    <table>
+        <thead>
+            <tr>
+                <th>Tracking ID</th>
+                <th>प्रकार</th>
+                <th>निवेदकको नाम</th>
+                <th>सम्पर्क</th>
+                <th>अवस्था</th>
+                <th>पुनः पेन्डिङ गर्ने</th>
+            </tr>
+        </thead>
+        <tbody id="rejectedTableBody">
+            <!-- Data will load here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+if(localStorage.getItem('adminLoggedIn') !== 'true') {
+    window.location.href = 'login.html';
+}
+
+function loadRejected() {
+    db.ref('nivedans').on('value', snapshot => {
+        const tbody = document.getElementById('rejectedTableBody');
+        tbody.innerHTML = '';
+        let count = 0;
+
+        snapshot.forEach(child => {
+            const key = child.key;
+            const val = child.val();
+            
+            if (val.status === 'Rejected') {
+                count++;
+                let row = `<tr>
+                    <td>${key}</td>
+                    <td>${val.formType}</td>
+                    <td>${val.applicantName}</td>
+                    <td>${val.mobileNumber || '-'}</td>
+                    <td><span class="status-badge status-rejected">Rejected</span></td>
+                    <td>
+                        <button onclick="reconsider('${key}')" style="background: #f39c12; color: white; border:none; padding: 6px 12px; cursor:pointer; border-radius:3px;">पुनरावलोकन (Pending)</button>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            }
+        });
+
+        if (count === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">अस्वीकृत भएका निवेदनहरू छैनन्।</td></tr>';
+        }
+    });
+}
+
+function reconsider(id) {
+    db.ref('nivedans/' + id).update({
+        status: 'Pending'
+    }).then(() => {
+        alert('निवेदन पुनः Pending मा सारियो।');
+    });
+}
+
+loadRejected();
+</script>
+</body>
+</html>
