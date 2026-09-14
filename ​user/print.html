@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <title>निवेदन प्रिन्ट</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/print.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="../config/firebase-config.js"></script>
+    <script src="../common/watermark.js"></script>
+    <script src="../common/print.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="no-print" style="margin-bottom:20px;">
+            <button onclick="printDocument(currentId)" class="btn btn-success">Print Document</button>
+            <a href="../trace/trace.html" class="btn btn-danger">पछाडि फर्कनुहोस्</a>
+        </div>
+
+        <div class="print-container" id="printableArea">
+            <div id="watermarkOverlay" class="watermark" style="display:none;">FREE COPY</div>
+            <div style="text-align:center;">
+                <h2>अनुसूची - १</h2>
+                <h3>श्री वडा अध्यक्ष ज्यु, वडा नं. १ कार्यालय</h3>
+                <h2 id="pFormType" style="text-decoration:underline;">निवेदन</h2>
+            </div>
+            <br>
+            <p><strong>मिति:</strong> <span id="pDate"></span></p>
+            <p><strong>आवेदक:</strong> <span id="pName"></span></p>
+            <p><strong>सम्पर्क:</strong> <span id="pMobile"></span></p>
+            <br>
+            <p id="pDetails" style="min-height:150px; line-height:1.6;"></p>
+            <br><br>
+            <div style="display:flex; justify-content:space-between;">
+                <div>भुक्तानी स्थिति: <b id="pPayment">FREE</b></div>
+                <div>निवेदकको दस्तखत: ____________</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentId = urlParams.get('id');
+
+        if(currentId) {
+            db.ref('nivedans/' + currentId).once('value').then(snap => {
+                const data = snap.val();
+                if(data) {
+                    document.getElementById('pFormType').innerText = data.formType;
+                    document.getElementById('pDate').innerText = data.date;
+                    document.getElementById('pName').innerText = data.applicantName;
+                    document.getElementById('pMobile').innerText = data.mobileNumber;
+                    document.getElementById('pDetails').innerText = data.details;
+                    document.getElementById('pPayment').innerText = data.paymentType;
+                    
+                    applyWatermark(data.paymentType);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
