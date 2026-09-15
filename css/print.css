@@ -1,37 +1,93 @@
-.print-container {
-    position: relative;
-    border: 2px dashed #444;
-    padding: 40px;
+@import url('https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&display=swap');
+
+body {
+    background: #e0e0e0;
+    font-family: 'Mukta', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.print-page {
+    width: 210mm;
+    min-height: 297mm; /* A4 Size */
+    padding: 20mm;
+    margin: 20px auto;
     background: white;
-    margin: 20px 0;
-    min-height: 600px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+    position: relative;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-.watermark {
+/* Watermark CSS - Pure Seal Text & Border */
+.print-page::before {
+    content: "नेपाल सरकार\A नेपाल सिफारिस प्रणाली";
+    white-space: pre;
     position: absolute;
-    top: 35%;
-    left: 10%;
-    font-size: 65px;
-    color: rgba(231, 76, 60, 0.2);
-    transform: rotate(-30deg);
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 32px;
     font-weight: bold;
-    border: 8px solid rgba(231, 76, 60, 0.2);
-    padding: 15px 30px;
-    border-radius: 12px;
+    color: rgba(200, 0, 0, 0.08); /* Faint Red Seal Watermark */
+    text-align: center;
+    line-height: 1.6;
+    border: 8px double rgba(200, 0, 0, 0.08);
+    padding: 30px 50px;
+    border-radius: 50%;
     pointer-events: none;
-    user-select: none;
+    z-index: 1;
 }
 
+.header {
+    text-align: center;
+    color: #c0392b;
+    position: relative;
+    z-index: 2;
+}
+
+.header h3 { font-size: 16px; margin: 0; }
+.header h2 { font-size: 24px; margin: 5px 0; font-weight: 700; }
+.header h4 { font-size: 18px; margin: 0; color: #333; }
+
+hr {
+    border: none;
+    border-top: 2px solid #c0392b;
+    margin: 15px 0;
+}
+
+.content {
+    font-size: 18px;
+    line-height: 2;
+    color: #000;
+    margin-top: 30px;
+    position: relative;
+    z-index: 2;
+}
+
+.footer {
+    margin-top: 100px;
+    font-size: 16px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Force Watermark & Styling in Print Mode */
 @media print {
-    body * { visibility: hidden; }
-    .print-container, .print-container * { visibility: visible; }
-    .print-container {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        border: none;
+    * {
+        -webkit-print-color-adjust: exact !important; /* Chrome, Safari, Edge */
+        print-color-adjust: exact !important; /* Firefox */
+    }
+    body {
+        background: none;
         padding: 0;
     }
-    .no-print { display: none !important; }
+    .print-page {
+        box-shadow: none;
+        margin: 0;
+        width: 100%;
+    }
+    .no-print {
+        display: none !important;
+    }
 }
