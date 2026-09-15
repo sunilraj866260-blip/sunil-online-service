@@ -1,183 +1,81 @@
-<!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>डिजिटल निवेदन प्रणाली - Nivedan System</title>
+    <title>डिजिटल निवेदन प्रणाली (Nivedan System)</title>
     <link rel="stylesheet" href="css/style.css">
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="config/firebase-config.js"></script>
-    <style>
-        :root { --primary: #2c3e50; --secondary: #27ae60; }
-        
-        * { box-sizing: border-box; }
-
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 0;
-            background: #f4f6f9; 
-            width: 100%;
-            overflow-x: hidden; /* मोबाइलमा दायाँ-बायाँ स्क्रोल हुन नदिन */
-        }
-
-        header { 
-            background: var(--primary); 
-            color: white; 
-            padding: 15px 10px; 
-            text-align: center; 
-        }
-        header h2 { margin: 0 0 5px 0; font-size: 1.4rem; }
-        header p { margin: 0; font-size: 0.9rem; opacity: 0.9; }
-
-        nav { 
-            display: flex; 
-            justify-content: center; 
-            gap: 8px; 
-            background: #34495e; 
-            padding: 10px; 
-            flex-wrap: wrap; 
-        }
-        nav a { 
-            color: white; 
-            text-decoration: none; 
-            padding: 8px 12px; 
-            background: rgba(255,255,255,0.1); 
-            border-radius: 4px; 
-            font-weight: bold; 
-            font-size: 0.85rem;
-            text-align: center;
-            flex: 1 1 auto; /* मोबाइलमा बटनहरू स्वतः फिट हुन्छन् */
-            min-width: 130px;
-        }
-        nav a:hover { background: var(--secondary); }
-
-        .main-container { 
-            max-width: 1100px; 
-            width: 100%;
-            margin: 15px auto; 
-            padding: 15px; 
-            background: white; 
-            border-radius: 8px; 
-            box-shadow: 0 0 10px rgba(0,0,0,0.1); 
-        }
-        .main-container h3 { font-size: 1.1rem; margin-top: 0; }
-
-        /* मोबाइल र सबै स्क्रिनका लागि १००% फिट Grid System */
-        .grid-container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
-            gap: 12px; 
-            margin-top: 15px; 
-        }
-
-        .card { 
-            border: 1px solid #ddd; 
-            padding: 12px 8px; 
-            border-radius: 8px; 
-            text-align: center; 
-            background: #fafafa; 
-            transition: transform 0.2s; 
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .card:hover { transform: translateY(-3px); border-color: var(--secondary); }
-        .card h3 { margin: 0 0 5px 0; color: var(--primary); font-size: 1rem; }
-        .card p { margin: 0 0 10px 0; font-size: 0.8rem; color: #555; }
-        .card a { 
-            display: block; 
-            margin-top: auto; 
-            padding: 8px 5px; 
-            background: var(--secondary); 
-            color: white; 
-            text-decoration: none; 
-            border-radius: 4px; 
-            font-size: 0.85rem;
-            font-weight: bold;
-        }
-
-        iframe { 
-            width: 100%; 
-            height: 500px; 
-            border: 1px solid #ccc; 
-            border-radius: 6px; 
-            margin-top: 15px; 
-        }
-
-        /* Responsive Breakpoints */
-        @media (max-width: 600px) {
-            .main-container { padding: 10px; margin: 10px auto; }
-            .grid-container { 
-                grid-template-columns: repeat(2, 1fr); /* मोबाइलमा २ वटा लहरै कार्ड देखिने */
-                gap: 8px; 
-            }
-            nav a { min-width: 45%; } /* मोबाइलमा मेनु २ लाइनमा चिटिक्क देखिने */
-        }
-    </style>
 </head>
 <body>
 
-<header>
-    <h2>डिजिटल निवेदन प्रणाली (Nivedan System)</h2>
-    <p>स्थानीय तह/वडा कार्यालयका सबै अनलाइन निवेदनहरू</p>
-</header>
+<div class="header-nav" style="background: #2c3e50; color: white; padding: 15px; text-align: center;">
+    <h1>डिजिटल निवेदन प्रणाली (Nivedan System)</h1>
+    <p>स्थानीय तह / वडा कार्यालयका सबै अनलाइन निवेदनहरू</p>
+    
+    <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+        <a href="index.html" class="btn" style="background: #34495e;">🏠 होम (Home)</a>
+        <a href="trace/trace.html" class="btn" style="background: #2980b9;">🔍 निवेदन ट्र्याक (TRACE)</a>
+        <a href="payment/payment.html" class="btn" style="background: #27ae60;">💳 भुक्तानी (Payment)</a>
+        <a href="admin/login.html" class="btn" style="background: #e67e22;">👨‍💼 Admin Dashboard</a>
+    </div>
+</div>
 
-<nav>
-    <a href="index.html">🏠 होम (Home)</a>
-    <a href="trace/trace.html">🔍 निवेदन ट्र्याक (TRACE)</a>
-    <a href="payment/payment.html">💳 भुक्तानी (Payment)</a>
-    <a href="admin/dashboard.html">👨‍💼 Admin Dashboard</a>
-</nav>
-
-<div class="main-container">
+<div class="container" style="max-width: 900px; margin: 20px auto;">
     <h3>📋 पुराना तथा नयाँ निवेदन छान्नुहोस्:</h3>
-    <div class="grid-container">
-        <div class="card">
-            <h3>👶 जन्म दर्ता</h3>
+    <br>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+        
+        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; background: white;">
+            <h4>👶 जन्म दर्ता</h4>
             <p>जन्म दर्ताको लागि निवेदन फारम</p>
-            <a href="forms/janma.html">निवेदन खोल्नुहोस्</a>
+            <a href="forms/janma.html" class="btn btn-primary" style="display:block; text-decoration:none; margin-top:10px;">निवेदन खोल्नुहोस्</a>
         </div>
-        <div class="card">
-            <h3>💍 विवाह दर्ता</h3>
+
+        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; background: white;">
+            <h4>💍 विवाह दर्ता</h4>
             <p>विवाह दर्ताको लागि निवेदन फारम</p>
-            <a href="forms/bibaha.html">निवेदन खोल्नुहोस्</a>
+            <a href="forms/bibaha.html" class="btn btn-primary" style="display:block; text-decoration:none; margin-top:10px;">निवेदन खोल्नुहोस्</a>
         </div>
-        <div class="card">
-            <h3>⚰️ मृत्यु दर्ता</h3>
+
+        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; background: white;">
+            <h4>⚰️ मृत्यु दर्ता</h4>
             <p>मृत्यु दर्ताको लागि निवेदन फारम</p>
-            <a href="forms/mrityu.html">निवेदन खोल्नुहोस्</a>
+            <a href="forms/mrityu.html" class="btn btn-primary" style="display:block; text-decoration:none; margin-top:10px;">निवेदन खोल्नुहोस्</a>
         </div>
-        <div class="card">
-            <h3>🏠 बसाइँसराई</h3>
-            <p>बसाइँसराई सिफारिश फारम</p>
-            <a href="forms/basaisarai.html">निवेदन खोल्नुहोस्</a>
+
+        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; background: white;">
+            <h4>🏠 बसाइँसराई</h4>
+            <p>बसाइँसराई सिफारिस फारम</p>
+            <a href="forms/basaisarai.html" class="btn btn-primary" style="display:block; text-decoration:none; margin-top:10px;">निवेदन खोल्नुहोस्</a>
         </div>
-        <div class="card">
-            <h3>🪪 नागरिकता सिफारिश</h3>
-            <p>नागरिकता सिफारिश निवेदन</p>
-            <a href="forms/nagarikata.html">निवेदन खोल्नुहोस्</a>
+
+        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; background: white;">
+            <h4>🪪 नागरिकता सिफारिस</h4>
+            <p>नागरिकता सिफारिस निवेदन</p>
+            <a href="forms/nagarikata.html" class="btn btn-primary" style="display:block; text-decoration:none; margin-top:10px;">निवेदन खोल्नुहोस्</a>
         </div>
-        <div class="card">
-            <h3>🗺️ चारकिल्ला प्रमाण</h3>
+
+        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; background: white;">
+            <h4>🗺️ चारकिल्ला प्रमाण</h4>
             <p>चारकिल्ला प्रमाणित फारम</p>
-            <a href="forms/charkilla.html">निवेदन खोल्नुहोस्</a>
+            <a href="forms/charkilla.html" class="btn btn-primary" style="display:block; text-decoration:none; margin-top:10px;">निवेदन खोल्नुहोस्</a>
         </div>
-        <div class="card">
-            <h3>👨‍👩‍👧 नाता प्रमाणित</h3>
-            <p>नाता प्रमाणित सिफारिश फारम</p>
-            <a href="forms/nata.html">निवेदन खोल्नुहोस्</a>
+
+        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; background: white;">
+            <h4>👨‍👩‍👧 नाता प्रमाणित</h4>
+            <p>नाता प्रमाणित सिफारिस फारम</p>
+            <a href="forms/nata.html" class="btn btn-primary" style="display:block; text-decoration:none; margin-top:10px;">निवेदन खोल्नुहोस्</a>
         </div>
-        <div class="card">
-            <h3>📜 सम्बन्ध विच्छेद</h3>
-            <p>सम्बन्ध विच्छेद सिफारिश फारम</p>
-            <a href="forms/divorce.html">निवेदन खोल्नुहोस्</a>
+
+        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; background: white;">
+            <h4>📜 सम्बन्ध विच्छेद</h4>
+            <p>सम्बन्ध विच्छेद सिफारिस फारम</p>
+            <a href="forms/divorce.html" class="btn btn-primary" style="display:block; text-decoration:none; margin-top:10px;">निवेदन खोल्नुहोस्</a>
         </div>
+
     </div>
 </div>
 
 </body>
 </html>
-
