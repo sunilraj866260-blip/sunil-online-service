@@ -3,38 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>नयाँ निवेदन - रोहिणी-१</title>
+    <title>वडा कार्यालय - अनलाइन सेवा</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root { --primary: #1e3799; --secondary: #27ae60; --danger: #c0392b; }
-        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; padding: 15px; margin: 0; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2, h3 { color: #111; margin-top: 0; }
+        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; padding: 10px; margin: 0; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
         /* Navigation Tabs */
-        nav { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
-        nav button { flex: 1; padding: 10px; border: none; background: var(--primary); color: white; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; }
+        nav { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        nav button { flex: 1; padding: 10px 5px; border: none; background: var(--primary); color: white; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
         nav button:hover { background: #0c2461; }
         .tab-content { display: none; }
         .active { display: block; }
 
-        .input-group { margin-bottom: 18px; }
-        label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 16px; color: #2c3e50; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        /* Card Grid Layout (Photo design) */
+        .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        @media (max-width: 400px) { .card-grid { grid-template-columns: 1fr; } }
         
-        /* Submit Button */
-        .btn-submit { width: 100%; padding: 15px; background: var(--secondary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: bold; }
-        .btn-submit:hover { background: #219150; }
+        .service-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .service-card .icon { font-size: 26px; margin-bottom: 5px; }
+        .service-card h4 { margin: 5px 0; color: #111; font-size: 16px; }
+        .service-card p { font-size: 12px; color: #666; margin: 0 0 12px 0; line-height: 1.3; }
+        .btn-card {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 13px;
+        }
+        .btn-card:hover { background: #219150; }
+
+        /* Inputs & Form */
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #2c3e50; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
+        .btn-submit { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; }
 
         /* Admin Table */
         .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        table, th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        table, th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
         th { background-color: var(--primary); color: white; }
 
-        /* Mobile Responsive Preview Container */
+        /* Mobile Responsive A4 Preview Container */
         #printView {
             display: flex;
             flex-direction: column;
@@ -46,7 +74,6 @@
             width: 100%;
             overflow-x: hidden;
         }
-
         .print-scaler {
             width: 100%;
             display: flex;
@@ -54,7 +81,6 @@
             align-items: flex-start;
             overflow: hidden;
         }
-
         .print-container {
             position: relative;
             width: 210mm;
@@ -69,22 +95,13 @@
             color: black;
             transform-origin: top center;
         }
-
         .watermark {
             position: absolute; 
-            top: 40%; 
-            left: 5%; 
-            width: 90%;
-            font-size: 75px;
-            color: rgba(231, 76, 60, 0.22); 
-            transform: rotate(-35deg);
-            font-weight: bold; 
-            text-align: center;
-            pointer-events: none; 
-            user-select: none;
-            border: 8px dashed rgba(231, 76, 60, 0.22);
-            padding: 10px;
-            box-sizing: border-box;
+            top: 40%; left: 5%; width: 90%;
+            font-size: 75px; color: rgba(231, 76, 60, 0.22); 
+            transform: rotate(-35deg); font-weight: bold; text-align: center;
+            pointer-events: none; user-select: none;
+            border: 8px dashed rgba(231, 76, 60, 0.22); padding: 10px; box-sizing: border-box;
         }
 
         @page { size: A4 portrait; margin: 0; }
@@ -95,16 +112,8 @@
             .print-scaler { transform: scale(1) !important; height: auto !important; }
             .print-container, .print-container * { visibility: visible; }
             .print-container { 
-                position: absolute; 
-                left: 0; 
-                top: 0; 
-                width: 210mm;
-                height: 297mm;
-                border: none; 
-                box-shadow: none;
-                margin: 0;
-                padding: 20mm;
-                transform: none !important;
+                position: absolute; left: 0; top: 0; width: 210mm; height: 297mm;
+                border: none; box-shadow: none; margin: 0; padding: 20mm; transform: none !important;
             }
             .no-print { display: none !important; }
         }
@@ -115,21 +124,105 @@
 <div class="container">
     <!-- Navigation Bar -->
     <nav class="no-print">
+        <button onclick="showTab('home-tab')">गृह पृष्ठ (Services)</button>
         <button onclick="showTab('forms-tab')">फारम भर्नुहोस्</button>
         <button onclick="showTab('trace-tab')">स्थिति (Trace)</button>
         <button onclick="showTab('admin-tab')">Admin Login</button>
     </nav>
 
-    <!-- 1. SIMPLE FORM TAB -->
-    <div id="forms-tab" class="tab-content active no-print">
+    <!-- 1. INDEX / CARD GRID PAGE -->
+    <div id="home-tab" class="tab-content active no-print">
+        <h3 style="text-align: center; margin-bottom: 15px;">अनलाइन सिफारिस सेवाहरू</h3>
+        <div class="card-grid">
+            <div class="service-card">
+                <div>
+                    <div class="icon">👶</div>
+                    <h4>जन्म दर्ता</h4>
+                    <p>जन्म दर्ताको लागि निवेदन फारम</p>
+                </div>
+                <button class="btn-card" onclick="openFormFor('जन्म दर्ता')">निवेदन खोल्नुहोस्</button>
+            </div>
+            
+            <div class="service-card">
+                <div>
+                    <div class="icon">💍</div>
+                    <h4>विवाह दर्ता</h4>
+                    <p>विवाह दर्ताको लागि निवेदन फारम</p>
+                </div>
+                <button class="btn-card" onclick="openFormFor('विवाह दर्ता')">निवेदन खोल्नुहोस्</button>
+            </div>
+
+            <div class="service-card">
+                <div>
+                    <div class="icon">⚰️</div>
+                    <h4>मृत्यु दर्ता</h4>
+                    <p>मृत्यु दर्ताको लागि निवेदन फारम</p>
+                </div>
+                <button class="btn-card" onclick="openFormFor('मृत्यु दर्ता')">निवेदन खोल्नुहोस्</button>
+            </div>
+
+            <div class="service-card">
+                <div>
+                    <div class="icon">🏠</div>
+                    <h4>बसाइँसराइ</h4>
+                    <p>बसाइँसराइ सिफारिस फारम</p>
+                </div>
+                <button class="btn-card" onclick="openFormFor('बसाइँसराइ सिफारिस')">निवेदन खोल्नुहोस्</button>
+            </div>
+
+            <div class="service-card">
+                <div>
+                    <div class="icon">🪪</div>
+                    <h4>नागरिकता सिफारिस</h4>
+                    <p>नागरिकता सिफारिस निवेदन</p>
+                </div>
+                <button class="btn-card" onclick="openFormFor('नागरिकता सिफारिस')">निवेदन खोल्नुहोस्</button>
+            </div>
+
+            <div class="service-card">
+                <div>
+                    <div class="icon">🗺️</div>
+                    <h4>चारकिल्ला प्रमाण</h4>
+                    <p>चारकिल्ला प्रमाणित फारम</p>
+                </div>
+                <button class="btn-card" onclick="openFormFor('चारकिल्ला प्रमाण')">निवेदन खोल्नुहोस्</button>
+            </div>
+
+            <div class="service-card">
+                <div>
+                    <div class="icon">👨‍👩‍👧</div>
+                    <h4>नाता प्रमाणित</h4>
+                    <p>नाता प्रमाणित सिफारिस फारम</p>
+                </div>
+                <button class="btn-card" onclick="openFormFor('नाता प्रमाणित')">निवेदन खोल्नुहोस्</button>
+            </div>
+
+            <div class="service-card">
+                <div>
+                    <div class="icon">📜</div>
+                    <h4>सम्बन्ध विच्छेद</h4>
+                    <p>सम्बन्ध विच्छेद सिफारिस फारम</p>
+                </div>
+                <button class="btn-card" onclick="openFormFor('सम्बन्ध विच्छेद')">निवेदन खोल्नुहोस्</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. FORM TAB -->
+    <div id="forms-tab" class="tab-content no-print">
         <h2>नयाँ निवेदन भर्नुहोस्</h2>
         <form id="simpleForm">
             <div class="input-group">
                 <label>निवेदनको प्रकार:</label>
                 <select id="n_type">
-                    <option value="जन्म दर्ता (Janma)">जन्म दर्ता (Janma)</option>
+                    <option value="जन्म दर्ता">जन्म दर्ता</option>
+                    <option value="विवाह दर्ता">विवाह दर्ता</option>
+                    <option value="मृत्यु दर्ता">मृत्यु दर्ता</option>
+                    <option value="बसाइँसराइ सिफारिस">बसाइँसराइ सिफारिस</option>
                     <option value="नागरिकता सिफारिस">नागरिकता सिफारिस</option>
-                    <option value="अन्य सिफारिस">अन्य सिफारिस</option>
+                    <option value="चारकिल्ला प्रमाण">चारकिल्ला प्रमाण</option>
+                    <option value="नाता प्रमाणित">नाता प्रमाणित</option>
+                    <option value="सम्बन्ध विच्छेद">सम्बन्ध विच्छेद</option>
                 </select>
             </div>
 
@@ -152,19 +245,19 @@
         </form>
     </div>
 
-    <!-- 2. TRACE TAB -->
+    <!-- 3. TRACE TAB -->
     <div id="trace-tab" class="tab-content no-print">
         <h3>निवेदन खोज्नुहोस्</h3>
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 15px;">
             <input type="text" id="traceSearchInput" placeholder="मोबाइल नम्बर वा ID हाल्नुहोस्" style="flex:1;">
             <button onclick="traceApplication()" style="padding:10px 15px; background:var(--primary); color:white; border:none; border-radius:4px; cursor:pointer;">खोज्नुहोस्</button>
         </div>
         <div id="traceResult"></div>
     </div>
 
-    <!-- 3. ADMIN TAB (WITH LOGIN) -->
+    <!-- 4. ADMIN TAB -->
     <div id="admin-tab" class="tab-content no-print">
-        <div id="adminLoginForm" style="padding: 10px;">
+        <div id="adminLoginForm">
             <h3>Admin Login</h3>
             <div class="input-group">
                 <label>User ID:</label>
@@ -174,7 +267,7 @@
                 <label>Password:</label>
                 <input type="password" id="adminPass" placeholder="admin123">
             </div>
-            <button onclick="checkAdminLogin()" class="btn-submit" style="padding: 10px;">Login</button>
+            <button onclick="checkAdminLogin()" class="btn-submit">Login</button>
         </div>
 
         <div id="adminDashboardContent" style="display: none;">
@@ -200,7 +293,7 @@
         </div>
     </div>
 
-    <!-- 4. A4 PREVIEW (100% FIT FOR MOBILE) -->
+    <!-- 5. A4 MOBILE FIT PREVIEW -->
     <div id="printView" style="display:none;">
         <div class="no-print" style="margin-bottom: 15px; text-align: center;">
             <button id="mainPrintBtn" onclick="triggerPrint()" disabled style="padding: 8px 18px; font-weight:bold;">Print Page</button>
@@ -227,7 +320,6 @@
 </div>
 
 <script>
-    // FIREBASE SETUP
     const firebaseConfig = {
         apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
         authDomain: "sunil-online-service.firebaseapp.com",
@@ -257,7 +349,11 @@
         document.getElementById(tabId).classList.add('active');
     }
 
-    // ADMIN LOGIN LOGIC
+    function openFormFor(type) {
+        document.getElementById('n_type').value = type;
+        showTab('forms-tab');
+    }
+
     function checkAdminLogin() {
         const u = document.getElementById('adminUser').value.trim();
         const p = document.getElementById('adminPass').value.trim();
@@ -280,7 +376,6 @@
         document.getElementById('adminDashboardContent').style.display = 'none';
     }
 
-    // FORM SUBMIT
     document.getElementById('simpleForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const id = 'NIV-' + Date.now();
@@ -311,7 +406,6 @@
         }
     });
 
-    // TRACE LOGIC
     function traceApplication() {
         const query = document.getElementById('traceSearchInput').value.trim();
         const container = document.getElementById('traceResult');
@@ -328,9 +422,9 @@
 
         results.forEach(item => {
             const card = document.createElement('div');
-            card.style.cssText = "border:1px solid #ccc; padding:12px; margin-top:10px; border-radius:5px; background:#fff;";
+            card.style.cssText = "border:1px solid #ccc; padding:12px; margin-top:10px; border-radius:6px; background:#fff;";
             card.innerHTML = `
-                <h4>ID: ${item.id}</h4>
+                <h4>ID: ${item.id} (${item.type})</h4>
                 <p><strong>नाम:</strong> ${item.name} | <strong>फोन:</strong> ${item.phone}</p>
                 <p><strong>स्थिति:</strong> <span style="color:${item.isVerified ? 'green' : 'orange'}">${item.status}</span></p>
                 
@@ -365,7 +459,6 @@
         }
     }
 
-    // ADMIN DASHBOARD
     function loadAdminDashboard() {
         const tbody = document.getElementById('adminTableBody');
         tbody.innerHTML = '';
@@ -380,8 +473,8 @@
                 <td>${item.esewaCode || 'N/A'}</td>
                 <td><b>${item.status}</b></td>
                 <td>
-                    <button onclick="verifyAndApprove('${item.id}')" style="background:var(--secondary); color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; font-size:12px;">Approve</button>
-                    <button onclick="openPrintModal('${item.id}')" style="padding:4px 8px; border-radius:3px; cursor:pointer; font-size:12px;">Preview</button>
+                    <button onclick="verifyAndApprove('${item.id}')" style="background:var(--secondary); color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; font-size:11px;">Approve</button>
+                    <button onclick="openPrintModal('${item.id}')" style="padding:4px 8px; border-radius:3px; cursor:pointer; font-size:11px;">Preview</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -397,7 +490,6 @@
         }
     }
 
-    // MOBILE AUTO FIT PREVIEW LOGIC
     function adjustMobilePreviewScale() {
         const scaler = document.getElementById('printScaler');
         const container = document.getElementById('printableArea');
