@@ -19,7 +19,7 @@
         .tab-content { display: none; }
         .active { display: block; }
 
-        /* Card Grid Layout */
+        /* Card Grid Layout for Icon Display */
         .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         @media (max-width: 400px) { .card-grid { grid-template-columns: 1fr; } }
         
@@ -33,8 +33,10 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            transition: transform 0.2s;
         }
-        .service-card .icon { font-size: 26px; margin-bottom: 5px; }
+        .service-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+        .service-card .icon { font-size: 32px; margin-bottom: 8px; }
         .service-card h4 { margin: 5px 0; color: #111; font-size: 16px; }
         .service-card p { font-size: 12px; color: #666; margin: 0 0 12px 0; line-height: 1.3; }
         .btn-card {
@@ -47,9 +49,6 @@
             cursor: pointer;
             width: 100%;
             font-size: 13px;
-            text-decoration: none;
-            display: inline-block;
-            box-sizing: border-box;
         }
         .btn-card:hover { background: #219150; }
 
@@ -128,134 +127,88 @@
     <!-- Navigation Bar -->
     <nav class="no-print">
         <button onclick="showTab('home-tab')">गृह पृष्ठ (Services)</button>
-        <button onclick="showTab('forms-tab')">फारम भर्नुहोस्</button>
+        <button onclick="showTab('forms-tab')">सामान्य फारम</button>
         <button onclick="showTab('trace-tab')">स्थिति (Trace)</button>
         <button onclick="showTab('admin-tab')">Admin Login</button>
     </nav>
 
-    <!-- 1. INDEX / CARD GRID PAGE -->
+    <!-- 1. INDEX CARDS -->
     <div id="home-tab" class="tab-content active no-print">
-        <h3 style="text-align: center; margin-bottom: 15px;">अनलाइन सिफारिस सेवाहरू</h3>
+        <h3 style="text-align: center; margin-bottom: 15px;">सबै अनलाइन सिफारिस सेवाहरू</h3>
         <div class="card-grid">
-            
-            <!-- Janma Form Link -->
             <div class="service-card">
-                <div>
-                    <div class="icon">👶</div>
-                    <h4>जन्म दर्ता</h4>
-                    <p>जन्म दर्ताको लागि निवेदन फारम</p>
-                </div>
-                <button class="btn-card" onclick="openFormFile('forms/janma.html', 'जन्म दर्ता')">निवेदन खोल्नुहोस्</button>
+                <div><div class="icon">👶</div><h4>जन्म दर्ता</h4><p>जन्म दर्ताको लागि अनलाइन निवेदन</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/janma.html')">निवेदन खोल्नुहोस्</button>
             </div>
-            
-            <!-- Vivah Form Link -->
             <div class="service-card">
-                <div>
-                    <div class="icon">💍</div>
-                    <h4>विवाह दर्ता</h4>
-                    <p>विवाह दर्ताको लागि निवेदन फारम</p>
-                </div>
-                <button class="btn-card" onclick="openFormFile('forms/vivah.html', 'विवाह दर्ता')">निवेदन खोल्नुहोस्</button>
+                <div><div class="icon">💍</div><h4>विवाह दर्ता</h4><p>विवाह दर्ताको लागि अनलाइन निवेदन</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/vivah.html')">निवेदन खोल्नुहोस्</button>
             </div>
-
-            <!-- Mrityu Form Link -->
             <div class="service-card">
-                <div>
-                    <div class="icon">⚰️</div>
-                    <h4>मृत्यु दर्ता</h4>
-                    <p>मृत्यु दर्ताको लागि निवेदन फारम</p>
-                </div>
-                <button class="btn-card" onclick="openFormFile('forms/mrityu.html', 'मृत्यु दर्ता')">निवेदन खोल्नुहोस्</button>
+                <div><div class="icon">⚰️</div><h4>मृत्यु दर्ता</h4><p>मृत्यु दर्ताको लागि निवेदन फारम</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/mrityu.html')">निवेदन खोल्नुहोस्</button>
             </div>
-
-            <!-- Basai Sarai Link -->
             <div class="service-card">
-                <div>
-                    <div class="icon">🏠</div>
-                    <h4>बसाइँसराइ</h4>
-                    <p>बसाइँसराइ सिफारिस फारम</p>
-                </div>
-                <button class="btn-card" onclick="openFormFile('forms/basaisarai.html', 'बसाइँसराइ सिफारिस')">निवेदन खोल्नुहोस्</button>
+                <div><div class="icon">🏠</div><h4>बसाइँसराइ</h4><p>बसाइँसराइ सिफारिस फारम</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/basaisarai.html')">निवेदन खोल्नुहोस्</button>
             </div>
-
-            <!-- Nagarikata Form Link -->
             <div class="service-card">
-                <div>
-                    <div class="icon">🪪</div>
-                    <h4>नागरिकता सिफारिस</h4>
-                    <p>नागरिकता सिफारिस निवेदन</p>
-                </div>
-                <button class="btn-card" onclick="openFormFile('forms/nagarikata.html', 'नागरिकता सिफारिस')">निवेदन खोल्नुहोस्</button>
+                <div><div class="icon">🪪</div><h4>नागरिकता सिफारिस</h4><p>नागरिकता सिफारिस निवेदन</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/nagarikata.html')">निवेदन खोल्नुहोस्</button>
             </div>
-
-            <!-- Charkilla Form Link -->
             <div class="service-card">
-                <div>
-                    <div class="icon">🗺️</div>
-                    <h4>चारकिल्ला प्रमाण</h4>
-                    <p>चारकिल्ला प्रमाणित फारम</p>
-                </div>
-                <button class="btn-card" onclick="openFormFile('forms/charKilla.html', 'चारकिल्ला प्रमाण')">निवेदन खोल्नुहोस्</button>
+                <div><div class="icon">🗺️</div><h4>चारकिल्ला प्रमाण</h4><p>चारकिल्ला प्रमाणित फारम</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/charKilla.html')">निवेदन खोल्नुहोस्</button>
             </div>
-
-            <!-- Nata Pramanit Link -->
             <div class="service-card">
-                <div>
-                    <div class="icon">👨‍👩‍👧</div>
-                    <h4>नाता प्रमाणित</h4>
-                    <p>नाता प्रमाणित सिफारिस फारम</p>
-                </div>
-                <button class="btn-card" onclick="openFormFile('forms/nata.html', 'नाता प्रमाणित')">निवेदन खोल्नुहोस्</button>
+                <div><div class="icon">👨‍👩‍👧</div><h4>नाता प्रमाणित</h4><p>नाता प्रमाणित सिफारिस फारम</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/nata.html')">निवेदन खोल्नुहोस्</button>
             </div>
-
-            <!-- Sambandha Vichhed Link -->
             <div class="service-card">
-                <div>
-                    <div class="icon">📜</div>
-                    <h4>सम्बन्ध विच्छेद</h4>
-                    <p>सम्बन्ध विच्छेद सिफारिस फारम</p>
-                </div>
-                <button class="btn-card" onclick="openFormFile('forms/sambandha.html', 'सम्बन्ध विच्छेद')">निवेदन खोल्नुहोस्</button>
+                <div><div class="icon">📜</div><h4>सम्बन्ध विच्छेद</h4><p>सम्बन्ध विच्छेद सिफारिस फारम</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/sambandha.html')">निवेदन खोल्नुहोस्</button>
             </div>
-
         </div>
     </div>
 
-    <!-- 2. DEFAULT GENERAL FORM TAB -->
+    <!-- 2. SAMANYA FORM TAB (Only Icon Cards Shown) -->
     <div id="forms-tab" class="tab-content no-print">
-        <h2>नयाँ निवेदन भर्नुहोस्</h2>
-        <form id="simpleForm">
-            <div class="input-group">
-                <label>निवेदनको प्रकार:</label>
-                <select id="n_type">
-                    <option value="जन्म दर्ता">जन्म दर्ता</option>
-                    <option value="विवाह दर्ता">विवाह दर्ता</option>
-                    <option value="मृत्यु दर्ता">मृत्यु दर्ता</option>
-                    <option value="बसाइँसराइ सिफारिस">बसाइँसराइ सिफारिस</option>
-                    <option value="नागरिकता सिफारिस">नागरिकता सिफारिस</option>
-                    <option value="चारकिल्ला प्रमाण">चारकिल्ला प्रमाण</option>
-                    <option value="नाता प्रमाणित">नाता प्रमाणित</option>
-                    <option value="सम्बन्ध विच्छेद">सम्बन्ध विच्छेद</option>
-                </select>
+        <h3 style="text-align: center; margin-bottom: 15px;">निवेदन फारम छान्नुहोस्</h3>
+        
+        <div class="card-grid">
+            <div class="service-card">
+                <div><div class="icon">👶</div><h4>जन्म दर्ता</h4><p>जन्म दर्ता फारम</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/janma.html')">फारम खोल्नुहोस्</button>
             </div>
-
-            <div class="input-group">
-                <label>आवेदकको पूरा नाम:</label>
-                <input type="text" id="in_name" placeholder="नेपालीमा नाम" required>
+            <div class="service-card">
+                <div><div class="icon">💍</div><h4>विवाह दर्ता</h4><p>विवाह दर्ता फारम</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/vivah.html')">फारम खोल्नुहोस्</button>
             </div>
-
-            <div class="input-group">
-                <label>मोबाइल नम्बर:</label>
-                <input type="text" id="in_phone" placeholder="98XXXXXXXX" required>
+            <div class="service-card">
+                <div><div class="icon">⚰️</div><h4>मृत्यु दर्ता</h4><p>मृत्यु दर्ता फारम</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/mrityu.html')">फारम खोल्नुहोस्</button>
             </div>
-
-            <div class="input-group">
-                <label>निवेदन विवरण:</label>
-                <textarea id="in_details" rows="4" placeholder="थप विवरण लेख्नुहोस्..." required></textarea>
+            <div class="service-card">
+                <div><div class="icon">🏠</div><h4>बसाइँसराइ</h4><p>बसाइँसराइ फारम</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/basaisarai.html')">फारम खोल्नुहोस्</button>
             </div>
-
-            <button type="submit" class="btn-submit">निवेदन बुझाउनुहोस् (Save)</button>
-        </form>
+            <div class="service-card">
+                <div><div class="icon">🪪</div><h4>नागरिकता</h4><p>नागरिकता सिफारिस</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/nagarikata.html')">फारम खोल्नुहोस्</button>
+            </div>
+            <div class="service-card">
+                <div><div class="icon">🗺️</div><h4>चारकिल्ला</h4><p>चारकिल्ला फारम</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/charKilla.html')">फारम खोल्नुहोस्</button>
+            </div>
+            <div class="service-card">
+                <div><div class="icon">👨‍👩‍👧</div><h4>नाता प्रमाणित</h4><p>नाता प्रमाणित फारम</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/nata.html')">फारम खोल्नुहोस्</button>
+            </div>
+            <div class="service-card">
+                <div><div class="icon">📜</div><h4>सम्बन्ध विच्छेद</h4><p>सम्बन्ध विच्छेद फारम</p></div>
+                <button class="btn-card" onclick="openFormFile('forms/sambandha.html')">फारम खोल्नुहोस्</button>
+            </div>
+        </div>
     </div>
 
     <!-- 3. TRACE TAB -->
@@ -274,11 +227,11 @@
             <h3>Admin Login</h3>
             <div class="input-group">
                 <label>User ID:</label>
-                <input type="text" id="adminUser" placeholder="admin">
+                <input type="text" id="adminUser" placeholder="Firebase Admin Username">
             </div>
             <div class="input-group">
                 <label>Password:</label>
-                <input type="password" id="adminPass" placeholder="admin123">
+                <input type="password" id="adminPass" placeholder="Firebase Admin Password">
             </div>
             <button onclick="checkAdminLogin()" class="btn-submit">Login</button>
         </div>
@@ -362,28 +315,28 @@
         document.getElementById(tabId).classList.add('active');
     }
 
-    // Open sub-file if exists, or show internal form
-    function openFormFile(fileUrl, typeName) {
-        // If file exists in your repository, redirect directly to that page
-        if(fileUrl) {
-            window.location.href = fileUrl;
-        } else {
-            document.getElementById('n_type').value = typeName;
-            showTab('forms-tab');
-        }
+    function openFormFile(fileUrl) {
+        window.location.href = fileUrl;
     }
 
     function checkAdminLogin() {
         const u = document.getElementById('adminUser').value.trim();
         const p = document.getElementById('adminPass').value.trim();
 
-        if(u === "admin" && p === "admin123") {
-            isAdminLoggedIn = true;
-            document.getElementById('adminLoginForm').style.display = 'none';
-            document.getElementById('adminDashboardContent').style.display = 'block';
-            loadAdminDashboard();
-        } else {
-            alert("गलत User ID वा Password!");
+        if(!u || !p) return alert("कृपया Username र Password दुबै राख्नुहोस्!");
+
+        if(db) {
+            db.ref('admin_credentials').once('value').then((snapshot) => {
+                const creds = snapshot.val();
+                if (creds && creds.adminUser === u && creds.adminPass === p) {
+                    isAdminLoggedIn = true;
+                    document.getElementById('adminLoginForm').style.display = 'none';
+                    document.getElementById('adminDashboardContent').style.display = 'block';
+                    loadAdminDashboard();
+                } else {
+                    alert("गलत Admin User ID वा Password!");
+                }
+            }).catch(err => alert("Error: " + err.message));
         }
     }
 
@@ -394,36 +347,6 @@
         document.getElementById('adminLoginForm').style.display = 'block';
         document.getElementById('adminDashboardContent').style.display = 'none';
     }
-
-    document.getElementById('simpleForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const id = 'NIV-' + Date.now();
-        const today = new Date().toISOString().split('T')[0];
-
-        const record = {
-            id: id,
-            date: today,
-            type: document.getElementById('n_type').value,
-            name: document.getElementById('in_name').value.trim(),
-            phone: document.getElementById('in_phone').value.trim(),
-            details: document.getElementById('in_details').value.trim(),
-            status: 'Pending Verification',
-            isVerified: false,
-            esewaCode: ''
-        };
-
-        if(db) {
-            db.ref('simple_nivedans/' + id).set(record, (err) => {
-                if(!err) {
-                    alert('निवेदन सफलतापुर्वक सेभ भयो!');
-                    document.getElementById('simpleForm').reset();
-                    showTab('trace-tab');
-                    document.getElementById('traceSearchInput').value = record.phone;
-                    traceApplication();
-                }
-            });
-        }
-    });
 
     function traceApplication() {
         const query = document.getElementById('traceSearchInput').value.trim();
