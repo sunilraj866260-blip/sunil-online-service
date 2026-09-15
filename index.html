@@ -18,7 +18,14 @@
         .active { display: block; }
         form { display: flex; flex-direction: column; gap: 10px; }
         input, select, button { padding: 8px; font-size: 16px; }
-        button:disabled { background: #cccccc !important; cursor: not-allowed; opacity: 0.6; }
+        
+        /* Disabled Button Style */
+        button:disabled { 
+            background: #95a5a6 !important; 
+            cursor: not-allowed !important; 
+            opacity: 0.6;
+        }
+
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         table, th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: var(--primary); color: white; }
@@ -206,8 +213,8 @@
     <!-- 4. A4 PRINT PREVIEW MODAL -->
     <div id="printView" style="display:none;">
         <div class="no-print" style="margin-bottom: 15px; text-align: center;">
-            <button id="mainPrintBtn" onclick="window.print()" style="background:var(--secondary); color:white; padding: 10px 25px; font-weight:bold;">Print Page</button>
-            <button onclick="closePrintView()" style="padding: 10px 20px; background:var(--danger); color:white; border:none; margin-left:10px;">X Close</button>
+            <button id="mainPrintBtn" onclick="triggerPrint()" disabled style="padding: 10px 25px; font-weight:bold;">Print Page</button>
+            <button onclick="closePrintView()" style="padding: 10px 20px; background:var(--danger); color:white; border:none; margin-left:10px; cursor:pointer;">X Close</button>
         </div>
 
         <div class="print-container" id="printableArea">
@@ -228,7 +235,7 @@
             <p id="pDetails" style="min-height: 150px; line-height: 1.8; font-size: 18px;"></p>
             <br><br><br><br>
             <div style="display: flex; justify-content: space-between; margin-top: 80px;">
-                <div>भुक्तानी स्थिति: <b id="pPaymentStatus">FREE</b></div>
+                <div>भुक्तानी स्थिति: <b id="pPaymentStatus">UNPAID</b></div>
                 <div>निवेदकको दस्तखत: ____________</div>
             </div>
         </div>
@@ -264,7 +271,6 @@
         console.error("Firebase init error:", e);
     }
 
-    // Navigation Switch
     function showTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
@@ -283,7 +289,7 @@
             applicantName: document.getElementById('applicantName').value,
             mobileNumber: document.getElementById('mobileNumber').value,
             details: document.getElementById('details').value,
-            status: 'Pending',
+            status: 'Pending Verification',
             paymentType: 'FREE',
             isVerified: false,
             esewaCode: '',
@@ -328,18 +334,18 @@
             card.innerHTML = `
                 <h4>${item.formType} (${item.id})</h4>
                 <p><strong>आवेदक:</strong> ${item.applicantName} | <strong>मोबाइल:</strong> ${item.mobileNumber}</p>
-                <p><strong>स्थिति:</strong> <span style="color:${item.isVerified ? 'green' : 'orange'}">${item.status}</span> | <strong>भुक्तानी:</strong> ${item.paymentType}</p>
+                <p><strong>स्थिति:</strong> <span style="color:${item.isVerified ? 'green' : 'orange'}">${item.status}</span></p>
                 
                 ${!item.isVerified ? `
-                    <div style="background:#fff3cd; padding:10px; margin:10px 0;">
-                        <p><strong>PAID PRINT (Rs. 50 eSewa QR):</strong></p>
+                    <div style="background:#fff3cd; padding:10px; margin:10px 0; border:1px solid #ffeeba;">
+                        <p style="margin:0 0 5px 0;"><strong>eSewa भुक्तानी कोड राख्नुहोस् (Rs. 50):</strong></p>
                         <input type="text" id="esewa_in_${item.id}" placeholder="eSewa Txn Code" value="${item.esewaCode || ''}">
-                        <button onclick="submitPayment('${item.id}')">Submit eSewa Code</button>
+                        <button onclick="submitPayment('${item.id}')">कोड बुझाउनुहोस्</button>
                     </div>
-                ` : `<p style="color:green;"><b>✓ Payment Verified</b> (eSewa Code: ${item.esewaCode})</p>`}
+                ` : `<p style="color:green;"><b>✓ भुक्तानी प्रमाणित भयो (Verified)</b> | eSewa Code: ${item.esewaCode}</p>`}
 
-                <!-- Free Preview Button ALWAYS Active -->
-                <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white;">
+                <!-- Always available for Preview -->
+                <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white; cursor:pointer;">
                     Free Preview (A4 View)
                 </button>
             `;
@@ -355,16 +361,16 @@
             db.ref('nivedans/' + id).update({
                 paymentType: 'PAID',
                 esewaCode: code,
-                status: 'Payment Code Submitted'
+                status: 'Payment Pending Admin Verification'
             }).then(() => {
-                alert('भुक्तानी कोड सेभ भयो! Admin ले Verify गरेपछि Print Button Enable हुनेछ।');
+                alert('भुक्तानी कोड राखियो! Admin ले Approve गरेपछि Print Button खुला हुनेछ।');
                 traceApplication();
             });
         }
     }
 
     // ==========================================
-    // 4. ADMIN DASHBOARD (VERIFICATION CONTROL)
+    // 4. ADMIN DASHBOARD (VERIFICATION)
     // ==========================================
     function loadAdminDashboard() {
         const tbody = document.getElementById('adminTableBody');
@@ -377,12 +383,12 @@
                 <td>${item.formType}</td>
                 <td>${item.applicantName}</td>
                 <td>${item.mobileNumber}</td>
-                <td>${item.esewaCode || 'N/A'} (${item.paymentType})</td>
+                <td>${item.esewaCode || 'N/A'}</td>
                 <td><b>${item.status}</b></td>
                 <td>
-                    <button onclick="verifyAndApprove('${item.id}')" style="background:var(--secondary); color:white;">Verify & Approve</button>
-                    <button onclick="updateStatus('${item.id}', 'Rejected', false)">Reject</button>
-                    <button onclick="openPrintModal('${item.id}')">Preview</button>
+                    <button onclick="verifyAndApprove('${item.id}')" style="background:var(--secondary); color:white; cursor:pointer;">Verify & Approve</button>
+                    <button onclick="updateStatus('${item.id}', 'Rejected', false)" style="background:var(--danger); color:white; cursor:pointer;">Reject</button>
+                    <button onclick="openPrintModal('${item.id}')" style="cursor:pointer;">Preview</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -392,11 +398,11 @@
     function verifyAndApprove(id) {
         if(db) {
             db.ref('nivedans/' + id).update({ 
-                status: 'Approved',
-                paymentType: 'PAID',
+                status: 'Verified & Approved',
+                paymentType: 'PAID VERIFIED',
                 isVerified: true
             }).then(() => {
-                alert('Payment Verified र Application Approve गरियो! अब Print Option खुल्नेछ।');
+                alert('Payment Verify भयो! अब यो डकुमेन्ट प्रिन्ट गर्न सकिन्छ।');
             });
         }
     }
@@ -413,7 +419,7 @@
     }
 
     // ==========================================
-    // 5. PRINT & WATERMARK CONTROL
+    // 5. PRINT & WATERMARK CONTROL LOGIC
     // ==========================================
     function openPrintModal(id) {
         const item = allNivedansData[id];
@@ -425,25 +431,37 @@
         document.getElementById('pName').innerText = item.applicantName;
         document.getElementById('pMobile').innerText = item.mobileNumber;
         document.getElementById('pDetails').innerText = item.details;
-        document.getElementById('pPaymentStatus').innerText = item.paymentType;
+        document.getElementById('pPaymentStatus').innerText = item.isVerified ? 'VERIFIED PAID' : 'UNPAID / UNVERIFIED';
 
         const watermark = document.getElementById('watermarkOverlay');
         const printBtn = document.getElementById('mainPrintBtn');
 
-        // Verification Check: Admin ले Verify गरेपछि मात्र Print enable हुने
+        // Logic: Payment isVerified true भएमा मात्र Print button Enable हुने र Watermark हट्ने
         if(item.isVerified === true) {
             watermark.style.display = 'none';
             printBtn.disabled = false;
             printBtn.innerText = "Print Page";
             printBtn.style.background = "var(--secondary)";
+            printBtn.style.color = "white";
+            printBtn.style.cursor = "pointer";
         } else {
             watermark.style.display = 'block';
             printBtn.disabled = true;
             printBtn.innerText = "Print Disabled (Payment Verification Required)";
+            printBtn.style.background = "#95a5a6";
+            printBtn.style.color = "#ffffff";
+            printBtn.style.cursor = "not-allowed";
         }
 
         document.getElementById('printView').style.display = 'flex';
         window.scrollTo(0, document.getElementById('printView').offsetTop);
+    }
+
+    function triggerPrint() {
+        const printBtn = document.getElementById('mainPrintBtn');
+        if(!printBtn.disabled) {
+            window.print();
+        }
     }
 
     function closePrintView() {
