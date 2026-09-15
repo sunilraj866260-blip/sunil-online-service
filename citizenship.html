@@ -32,6 +32,7 @@
             @page { size: A4 portrait; margin: 0; }
             
             #print-area { 
+                position: relative;
                 display: block !important; 
                 visibility: visible !important;
                 width: 21cm;        
@@ -45,6 +46,23 @@
                 overflow: hidden;     
             }
             
+            .watermark {
+                position: absolute; 
+                top: 38%; 
+                left: 5%; 
+                width: 90%;
+                font-size: 60px;
+                color: rgba(231, 76, 60, 0.25); 
+                transform: rotate(-35deg);
+                font-weight: bold; 
+                text-align: center;
+                pointer-events: none; 
+                user-select: none;
+                border: 8px dashed rgba(231, 76, 60, 0.25);
+                padding: 10px;
+                box-sizing: border-box;
+            }
+
             .p-top-section { margin-bottom: 8px; }
             .recipient { line-height: 1.4; float: left; }
             .date { text-align: right; margin-bottom: 8px; }
@@ -168,7 +186,7 @@
         </div>
         <div>
             <label>eSewa भुक्तानी कोड (यदि भए):</label>
-            <input type="text" id="esewa_code" placeholder="ঐsewa reference code">
+            <input type="text" id="esewa_code" placeholder="eSewa reference code">
         </div>
     </div>
 
@@ -211,11 +229,13 @@
         <div><label>उमेर (वर्ष) :</label><input type="text" id="s_age" placeholder="उदा: ४५"></div>
     </div>
 
-    <button onclick="submitNivedanData()">निवेदन सेभ र प्रिन्ट गर्नुहोस्</button>
+    <button onclick="submitNivedanData()">निवेदन सेभ गर्नुहोस् (Submit)</button>
 </div>
 
-<!-- Print Preview Area -->
+<!-- Print Preview Area (Hidden by default, used when needed) -->
 <div id="print-area">
+    <div id="watermarkOverlay" class="watermark">FREE COPY</div>
+    
     <div class="date">मिति :- <span id="p_date"></span></div>
 
     <div class="p-top-section">
@@ -319,11 +339,11 @@
             return;
         }
 
-        const uniqueId = 'NIV-' + Date.now();
+        const uniqueId = 'NIV-CIT-' + Date.now();
         
         const formData = {
             id: uniqueId,
-            type: 'नागरिकता सिफारिस',
+            type: 'नेपाली नागरिकता सिफारिस',
             name: name,
             phone: phone,
             today: document.getElementById('in_date').value,
@@ -343,73 +363,16 @@
             isVerified: false
         };
 
-        // Firebase मा डेटा सेभ गर्ने
+        // Firebase मा सेभ मात्र गर्ने, प्रिन्ट नहुने
         db.ref('rochini_nivedans/' + uniqueId).set(formData)
         .then(() => {
-            alert("निवेदकको फारम सफलतापूर्वक सेभ भयो! अब प्रिन्ट हुँदैछ...");
-            generatePrintView();
+            alert("निवेदन सफलतापूर्वक सेभ भयो! अब एड्मिनबाट स्वीकृत भएपछि मात्र फाइनल प्रिन्ट हुनेछ।");
+            // फारम खाली गर्ने वा होमपेजमा पठाउने
+            location.reload();
         })
         .catch((error) => {
             alert("डाटा सेभ गर्न असफल: " + error.message);
         });
-    }
-
-    function generatePrintView() {
-        document.getElementById('p_date').innerText = document.getElementById('in_date').value;
-        
-        const appName = document.getElementById('cz_app_name').value || "....................................................................";
-        document.getElementById('p_app_name').innerText = appName;
-        document.getElementById('p_s_app_name').innerText = appName;
-        
-        const localBody = document.getElementById('cz_local_body').value || "रोहिणी गाउँपालिका";
-        document.getElementById('p_local_body').innerText = localBody;
-        document.getElementById('p_s_local').innerText = localBody;
-        
-        const wardNo = document.getElementById('cz_ward_no').value || "१";
-        document.getElementById('p_ward_no').innerText = wardNo;
-        
-        document.getElementById('p_district').innerText = document.getElementById('cz_district').value || "रुपन्देही";
-        document.getElementById('p_toll').innerText = document.getElementById('cz_toll').value || "........................................";
-        
-        document.getElementById('p_grand_name').innerText = document.getElementById('cz_grand_name').value || "....................................................................";
-        document.getElementById('p_grand_rel').innerText = document.getElementById('cz_grand_relation').value;
-        
-        document.getElementById('p_father_name').innerText = document.getElementById('cz_father_name').value || "....................................................................";
-        document.getElementById('p_parent_rel').innerText = document.getElementById('cz_parent_relation').value;
-        
-        const spouseName = document.getElementById('cz_spouse_name').value;
-        const spouseRel = document.getElementById('cz_spouse_relation').value;
-        if(spouseName) {
-            document.getElementById('p_spouse_block').style.display = "inline";
-            document.getElementById('p_spouse_name').innerText = spouseName;
-        } else {
-            document.getElementById('p_spouse_block').style.display = "none";
-        }
-
-        document.getElementById('p_dob').innerText = document.getElementById('cz_dob').value || "........................................";
-
-        // कागजातहरू लुकाउने/देखाउने भाग
-        for (let i = 1; i <= 6; i++) {
-            let val = document.getElementById('doc_' + i).value.trim();
-            let row = document.getElementById('p_d' + i + '_row');
-            
-            if (val === "" || val === "०" || val === "0") {
-                row.classList.remove('show-doc'); 
-            } else {
-                document.getElementById('p_doc_' + i).innerText = val;
-                row.classList.add('show-doc'); 
-            }
-        }
-
-        // सनाखत
-        document.getElementById('p_s_name').innerText = document.getElementById('s_name').value || "……………";
-        document.getElementById('p_s_rel').innerText = document.getElementById('s_rel').value; 
-        document.getElementById('p_s_ward').innerText = document.getElementById('s_ward').value || "१";
-        document.getElementById('p_s_cit_no').innerText = document.getElementById('s_cit_no').value || "……………";
-        document.getElementById('p_s_cit_dist').innerText = document.getElementById('s_cit_dist').value || "रुपन्देही";
-        document.getElementById('p_s_age').innerText = document.getElementById('s_age').value || "……";
-
-        window.print();
     }
 </script>
 
