@@ -1,728 +1,103 @@
 <!DOCTYPE html>
 <html lang="ne">
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width,initial-scale=1">
-
-<title>Admin - Nivedan System</title>
-
-<style>
-
-body{
-    margin:0;
-    font-family:Arial,"Noto Sans Devanagari",sans-serif;
-    background:#eef2f7;
-}
-
-header{
-    background:#212529;
-    color:white;
-    padding:20px;
-    text-align:center;
-}
-
-.container{
-    max-width:1200px;
-    margin:auto;
-    padding:20px;
-}
-
-.card{
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    margin-bottom:20px;
-    box-shadow:0 3px 10px #0001;
-}
-
-input{
-    width:100%;
-    padding:12px;
-    margin:7px 0;
-    box-sizing:border-box;
-}
-
-button{
-    border:0;
-    padding:9px 13px;
-    margin:3px;
-    border-radius:5px;
-    cursor:pointer;
-}
-
-.login-btn{
-    width:100%;
-    background:#0d6efd;
-    color:white;
-    padding:13px;
-}
-
-.verify{
-    background:#198754;
-    color:white;
-}
-
-.reject{
-    background:#dc3545;
-    color:white;
-}
-
-.view{
-    background:#0d6efd;
-    color:white;
-}
-
-.logout{
-    background:#6c757d;
-    color:white;
-}
-
-.table-box{
-    overflow-x:auto;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    min-width:900px;
-}
-
-th,td{
-    padding:10px;
-    border:1px solid #ddd;
-    text-align:left;
-}
-
-th{
-    background:#212529;
-    color:white;
-}
-
-.pending{
-    color:#856404;
-    font-weight:bold;
-}
-
-.verified{
-    color:#198754;
-    font-weight:bold;
-}
-
-.rejected{
-    color:#dc3545;
-    font-weight:bold;
-}
-
-.printed{
-    color:#0dcaf0;
-    font-weight:bold;
-}
-
-.stats{
-    display:grid;
-    grid-template-columns:
-    repeat(auto-fit,minmax(150px,1fr));
-
-    gap:10px;
-}
-
-.stat{
-    padding:15px;
-    background:#f8f9fa;
-    border-radius:8px;
-    text-align:center;
-}
-
-.stat b{
-    font-size:25px;
-}
-
-#dashboard{
-    display:none;
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - वडा सिफारिस प्रणाली</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        :root { --primary: #1e3799; --secondary: #27ae60; --danger: #c0392b; --bg-light: #f4f7f6; }
+        body { font-family: 'Arial', sans-serif; background-color: var(--bg-light); padding: 20px; margin: 0; }
+        .container { max-width: 400px; margin: 50px auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: var(--primary); margin-bottom: 20px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+        .btn-login { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .error-msg { color: var(--danger); font-size: 13px; text-align: center; margin-top: 10px; }
+    </style>
 </head>
-
 <body>
 
-<header>
-
-<h1>🔐 Admin Dashboard</h1>
-
-<p>रोहिणी गाउँपालिका वडा नं. १</p>
-
-</header>
-
-
-<div class="container">
-
-
-<!-- LOGIN -->
-
-<div id="loginBox" class="card">
-
-<h2>Admin Login</h2>
-
-<input
-id="username"
-placeholder="Username">
-
-<input
-id="password"
-type="password"
-placeholder="Password">
-
-<button
-class="login-btn"
-onclick="login()">
-
-LOGIN
-
-</button>
-
+<div class="container" id="login-box">
+    <h2>Admin Login</h2>
+    <form id="loginForm">
+        <div class="input-group">
+            <label>Admin Email:</label>
+            <input type="email" id="admin_email" placeholder="admin@rochini1.gov.np" required>
+        </div>
+        <div class="input-group">
+            <label>Password:</label>
+            <input type="password" id="admin_pass" placeholder="********" required>
+        </div>
+        <button type="submit" class="btn-login">लगइन गर्नुहोस्</button>
+        <div id="error-message" class="error-msg"></div>
+    </form>
 </div>
 
-
-<!-- DASHBOARD -->
-
-<div id="dashboard">
-
-<div class="card">
-
-<button
-class="logout"
-onclick="logout()">
-
-Logout
-
-</button>
-
-<h2>Dashboard</h2>
-
-
-<div class="stats">
-
-<div class="stat">
-Pending<br>
-<b id="pendingCount">0</b>
+<!-- Admin Dashboard (Initially Hidden) -->
+<div id="dashboard-box" style="display:none; max-width: 950px; margin: auto; background: white; padding: 20px; border-radius: 10px;">
+    <h2>Admin Dashboard (रोहिणी-१)</h2>
+    <p>स्वागत छ एड्मिन! तपाईं सफलतापूर्वक लगइन हुनुभएको छ।</p>
+    <button onclick="logoutAdmin()" style="background:var(--danger); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">लगआउट (Logout)</button>
+    <!-- यहाँ तपाईंको आवेदनहरूको लिस्ट देखाउने टेबल राख्न सक्नुहुन्छ -->
 </div>
-
-<div class="stat">
-Verified<br>
-<b id="verifiedCount">0</b>
-</div>
-
-<div class="stat">
-Rejected<br>
-<b id="rejectedCount">0</b>
-</div>
-
-<div class="stat">
-Printed<br>
-<b id="printedCount">0</b>
-</div>
-
-</div>
-
-</div>
-
-
-<div class="card">
-
-<h2>📋 All Requests</h2>
-
-<div class="table-box">
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Name</th>
-<th>Mobile</th>
-<th>eSewa Code</th>
-<th>Form</th>
-<th>Date</th>
-<th>Status</th>
-<th>Action</th>
-
-</tr>
-
-</thead>
-
-<tbody id="requestTable">
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 
 <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+        authDomain: "sunil-online-service.firebaseapp.com",
+        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
+        projectId: "sunil-online-service",
+        storageBucket: "sunil-online-service.appspot.com",
+        messagingSenderId: "",
+        appId: ""
+    };
 
-const DB =
-"https://sunil-online-service-default-rtdb.firebaseio.com";
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-
-function login(){
-
-    const username =
-        document.getElementById(
-            "username"
-        ).value;
-
-    const password =
-        document.getElementById(
-            "password"
-        ).value;
-
-
-    /*
-      DEMO LOGIN ONLY
-
-      Production मा Firebase Auth
-      प्रयोग गर्नु राम्रो हुन्छ।
-    */
-
-    if(
-        username==="admin" &&
-        password==="1234"
-    ){
-
-        localStorage.setItem(
-            "nivedan_admin",
-            "yes"
-        );
-
-        showDashboard();
-
-    }else{
-
-        alert(
-            "Username वा Password गलत छ।"
-        );
-
-    }
-
-}
-
-
-function showDashboard(){
-
-    document.getElementById(
-        "loginBox"
-    ).style.display="none";
-
-
-    document.getElementById(
-        "dashboard"
-    ).style.display="block";
-
-
-    loadRequests();
-
-}
-
-
-function logout(){
-
-    localStorage.removeItem(
-        "nivedan_admin"
-    );
-
-    location.reload();
-
-}
-
-
-async function loadRequests(){
-
-    const table =
-        document.getElementById(
-            "requestTable"
-        );
-
-    table.innerHTML =
-        "<tr><td colspan='7'>Loading...</td></tr>";
-
-
-    try{
-
-        const response =
-            await fetch(
-                DB + "/requests.json"
-            );
-
-
-        const data =
-            await response.json();
-
-
-        table.innerHTML="";
-
-
-        let pending=0;
-        let verified=0;
-        let rejected=0;
-        let printed=0;
-
-
-        if(!data){
-
-            table.innerHTML=
-            "<tr><td colspan='7'>No Requests</td></tr>";
-
-            return;
+    // Check if already logged in
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('dashboard-box').style.display = 'block';
+        } else {
+            document.getElementById('login-box').style.display = 'block';
+            document.getElementById('dashboard-box').style.display = 'none';
         }
+    });
 
+    // Login Form Submit Handler
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('admin_email').value.trim();
+        const pass = document.getElementById('admin_pass').value.trim();
+        const errorDiv = document.getElementById('error-message');
 
-        const entries =
-            Object.entries(data).reverse();
+        auth.signInWithEmailAndPassword(email, pass)
+            .then((userCredential) => {
+                // Successful login
+                errorDiv.innerText = "";
+            })
+            .catch((error) => {
+                // Handle Errors
+                errorDiv.innerText = "गलत इमेल वा पासवर्ड! कृपया पुन: प्रयास गर्नुहोस्।";
+                console.error(error.message);
+            });
+    });
 
-
-        entries.forEach(
-            ([id,item])=>{
-
-
-            if(item.status==="Pending")
-                pending++;
-
-            if(item.status==="Verified")
-                verified++;
-
-            if(item.status==="Rejected")
-                rejected++;
-
-            if(item.status==="Printed")
-                printed++;
-
-
-            let statusClass =
-                item.status
-                .toLowerCase();
-
-
-            let action="";
-
-
-            if(item.status==="Pending"){
-
-                action=`
-
-                    <button
-                    class="verify"
-                    onclick="verifyRequest('${id}')">
-
-                    VERIFY
-
-                    </button>
-
-                    <button
-                    class="reject"
-                    onclick="rejectRequest('${id}')">
-
-                    REJECT
-
-                    </button>
-
-                `;
-
-            }
-
-
-            if(
-                item.status==="Verified" ||
-                item.status==="Printed"
-            ){
-
-                action=`
-
-                    <button
-                    class="view"
-                    onclick="viewRequest('${id}')">
-
-                    VIEW
-
-                    </button>
-
-                `;
-
-            }
-
-
-            if(item.status==="Rejected"){
-
-                action=`
-                    <button
-                    class="verify"
-                    onclick="verifyRequest('${id}')">
-
-                    VERIFY AGAIN
-
-                    </button>
-                `;
-
-            }
-
-
-            const date =
-                item.createdAt
-                ?
-                new Date(
-                    item.createdAt
-                ).toLocaleString()
-                :
-                "-";
-
-
-            const tr =
-                document.createElement("tr");
-
-
-            tr.innerHTML=`
-
-                <td>
-                    ${safe(item.name)}
-                </td>
-
-                <td>
-                    ${safe(item.mobile)}
-                </td>
-
-                <td>
-                    <b>
-                    ${safe(item.esewa)}
-                    </b>
-                </td>
-
-                <td>
-                    ${safe(item.formName)}
-                </td>
-
-                <td>
-                    ${safe(date)}
-                </td>
-
-                <td class="${statusClass}">
-                    ${safe(item.status)}
-                </td>
-
-                <td>
-                    ${action}
-                </td>
-
-            `;
-
-
-            table.appendChild(tr);
-
+    // Logout Function
+    function logoutAdmin() {
+        auth.signOut().then(() => {
+            alert('सफलतापूर्वक लगआउट हुनुभयो!');
+        }).catch((error) => {
+            console.error(error);
         });
-
-
-        document.getElementById(
-            "pendingCount"
-        ).innerText=pending;
-
-
-        document.getElementById(
-            "verifiedCount"
-        ).innerText=verified;
-
-
-        document.getElementById(
-            "rejectedCount"
-        ).innerText=rejected;
-
-
-        document.getElementById(
-            "printedCount"
-        ).innerText=printed;
-
-
-    }catch(error){
-
-        console.error(error);
-
-        table.innerHTML=
-        "<tr><td colspan='7'>Firebase Error</td></tr>";
-
     }
-
-}
-
-
-async function verifyRequest(id){
-
-    if(!confirm(
-        "यो eSewa payment verify गर्ने?"
-    )) return;
-
-
-    await updateStatus(
-        id,
-        "Verified"
-    );
-
-}
-
-
-async function rejectRequest(id){
-
-    if(!confirm(
-        "यो payment reject गर्ने?"
-    )) return;
-
-
-    await updateStatus(
-        id,
-        "Rejected"
-    );
-
-}
-
-
-async function updateStatus(
-    id,
-    status
-){
-
-    try{
-
-        const response =
-            await fetch(
-                DB +
-                "/requests/" +
-                id +
-                ".json",
-                {
-
-                    method:"PATCH",
-
-                    headers:{
-                        "Content-Type":
-                        "application/json"
-                    },
-
-                    body:
-                    JSON.stringify({
-
-                        status:status,
-
-                        updatedAt:
-                        new Date().toISOString()
-
-                    })
-
-                }
-            );
-
-
-        if(!response.ok){
-
-            throw new Error(
-                "Update failed"
-            );
-
-        }
-
-
-        alert(
-            "Status update भयो: " +
-            status
-        );
-
-
-        loadRequests();
-
-
-    }catch(error){
-
-        console.error(error);
-
-        alert(
-            "Firebase update error"
-        );
-
-    }
-
-}
-
-
-async function viewRequest(id){
-
-    const response =
-        await fetch(
-            DB +
-            "/requests/" +
-            id +
-            ".json"
-        );
-
-
-    const item =
-        await response.json();
-
-
-    if(!item){
-
-        alert("Request भेटिएन।");
-        return;
-
-    }
-
-
-    alert(
-
-        "नाम: " + item.name +
-        "\nMobile: " + item.mobile +
-        "\neSewa: " + item.esewa +
-        "\nForm: " + item.formName +
-        "\nStatus: " + item.status
-
-    );
-
-}
-
-
-function safe(value){
-
-    return String(
-        value ?? "-"
-    )
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-
-}
-
-
-/* AUTO LOGIN */
-
-if(
-    localStorage.getItem(
-        "nivedan_admin"
-    )==="yes"
-){
-
-    showDashboard();
-
-}
-
 </script>
 
 </body>
