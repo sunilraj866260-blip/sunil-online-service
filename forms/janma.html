@@ -13,6 +13,10 @@
         .container { max-width: 950px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
         
+        /* Navigation Tabs */
+        nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+        nav button { padding: 10px 15px; border: none; background: var(--primary); color: white; border-radius: 4px; cursor: pointer; font-size: 15px; }
+        nav button:hover { background: #0c2461; }
         .tab-content { display: none; }
         .active { display: block; }
 
@@ -124,6 +128,13 @@
 
 <div class="container">
     <h2>वडा सिफारिस प्रणाली (रोहिणी-१)</h2>
+
+    <!-- Navigation Bar -->
+    <nav class="no-print">
+        <button onclick="showTab('forms-tab')">निवेदन फारम</button>
+        <button onclick="showTab('trace-tab')">TRACE (स्थिति हेर्नुहोस्)</button>
+        <button onclick="showTab('admin-tab')">Admin Dashboard</button>
+    </nav>
 
     <!-- 1. FORMS TAB -->
     <div id="forms-tab" class="tab-content active no-print">
