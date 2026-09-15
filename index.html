@@ -2,477 +2,162 @@
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>वडा कार्यालय - अनलाइन सेवा</title>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>वडा सिफारिस प्रणाली - रोहिणी-१</title>
     <style>
-        :root { --primary: #1e3799; --secondary: #27ae60; --danger: #c0392b; }
-        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; padding: 10px; margin: 0; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        :root { --primary: #1e3799; --secondary: #27ae60; --bg-light: #f4f7f6; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background-color: var(--bg-light); padding: 10px; margin: 0; }
+        .container { max-width: 950px; width: 100%; margin: auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 10px; font-size: 20px; }
         
-        /* Navigation Tabs */
-        nav { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
-        nav button { flex: 1; padding: 10px 5px; border: none; background: var(--primary); color: white; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
-        nav button:hover { background: #0c2461; }
-        .tab-content { display: none; }
-        .active { display: block; }
+        /* Top Navigation Link Buttons */
+        .top-nav-links { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            justify-content: center; 
+            flex-wrap: wrap; 
+        }
+        .top-nav-links a { 
+            flex: 1; 
+            min-width: 100px; 
+            text-align: center; 
+            text-decoration: none; 
+            background: var(--primary); 
+            color: white; 
+            padding: 10px; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            font-weight: bold; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
 
-        /* Card Grid Layout */
-        .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        @media (max-width: 400px) { .card-grid { grid-template-columns: 1fr; } }
-        
-        .service-card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
+        /* Services Grid Style */
+        .services-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 20px; 
+        }
+        .service-card { 
+            background: #ffffff; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 8px; 
+            padding: 15px; 
+            text-align: center; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+            display: flex; 
+            flex-direction: column; 
             justify-content: space-between;
-            transition: transform 0.2s;
         }
-        .service-card:hover { transform: translateY(-3px); border-color: var(--primary); }
-        .service-card .icon { font-size: 32px; margin-bottom: 8px; }
-        .service-card h4 { margin: 5px 0; color: #111; font-size: 16px; }
-        .service-card p { font-size: 12px; color: #666; margin: 0 0 12px 0; line-height: 1.3; }
-        .btn-card {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
+        .service-icon-title { font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
+        .service-desc { font-size: 13px; color: #7f8c8d; margin-bottom: 12px; }
+        
+        /* Link Button styled as green button */
+        .btn-open-link { 
+            background: var(--secondary); 
+            color: white; 
+            border: none; 
+            padding: 10px; 
+            border-radius: 6px; 
+            font-size: 15px; 
+            font-weight: bold; 
+            text-decoration: none; 
+            display: block;
             width: 100%;
-            font-size: 13px;
+            transition: 0.2s;
         }
-        .btn-card:hover { background: #219150; }
-
-        /* External File Loader Container */
-        .form-section { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-top: 15px; }
-        .btn-back { background: #7f8c8d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-bottom: 15px; font-weight: bold; }
-        #externalFileContent { width: 100%; min-height: 400px; }
-
-        /* Admin Table */
-        .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        table, th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
-        th { background-color: var(--primary); color: white; }
-
-        /* A4 Mobile Fit Preview */
-        #printView {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #555;
-            padding: 15px 0;
-            margin-top: 20px;
-            border-radius: 6px;
-            width: 100%;
-            overflow-x: hidden;
-        }
-        .print-scaler { width: 100%; display: flex; justify-content: center; align-items: flex-start; overflow: hidden; }
-        .print-container {
-            position: relative; width: 210mm; min-height: 297mm; padding: 20mm; background: #fff;
-            border: 1px solid #d3d3d3; box-shadow: 0 0 15px rgba(0,0,0,0.5); box-sizing: border-box;
-            line-height: 1.8; font-size: 14pt; color: black; transform-origin: top center;
-        }
-        .watermark {
-            position: absolute; top: 40%; left: 5%; width: 90%; font-size: 75px; color: rgba(231, 76, 60, 0.22);
-            transform: rotate(-35deg); font-weight: bold; text-align: center; pointer-events: none;
-            border: 8px dashed rgba(231, 76, 60, 0.22); padding: 10px; box-sizing: border-box;
-        }
-
-        @page { size: A4 portrait; margin: 0; }
-        @media print {
-            body { background: white; margin: 0; padding: 0; }
-            body * { visibility: hidden; }
-            .container { box-shadow: none; padding: 0; background: transparent; }
-            .print-scaler { transform: scale(1) !important; height: auto !important; }
-            .print-container, .print-container * { visibility: visible; }
-            .print-container { position: absolute; left: 0; top: 0; width: 210mm; height: 297mm; border: none; box-shadow: none; margin: 0; padding: 20mm; transform: none !important; }
-            .no-print { display: none !important; }
-        }
+        .btn-open-link:hover { opacity: 0.9; }
     </style>
 </head>
-<body onresize="adjustMobilePreviewScale()">
+<body>
 
 <div class="container">
-    <!-- Navigation Bar -->
-    <nav class="no-print">
-        <button onclick="showTab('home-tab')">गृह पृष्ठ (Services)</button>
-        <button onclick="showTab('trace-tab')">स्थिति (Trace)</button>
-        <button onclick="showTab('admin-tab')">Admin Login</button>
-    </nav>
-
-    <!-- 1. INDEX / CARDS VIEW & MAIN FORM AREA -->
-    <div id="home-tab" class="tab-content active no-print">
-        
-        <!-- Grid view for selecting forms -->
-        <div id="serviceGridArea">
-            <h3 style="text-align: center; margin-bottom: 15px;">सबै अनलाइन सिफारिस सेवाहरू</h3>
-            <div class="card-grid">
-                <div class="service-card">
-                    <div><div class="icon">👶</div><h4>जन्म दर्ता</h4><p>जन्म दर्ताको लागि अनलाइन निवेदन</p></div>
-                    <button class="btn-card" onclick="loadGitHubForm('janma.html')">फारम भर्नुहोस्</button>
-                </div>
-                <div class="service-card">
-                    <div><div class="icon">💍</div><h4>विवाह दर्ता</h4><p>विवाह दर्ताको लागि अनलाइन निवेदन</p></div>
-                    <button class="btn-card" onclick="loadGitHubForm('vivah.html')">फारम भर्नुहोस्</button>
-                </div>
-                <div class="service-card">
-                    <div><div class="icon">⚰️</div><h4>मृत्यु दर्ता</h4><p>मृत्यु दर्ताको लागि निवेदन फारम</p></div>
-                    <button class="btn-card" onclick="loadGitHubForm('mrityu.html')">फारम भर्नुहोस्</button>
-                </div>
-                <div class="service-card">
-                    <div><div class="icon">🏠</div><h4>बसाइँसराइ</h4><p>बसाइँसराइ सिफारिस फारम</p></div>
-                    <button class="btn-card" onclick="loadGitHubForm('basaisarai.html')">फारम भर्नुहोस्</button>
-                </div>
-                <div class="service-card">
-                    <div><div class="icon">🪪</div><h4>नागरिकता सिफारिस</h4><p>नागरिकता सिफारिस निवेदन</p></div>
-                    <button class="btn-card" onclick="loadGitHubForm('nagarikata.html')">फारम भर्नुहोस्</button>
-                </div>
-                <div class="service-card">
-                    <div><div class="icon">🗺️</div><h4>चारकिल्ला प्रमाण</h4><p>चारकिल्ला प्रमाणित फारम</p></div>
-                    <button class="btn-card" onclick="loadGitHubForm('charKilla.html')">फारम भर्नुहोस्</button>
-                </div>
-                <div class="service-card">
-                    <div><div class="icon">👨‍👩‍👧</div><h4>नाता प्रमाणित</h4><p>नाता प्रमाणित सिफारिस फारम</p></div>
-                    <button class="btn-card" onclick="loadGitHubForm('nata.html')">फारम भर्नुहोस्</button>
-                </div>
-                <div class="service-card">
-                    <div><div class="icon">📜</div><h4>सम्बन्ध विच्छेद</h4><p>सम्बन्ध विच्छेद सिफारिस फारम</p></div>
-                    <button class="btn-card" onclick="loadGitHubForm('sambandha.html')">फारम भर्नुहोस्</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Dynamic Form Container (GitHub Content Loads Here) -->
-        <div id="dynamicFormContainer" style="display: none;" class="form-section">
-            <button class="btn-back" onclick="closeMainForm()">← मुख्य सूचीमा फर्कनुहोस्</button>
-            <div id="externalFileContent">
-                <p style="text-align:center;">फारम लोड हुँदैछ...</p>
-            </div>
-        </div>
-
+    <!-- Top Navigation Links -->
+    <div class="top-nav-links">
+        <a href="index.html">गृह पृष्ठ<br><span style="font-size:11px; font-weight:normal;">(Services)</span></a>
+        <a href="trace.html">स्थिति<br><span style="font-size:11px; font-weight:normal;">(Trace)</span></a>
+        <a href="admin.html">Admin<br><span style="font-size:11px; font-weight:normal;">Login</span></a>
     </div>
 
-    <!-- 2. TRACE TAB -->
-    <div id="trace-tab" class="tab-content no-print">
-        <h3>निवेदन खोज्नुहोस्</h3>
-        <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-            <input type="text" id="traceSearchInput" placeholder="मोबाइल नम्बर वा ID हाल्नुहोस्" style="flex:1;">
-            <button onclick="traceApplication()" style="padding:10px 15px; background:var(--primary); color:white; border:none; border-radius:4px; cursor:pointer;">खोज्नुहोस्</button>
-        </div>
-        <div id="traceResult"></div>
-    </div>
-
-    <!-- 3. ADMIN TAB -->
-    <div id="admin-tab" class="tab-content no-print">
-        <div id="adminLoginForm">
-            <h3>Admin Login</h3>
-            <div class="input-group">
-                <label>User ID:</label>
-                <input type="text" id="adminUser" placeholder="Firebase Admin Username">
+    <h2>वडा सिफारिस प्रणाली (रोहिणी-१)</h2>
+    <p style="text-align:center; color:#555; margin-bottom:15px; font-weight:bold;">सिफारिसको प्रकार छान्नुहोस्:</p>
+    
+    <div class="services-grid">
+        <!-- जन्म दर्ता (birth.html फाइलमा जाने लिंक) -->
+        <div class="service-card">
+            <div>
+                <div class="service-icon-title">👶 जन्म दर्ता</div>
+                <div class="service-desc">जन्म दर्ताका लागि निवेदन फारम</div>
             </div>
-            <div class="input-group">
-                <label>Password:</label>
-                <input type="password" id="adminPass" placeholder="Firebase Admin Password">
-            </div>
-            <button onclick="checkAdminLogin()" class="btn-submit">Login</button>
+            <a href="birth.html" class="btn-open-link">निवेदन खोल्नुहोस्</a>
         </div>
 
-        <div id="adminDashboardContent" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3>Admin Panel</h3>
-                <button onclick="adminLogout()" style="background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Logout</button>
+        <!-- विवाह दर्ता (marriage.html फाइलमा जाने लिंक) -->
+        <div class="service-card">
+            <div>
+                <div class="service-icon-title">💍 विवाह दर्ता</div>
+                <div class="service-desc">विवाह दर्ताका लागि निवेदन फारम</div>
             </div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>नाम</th>
-                            <th>फोन</th>
-                            <th>eSewa Code</th>
-                            <th>स्थिति</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4. A4 MOBILE FIT PREVIEW -->
-    <div id="printView" style="display:none;">
-        <div class="no-print" style="margin-bottom: 15px; text-align: center;">
-            <button id="mainPrintBtn" onclick="triggerPrint()" disabled style="padding: 8px 18px; font-weight:bold;">Print Page</button>
-            <button onclick="closePrintView()" style="padding: 8px 15px; background:var(--danger); color:white; border:none; margin-left:10px; cursor:pointer; border-radius:4px;">X Close</button>
+            <a href="marriage.html" class="btn-open-link">निवेदन खोल्नुहोस्</a>
         </div>
 
-        <div class="print-scaler" id="printScaler">
-            <div class="print-container" id="printableArea">
-                <div id="watermarkOverlay" class="watermark" style="display:none;">FREE COPY</div>
-
-                <h3 style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px;">निवेदन विवरण</h3>
-                
-                <p><strong>मिति:</strong> <span id="p_date"></span></p>
-                <p><strong>निवेदन ID:</strong> <span id="p_id"></span></p>
-                <p><strong>निवेदनको प्रकार:</strong> <span id="p_type"></span></p>
-                <p><strong>आवेदकको नाम:</strong> <span id="p_name"></span></p>
-                <p><strong>मोबाइल नम्बर:</strong> <span id="p_phone"></span></p>
-                <hr>
-                <p><strong>निवेदन विवरण:</strong></p>
-                <div id="p_details" style="min-height: 150px; background: #fafafa; padding: 10px; border: 1px solid #ddd;"></div>
+        <!-- मृत्यु दर्ता -->
+        <div class="service-card">
+            <div>
+                <div class="service-icon-title">🕊️ मृत्यु दर्ता</div>
+                <div class="service-desc">मृत्यु दर्ताका लागि निवेदन फारम</div>
             </div>
+            <a href="death.html" class="btn-open-link">निवेदन खोल्नुहोस्</a>
+        </div>
+
+        <!-- बसाइँसराइ -->
+        <div class="service-card">
+            <div>
+                <div class="service-icon-title">🏠 बसाइँसराइ</div>
+                <div class="service-desc">बसाइँसराइ सिफारिस फारम</div>
+            </div>
+            <a href="migration.html" class="btn-open-link">निवेदन खोल्नुहोस्</a>
+        </div>
+
+        <!-- नागरिकता सिफारिस -->
+        <div class="service-card">
+            <div>
+                <div class="service-icon-title">📄 नागरिकता सिफारिस</div>
+                <div class="service-desc">नागरिकता सिफारिस निवेदन</div>
+            </div>
+            <a href="citizenship.html" class="btn-open-link">निवेदन खोल्नुहोस्</a>
+        </div>
+
+        <!-- चारकिल्ला प्रमाण -->
+        <div class="service-card">
+            <div>
+                <div class="service-icon-title">🗺️ चारकिल्ला प्रमाण</div>
+                <div class="service-desc">चारकिल्ला प्रमाणित फारम</div>
+            </div>
+            <a href="charkilla.html" class="btn-open-link">निवेदन खोल्नुहोस्</a>
+        </div>
+
+        <!-- नाता प्रमाणित -->
+        <div class="service-card">
+            <div>
+                <div class="service-icon-title">👥 नाता प्रमाणित</div>
+                <div class="service-desc">नाता प्रमाणित सिफारिस फारम</div>
+            </div>
+            <a href="nata.html" class="btn-open-link">निवेदन खोल्नुहोस्</a>
+        </div>
+
+        <!-- सम्बन्ध विच्छेद -->
+        <div class="service-card">
+            <div>
+                <div class="service-icon-title">📜 सम्बन्ध विच्छेद</div>
+                <div class="service-desc">सम्बन्ध विच्छेद सिफारिस फारम</div>
+            </div>
+            <a href="divorce.html" class="btn-open-link">निवेदन खोल्नुहोस्</a>
         </div>
     </div>
 </div>
 
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-        authDomain: "sunil-online-service.firebaseapp.com",
-        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
-        projectId: "sunil-online-service",
-        storageBucket: "sunil-online-service.appspot.com"
-    };
-
-    let db = null;
-    let allNivedansData = {};
-    let isAdminLoggedIn = false;
-
-    try {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
-        
-        db.ref('simple_nivedans').on('value', (snapshot) => {
-            allNivedansData = snapshot.val() || {};
-            if(isAdminLoggedIn) loadAdminDashboard();
-        });
-    } catch(e) {
-        console.error("Firebase Init Error", e);
-    }
-
-    function showTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        if(tabId === 'home-tab') closeMainForm();
-    }
-
-    /* GitHub Direct File Loader */
-    function loadGitHubForm(fileName) {
-        const gridArea = document.getElementById('serviceGridArea');
-        const formContainer = document.getElementById('dynamicFormContainer');
-        const fileContentArea = document.getElementById('externalFileContent');
-
-        gridArea.style.display = 'none';
-        formContainer.style.display = 'block';
-        fileContentArea.innerHTML = '<p style="text-align:center;">फारम लोड हुँदैछ, कृपया पर्खनुहोस्...</p>';
-
-        const rawUrl = `https://raw.githubusercontent.com/sunilraj866260-blip/sunil-online-service/main/forms/${fileName}`;
-
-        fetch(rawUrl)
-            .then(response => {
-                if (!response.ok) throw new Error('फाइल भेटिएन');
-                return response.text();
-            })
-            .then(html => {
-                fileContentArea.innerHTML = html;
-            })
-            .catch(err => {
-                fileContentArea.innerHTML = `<p style="color:red; text-align:center;">फारम लोड गर्न सकिएन: ${err.message}<br>कृपया <b>forms/${fileName}</b> फाइल GitHub मा छ वा छैन पक्का गर्नुहोस्।</p>`;
-            });
-    }
-
-    function closeMainForm() {
-        document.getElementById('serviceGridArea').style.display = 'block';
-        document.getElementById('dynamicFormContainer').style.display = 'none';
-        document.getElementById('externalFileContent').innerHTML = '';
-    }
-
-    function checkAdminLogin() {
-        const u = document.getElementById('adminUser').value.trim();
-        const p = document.getElementById('adminPass').value.trim();
-
-        if(!u || !p) return alert("कृपया Username र Password दुबै राख्नुहोस्!");
-
-        if(db) {
-            db.ref('admin_credentials').once('value').then((snapshot) => {
-                const creds = snapshot.val();
-                if (creds && creds.adminUser === u && creds.adminPass === p) {
-                    isAdminLoggedIn = true;
-                    document.getElementById('adminLoginForm').style.display = 'none';
-                    document.getElementById('adminDashboardContent').style.display = 'block';
-                    loadAdminDashboard();
-                } else {
-                    alert("गलत Admin User ID वा Password!");
-                }
-            }).catch(err => alert("Error: " + err.message));
-        }
-    }
-
-    function adminLogout() {
-        isAdminLoggedIn = false;
-        document.getElementById('adminUser').value = '';
-        document.getElementById('adminPass').value = '';
-        document.getElementById('adminLoginForm').style.display = 'block';
-        document.getElementById('adminDashboardContent').style.display = 'none';
-    }
-
-    function traceApplication() {
-        const query = document.getElementById('traceSearchInput').value.trim();
-        const container = document.getElementById('traceResult');
-        container.innerHTML = '';
-
-        const results = Object.values(allNivedansData).filter(item => 
-            item.phone === query || item.esewaCode === query || item.id === query
-        );
-
-        if(results.length === 0) {
-            container.innerHTML = '<p style="color:red;">कुनै पनि निवेदन भेटिएन।</p>';
-            return;
-        }
-
-        results.forEach(item => {
-            const card = document.createElement('div');
-            card.style.cssText = "border:1px solid #ccc; padding:12px; margin-top:10px; border-radius:6px; background:#fff;";
-            card.innerHTML = `
-                <h4>ID: ${item.id} (${item.type})</h4>
-                <p><strong>नाम:</strong> ${item.name} | <strong>फोन:</strong> ${item.phone}</p>
-                <p><strong>स्थिति:</strong> <span style="color:${item.isVerified ? 'green' : 'orange'}">${item.status}</span></p>
-                
-                ${!item.isVerified ? `
-                    <div style="background:#fff3cd; padding:10px; margin:10px 0; border:1px solid #ffeeba; border-radius:4px;">
-                        <p style="margin:0 0 5px 0;"><strong>eSewa code (Rs. 50):</strong></p>
-                        <input type="text" id="esewa_in_${item.id}" placeholder="eSewa Txn Code" value="${item.esewaCode || ''}">
-                        <button onclick="submitPayment('${item.id}')" style="margin-top:5px; padding:6px 12px; background:var(--secondary); color:white; border:none; border-radius:4px; cursor:pointer;">बुझाउनुहोस्</button>
-                    </div>
-                ` : `<p style="color:green;"><b>✓ भुक्तानी प्रमाणित भयो</b></p>`}
-
-                <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white; padding:8px 12px; border:none; border-radius:4px; cursor:pointer;">
-                    Free Preview (A4 View)
-                </button>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    function submitPayment(id) {
-        const code = document.getElementById(`esewa_in_${id}`).value.trim();
-        if(!code) return alert('कृपया eSewa Code हाल्नुहोस्');
-
-        if(db) {
-            db.ref('simple_nivedans/' + id).update({
-                esewaCode: code,
-                status: 'Payment Pending Admin Verification'
-            }).then(() => {
-                alert('भुक्तानी कोड राखियो! Admin ले Approve गरेपछि Print हुनेछ।');
-                traceApplication();
-            });
-        }
-    }
-
-    function loadAdminDashboard() {
-        const tbody = document.getElementById('adminTableBody');
-        tbody.innerHTML = '';
-        const list = Object.values(allNivedansData);
-
-        list.forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${item.id}</td>
-                <td>${item.name}</td>
-                <td>${item.phone}</td>
-                <td>${item.esewaCode || 'N/A'}</td>
-                <td><b>${item.status}</b></td>
-                <td>
-                    <button onclick="verifyAndApprove('${item.id}')" style="background:var(--secondary); color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; font-size:11px;">Approve</button>
-                    <button onclick="openPrintModal('${item.id}')" style="padding:4px 8px; border-radius:3px; cursor:pointer; font-size:11px;">Preview</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function verifyAndApprove(id) {
-        if(db) {
-            db.ref('simple_nivedans/' + id).update({ 
-                status: 'Verified & Approved',
-                isVerified: true
-            }).then(() => alert('Payment Approved!'));
-        }
-    }
-
-    function adjustMobilePreviewScale() {
-        const scaler = document.getElementById('printScaler');
-        const container = document.getElementById('printableArea');
-        if (!scaler || !container || document.getElementById('printView').style.display === 'none') return;
-
-        container.style.transform = 'none';
-        scaler.style.height = 'auto';
-
-        const screenWidth = window.innerWidth - 30; 
-        const a4Width = container.offsetWidth; 
-
-        if (screenWidth < a4Width) {
-            const scale = screenWidth / a4Width;
-            container.style.transform = `scale(${scale})`;
-            container.style.transformOrigin = 'top center';
-            scaler.style.height = (container.offsetHeight * scale) + 'px';
-        }
-    }
-
-    function openPrintModal(id) {
-        const item = allNivedansData[id];
-        if(!item) return;
-
-        document.getElementById('p_date').innerText = item.date || "";
-        document.getElementById('p_id').innerText = item.id || "";
-        document.getElementById('p_type').innerText = item.type || "";
-        document.getElementById('p_name').innerText = item.name || "";
-        document.getElementById('p_phone').innerText = item.phone || "";
-        document.getElementById('p_details').innerText = item.details || "";
-
-        const watermark = document.getElementById('watermarkOverlay');
-        const printBtn = document.getElementById('mainPrintBtn');
-
-        if(item.isVerified === true) {
-            watermark.style.display = 'none';
-            printBtn.disabled = false;
-            printBtn.innerText = "Print Page";
-            printBtn.style.background = "var(--secondary)";
-            printBtn.style.color = "white";
-            printBtn.style.cursor = "pointer";
-        } else {
-            watermark.style.display = 'block';
-            printBtn.disabled = true;
-            printBtn.innerText = "Print Disabled";
-            printBtn.style.background = "#95a5a6";
-            printBtn.style.color = "#ffffff";
-            printBtn.style.cursor = "not-allowed";
-        }
-
-        document.getElementById('printView').style.display = 'flex';
-        setTimeout(adjustMobilePreviewScale, 50);
-        window.scrollTo(0, document.getElementById('printView').offsetTop);
-    }
-
-    function triggerPrint() {
-        if(!document.getElementById('mainPrintBtn').disabled) {
-            window.print();
-        }
-    }
-
-    function closePrintView() {
-        document.getElementById('printView').style.display = 'none';
-    }
-</script>
 </body>
 </html>
