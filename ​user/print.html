@@ -2,7 +2,8 @@
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
-    <title>सिफारिस पत्र</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>सिफारिस पत्र प्रिन्ट</title>
     <link rel="stylesheet" href="../css/print.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -17,47 +18,16 @@
         <h4>वडा नं. १ को कार्यालय, रुपन्देही</h4>
     </div>
     <hr>
-    <div class="content">
-        <div class="date">मिति: <span id="pDate">२०८३-०५-१५</span></div>
-        <p><strong>श्रीमान् वडा अध्यक्ष ज्यू,</strong><br>रोहिणी गाउँपालिका, वडा नं. १,<br>रुपन्देही, नेपाल।</p>
-
-        <div class="subject">विषय: <span id="pSubject">जन्म दर्ता गरिपाऊँ।</span></div>
-
-        <p>महोदय,</p>
-        <p style="text-indent: 50px;">
-            उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने श्री <strong id="pGrandFather">-</strong> को नाति, तथा श्री <strong id="pFather">-</strong> को छोरा <strong id="pName">-</strong> हूँ। मिति <strong id="pMiti">-</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुँदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।
-        </p>
-    </div>
-
-    <div class="footer">
-        <div></div>
-        <div style="text-align: center;">
-            <p>.......................................</p>
-            <p><strong>भवदीय / वडा सचिव</strong></p>
+    
+    <div id="printBody" class="content">
         </div>
-    </div>
 
-    <div class="no-print" style="text-align:center; margin-top:30px;">
-        <button onclick="window.print()" style="padding:10px 25px; background:#27ae60; color:white; border:none; border-radius:4px; font-size:16px; cursor:pointer;">🖨️ A4 साइजमा प्रिन्ट गर्नुहोस्</button>
+    <div class="no-print" style="text-align: center; margin-top: 20px;">
+        <button onclick="window.print()" style="background: #27ae60; color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer;">
+            🖨️ A4 साइजमा प्रिन्ट गर्नुहोस्
+        </button>
     </div>
 </div>
-
-<script>
-const id = new URLSearchParams(window.location.search).get('id');
-if(id) {
-    db.ref('nivedans/' + id).once('value').then(s => {
-        if(s.exists()) {
-            const d = s.val();
-            document.getElementById('pDate').innerText = d.date || '२०८३-०५-१५';
-            document.getElementById('pSubject').innerText = (d.formType || 'जन्म दर्ता') + ' गरिपाऊँ।';
-            document.getElementById('pName').innerText = d.applicantName || '';
-            document.getElementById('pFather').innerText = d.fatherName || '';
-            document.getElementById('pGrandFather').innerText = d.grandFatherName || '';
-            document.getElementById('pMiti').innerText = d.eventDate || '';
-        }
-    });
-}
-</script>
 
 </body>
 </html>
