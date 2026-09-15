@@ -9,8 +9,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root { --primary: #2c3e50; --secondary: #27ae60; --danger: #e74c3c; }
-        body { font-family: 'kalimati', Arial, sans-serif; margin: 0; padding: 20px; background: #f4f6f9; }
-        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        body { font-family: 'kalimati', Arial, sans-serif; margin: 0; padding: 20px; background: #e0e0e0; }
+        .container { max-width: 950px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
         nav button { padding: 10px 15px; border: none; background: var(--primary); color: white; border-radius: 4px; cursor: pointer; }
         nav button:hover { background: #34495e; }
@@ -23,17 +23,69 @@
         table, th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: var(--primary); color: white; }
         
-        /* Watermark & Print Styles */
-        .print-container { position: relative; border: 2px solid #333; padding: 30px; background: #fff; margin-top: 20px; }
-        .watermark {
-            position: absolute; top: 30%; left: 15%; font-size: 65px;
-            color: rgba(231, 76, 60, 0.25); transform: rotate(-30deg);
-            font-weight: bold; pointer-events: none; user-select: none;
+        /* Printable A4 Preview Container */
+        #printView {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #787878;
+            padding: 20px 0;
+            margin-top: 20px;
+            border-radius: 6px;
         }
+
+        .print-container {
+            position: relative;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 25mm 20mm;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #d3d3d3;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* Diagonal Watermark Styling */
+        .watermark {
+            position: absolute; 
+            top: 40%; 
+            left: 5%; 
+            width: 90%;
+            font-size: 75px;
+            color: rgba(231, 76, 60, 0.22); 
+            transform: rotate(-35deg);
+            font-weight: bold; 
+            text-align: center;
+            pointer-events: none; 
+            user-select: none;
+            border: 10px dashed rgba(231, 76, 60, 0.22);
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
         @media print {
+            body { background: white; margin: 0; padding: 0; }
             body * { visibility: hidden; }
+            .container { box-shadow: none; padding: 0; background: transparent; }
             .print-container, .print-container * { visibility: visible; }
-            .print-container { position: absolute; left: 0; top: 0; width: 100%; border: none; }
+            .print-container { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 210mm;
+                height: 297mm;
+                border: none; 
+                box-shadow: none;
+                margin: 0;
+                padding: 25mm 20mm;
+            }
             .no-print { display: none !important; }
         }
     </style>
@@ -109,31 +161,33 @@
         </table>
     </div>
 
-    <!-- 4. PRINT VIEW & WATERMARK -->
+    <!-- 4. PRINT PREVIEW (A4 Page Frame with Watermark) -->
     <div id="printView" style="display:none;">
-        <hr class="no-print" style="margin: 30px 0;">
+        <div class="no-print" style="margin-bottom: 15px; text-align: center;">
+            <button id="mainPrintBtn" onclick="window.print()" style="background:var(--secondary); color:white; padding: 10px 25px; font-weight:bold;">Print Page</button>
+            <button onclick="closePrintView()" style="padding: 10px 20px; background:var(--danger); color:white; border:none; margin-left:10px;">X Close</button>
+        </div>
+
         <div class="print-container" id="printableArea">
             <div id="watermarkOverlay" class="watermark" style="display:none;">FREE COPY</div>
+            
             <div style="text-align: center;">
                 <h3>अनुसूची - १</h3>
                 <h4>श्री वडा अध्यक्ष ज्यु, वडा नं. १ कार्यालय</h4>
                 <h3 id="pFormType" style="text-decoration: underline;">निवेदन</h3>
             </div>
+            <br><br>
             <p><strong>मिति:</strong> <span id="pDate"></span></p>
             <p><strong>आवेदक:</strong> <span id="pName"></span></p>
             <p><strong>सम्पर्क:</strong> <span id="pMobile"></span></p>
             <p><strong>विषय:</strong> <span id="pFormTypeSub"></span> सम्बन्धमा।</p>
             <br>
-            <p id="pDetails" style="min-height: 80px;"></p>
-            <br><br>
-            <div style="display: flex; justify-content: space-between;">
+            <p id="pDetails" style="min-height: 150px; line-height: 1.8; font-size: 18px;"></p>
+            <br><br><br><br>
+            <div style="display: flex; justify-content: space-between; margin-top: 80px;">
                 <div>भुक्तानी स्थिति: <b id="pPaymentStatus">FREE</b></div>
                 <div>निवेदकको दस्तखत: ____________</div>
             </div>
-        </div>
-        <div class="no-print" style="margin-top: 15px;">
-            <button onclick="window.print()" style="background:var(--secondary); color:white;">Print Page</button>
-            <button onclick="closePrintView()">X Close</button>
         </div>
     </div>
 </div>
@@ -208,7 +262,7 @@
     });
 
     // ==========================================
-    // 3. TRACE & PAYMENT (Disabled Print if Unverified)
+    // 3. TRACE & PAYMENT
     // ==========================================
     function traceApplication() {
         const query = document.getElementById('traceSearchInput').value.trim();
@@ -225,7 +279,6 @@
         }
 
         results.forEach(item => {
-            // Verify condition: Paid हुन पर्‍यो र Admin ले Approve गरेको हुनुपर्छ
             const isVerified = (item.paymentType === 'PAID' && item.status === 'Approved');
             
             const card = document.createElement('div');
@@ -243,10 +296,8 @@
                     </div>
                 ` : `<p><b>eSewa Ref Code:</b> ${item.esewaCode}</p>`}
 
-                <button onclick="openPrintModal('${item.id}')" 
-                        ${!isVerified ? 'disabled' : ''} 
-                        style="background:${isVerified ? 'var(--primary)' : '#ccc'}; color:white;">
-                    ${isVerified ? 'Print / View' : 'Print Locked (Pay & Verification Required)'}
+                <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white;">
+                    Preview (A4 Printable View)
                 </button>
             `;
             container.appendChild(card);
@@ -262,7 +313,7 @@
                 paymentType: 'PAID',
                 esewaCode: code
             }).then(() => {
-                alert('भुक्तानी कोड अपलोड भयो! एडमिनले भेरिफाई गरेपछि प्रिन्ट खोल्नेछ।');
+                alert('भुक्तानी कोड अपलोड भयो! एडमिनले भेरिफाई गरेपछि वाटरमार्क हट्नेछ।');
                 traceApplication();
             });
         }
@@ -287,7 +338,7 @@
                 <td>
                     <button onclick="updateStatus('${item.id}', 'Approved')">Approve / Verify</button>
                     <button onclick="updateStatus('${item.id}', 'Rejected')">Reject</button>
-                    <button onclick="openPrintModal('${item.id}')">View</button>
+                    <button onclick="openPrintModal('${item.id}')">Preview</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -318,13 +369,22 @@
         document.getElementById('pPaymentStatus').innerText = item.paymentType;
 
         const watermark = document.getElementById('watermarkOverlay');
-        if(item.paymentType === 'FREE') {
+        const printBtn = document.getElementById('mainPrintBtn');
+
+        // Payment status Verified भएमा Watermark हट्छ र Print on हुन्छ
+        const isVerified = (item.paymentType === 'PAID' && item.status === 'Approved');
+
+        if(!isVerified) {
             watermark.style.display = 'block';
+            printBtn.disabled = true;
+            printBtn.innerText = "Print Disabled (Pay & Verify Required)";
         } else {
             watermark.style.display = 'none';
+            printBtn.disabled = false;
+            printBtn.innerText = "Print Page";
         }
 
-        document.getElementById('printView').style.display = 'block';
+        document.getElementById('printView').style.display = 'flex';
         window.scrollTo(0, document.getElementById('printView').offsetTop);
     }
 
