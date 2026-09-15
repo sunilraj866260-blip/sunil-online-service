@@ -19,7 +19,7 @@
         .tab-content { display: none; }
         .active { display: block; }
 
-        /* Card Grid Layout (Photo design) */
+        /* Card Grid Layout */
         .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         @media (max-width: 400px) { .card-grid { grid-template-columns: 1fr; } }
         
@@ -50,7 +50,7 @@
         }
         .btn-card:hover { background: #219150; }
 
-        /* Inputs & Form */
+        /* Form Inputs */
         .input-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #2c3e50; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
@@ -62,7 +62,7 @@
         table, th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
         th { background-color: var(--primary); color: white; }
 
-        /* Mobile Responsive A4 Preview Container */
+        /* Mobile Fit A4 Preview */
         #printView {
             display: flex;
             flex-direction: column;
@@ -122,7 +122,7 @@
 <body onresize="adjustMobilePreviewScale()">
 
 <div class="container">
-    <!-- Navigation Bar -->
+    <!-- Navbar -->
     <nav class="no-print">
         <button onclick="showTab('home-tab')">गृह पृष्ठ (Services)</button>
         <button onclick="showTab('forms-tab')">फारम भर्नुहोस्</button>
@@ -130,7 +130,7 @@
         <button onclick="showTab('admin-tab')">Admin Login</button>
     </nav>
 
-    <!-- 1. INDEX / CARD GRID PAGE -->
+    <!-- HOME SERVICES TAB -->
     <div id="home-tab" class="tab-content active no-print">
         <h3 style="text-align: center; margin-bottom: 15px;">अनलाइन सिफारिस सेवाहरू</h3>
         <div class="card-grid">
@@ -208,9 +208,9 @@
         </div>
     </div>
 
-    <!-- 2. FORM TAB -->
+    <!-- FORM TAB -->
     <div id="forms-tab" class="tab-content no-print">
-        <h2>नयाँ निवेदन भर्नुहोस्</h2>
+        <h2 id="formTitle">नयाँ निवेदन भर्नुहोस्</h2>
         <form id="simpleForm">
             <div class="input-group">
                 <label>निवेदनको प्रकार:</label>
@@ -238,16 +238,16 @@
 
             <div class="input-group">
                 <label>निवेदन विवरण:</label>
-                <textarea id="in_details" rows="4" placeholder="थप विवरण लेख्नुहोस्..." required></textarea>
+                <textarea id="in_details" rows="4" placeholder="थप विवरण वा विवरणहरू लेख्नुहोस्..." required></textarea>
             </div>
 
             <button type="submit" class="btn-submit">निवेदन बुझाउनुहोस् (Save)</button>
         </form>
     </div>
 
-    <!-- 3. TRACE TAB -->
+    <!-- TRACE TAB -->
     <div id="trace-tab" class="tab-content no-print">
-        <h3>निवेदन खोज्नुहोस्</h3>
+        <h3>पुराना तथा नयाँ निवेदन खोज्नुहोस्</h3>
         <div style="display: flex; gap: 8px; margin-bottom: 15px;">
             <input type="text" id="traceSearchInput" placeholder="मोबाइल नम्बर वा ID हाल्नुहोस्" style="flex:1;">
             <button onclick="traceApplication()" style="padding:10px 15px; background:var(--primary); color:white; border:none; border-radius:4px; cursor:pointer;">खोज्नुहोस्</button>
@@ -255,7 +255,7 @@
         <div id="traceResult"></div>
     </div>
 
-    <!-- 4. ADMIN TAB -->
+    <!-- ADMIN TAB -->
     <div id="admin-tab" class="tab-content no-print">
         <div id="adminLoginForm">
             <h3>Admin Login</h3>
@@ -272,7 +272,7 @@
 
         <div id="adminDashboardContent" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3>Admin Panel</h3>
+                <h3>Admin Panel (सबै निवेदनहरू)</h3>
                 <button onclick="adminLogout()" style="background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Logout</button>
             </div>
             <div class="table-responsive">
@@ -280,6 +280,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>प्रकार</th>
                             <th>नाम</th>
                             <th>फोन</th>
                             <th>eSewa Code</th>
@@ -293,7 +294,7 @@
         </div>
     </div>
 
-    <!-- 5. A4 MOBILE FIT PREVIEW -->
+    <!-- A4 MOBILE FIT PREVIEW -->
     <div id="printView" style="display:none;">
         <div class="no-print" style="margin-bottom: 15px; text-align: center;">
             <button id="mainPrintBtn" onclick="triggerPrint()" disabled style="padding: 8px 18px; font-weight:bold;">Print Page</button>
@@ -336,6 +337,7 @@
         firebase.initializeApp(firebaseConfig);
         db = firebase.database();
         
+        // Fetch Old and New Submissions dynamically from database
         db.ref('simple_nivedans').on('value', (snapshot) => {
             allNivedansData = snapshot.val() || {};
             if(isAdminLoggedIn) loadAdminDashboard();
@@ -349,8 +351,11 @@
         document.getElementById(tabId).classList.add('active');
     }
 
+    // Direct link fix for Birth registration and other cards
     function openFormFor(type) {
-        document.getElementById('n_type').value = type;
+        const select = document.getElementById('n_type');
+        select.value = type;
+        document.getElementById('formTitle').innerText = type + " - फारम";
         showTab('forms-tab');
     }
 
@@ -416,7 +421,7 @@
         );
 
         if(results.length === 0) {
-            container.innerHTML = '<p style="color:red;">कुनै पनि निवेदन भेटिएन।</p>';
+            container.innerHTML = '<p style="color:red;">कुनै पनि विवरण भेटिएन। कृपया सहि फोन वा ID हाल्नुहोस्।</p>';
             return;
         }
 
@@ -468,6 +473,7 @@
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${item.id}</td>
+                <td>${item.type}</td>
                 <td>${item.name}</td>
                 <td>${item.phone}</td>
                 <td>${item.esewaCode || 'N/A'}</td>
