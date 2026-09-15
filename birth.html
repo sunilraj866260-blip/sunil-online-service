@@ -1,1116 +1,407 @@
 <!DOCTYPE html>
 <html lang="ne">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>जन्म दर्ता निवेदन - रोहिणी-१</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; padding: 20px; margin: 0; }
+        .entry-form { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1e3799; border-bottom: 2px solid #1e3799; padding-bottom: 10px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        .row { display: flex; gap: 20px; flex-wrap: wrap; }
+        .row .input-group { flex: 1; min-width: 250px; }
+        
+        .btn-submit { width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; margin-top: 10px; }
+        .btn-print { width: 100%; padding: 15px; background: #2980b9; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; margin-top: 10px; }
+        .btn-print:disabled { background: #95a5a6; cursor: not-allowed; opacity: 0.7; }
 
-<meta charset="UTF-8">
+        .section-title { background: #e8ecef; padding: 10px; margin: 20px 0 10px 0; font-weight: bold; border-left: 6px solid #1e3799; }
+        
+        .btn-add { background: #1e3799; color: white; padding: 10px 20px; font-size: 15px; margin-bottom: 20px; width: auto; border-radius: 5px; border: none; cursor: pointer; }
+        .btn-danger { background: #c0392b; padding: 6px 12px; font-size: 14px; width: auto; margin-top: 5px; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .child-box { border: 1px dashed #1e3799; padding: 15px; margin-bottom: 15px; background: #f9fbfd; border-radius: 6px; }
+        .child-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
+        .child-table th, .child-table td { border: 1px solid #000; padding: 10px; text-align: left; font-size: 13pt; }
+        .child-table th { background-color: #f2f2f2; }
 
-<meta
-name="viewport"
-content="width=device-width,initial-scale=1.0"
->
+        .top-nav { margin-bottom: 15px; }
+        .top-nav a { text-decoration: none; background: #1e3799; color: white; padding: 8px 15px; border-radius: 5px; font-size: 14px; font-weight: bold; }
+        .status-box { background: #fff3cd; color: #856404; padding: 12px; border-radius: 6px; margin-top: 15px; text-align: center; font-weight: bold; display: none; }
 
-<title>
-जन्मदर्ता - रोहिणी १
-</title>
-
-
-<style>
-
-*{
-    box-sizing:border-box;
-}
-
-body{
-    margin:0;
-    padding:15px;
-    background:#eee;
-    font-family:Arial,"Noto Sans Devanagari",sans-serif;
-}
-
-.page{
-    width:210mm;
-    min-height:297mm;
-    max-width:100%;
-    margin:auto;
-    padding:15mm;
-    background:white;
-    position:relative;
-}
-
-h1{
-    text-align:center;
-    margin:0;
-    font-size:22px;
-}
-
-h2{
-    text-align:center;
-    margin:5px 0 20px;
-    font-size:18px;
-}
-
-.section{
-    border:1px solid #999;
-    padding:12px;
-    margin-top:15px;
-}
-
-.section-title{
-    font-weight:bold;
-    margin-bottom:10px;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-}
-
-.field{
-    margin-bottom:10px;
-}
-
-label{
-    display:block;
-    font-weight:bold;
-    margin-bottom:5px;
-}
-
-input,
-select,
-textarea{
-    width:100%;
-    padding:9px;
-    border:1px solid #999;
-    border-radius:4px;
-    font-size:15px;
-}
-
-textarea{
-    min-height:65px;
-}
-
-.action{
-    max-width:800px;
-    margin:15px auto;
-    padding:15px;
-    background:white;
-    border-radius:8px;
-}
-
-.action button{
-    padding:12px 20px;
-    border:0;
-    border-radius:5px;
-    color:white;
-    background:#1769aa;
-    font-size:16px;
-    cursor:pointer;
-}
-
-#status{
-    margin-top:12px;
-    padding:10px;
-    background:#f5f5f5;
-}
-
-.pending-watermark::after{
-
-    content:"UNPAID / PENDING";
-
-    position:fixed;
-
-    top:45%;
-
-    left:10%;
-
-    font-size:65px;
-
-    font-weight:bold;
-
-    color:rgba(255,0,0,.13);
-
-    transform:rotate(-30deg);
-
-    z-index:9999;
-
-    pointer-events:none;
-
-}
-
-
-@media(max-width:600px){
-
-    body{
-        padding:5px;
-    }
-
-    .page{
-        width:100%;
-        padding:15px;
-    }
-
-    .grid{
-        grid-template-columns:1fr;
-    }
-
-}
-
-
-@media print{
-
-    body{
-        padding:0;
-        background:white;
-    }
-
-    .action{
-        display:none;
-    }
-
-    .page{
-        width:210mm;
-        min-height:297mm;
-        margin:0;
-        box-shadow:none;
-    }
-
-}
-
-</style>
-
+        @media print {
+            @page { size: A4; margin: 20mm; }
+            body { background: none; padding: 0; }
+            .entry-form, .btn-danger, .btn-add, .top-nav, .status-box { display: none !important; }
+            #print-area { 
+                display: block !important; 
+                line-height: 2.1; 
+                font-size: 14pt; 
+                color: black; 
+                text-align: justify; 
+                position: relative;
+            }
+            /* यदि प्रमाणित (Verified) छैन भने मात्र वाटरमार्क देखाउने */
+            .unverified-watermark::before {
+                content: "ROHINI WARD-1 - UNVERIFIED / PENDING";
+                position: absolute;
+                top: 40%;
+                left: 10%;
+                font-size: 30px;
+                color: rgba(200, 0, 0, 0.25);
+                transform: rotate(-30deg);
+                z-index: 1000;
+                pointer-events: none;
+                font-weight: bold;
+                white-space: nowrap;
+            }
+            .date { text-align: right; margin-bottom: 20px; }
+            .recipient { line-height: 1.4; margin-bottom: 20px; }
+            .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 30px 0; font-size: 16pt; }
+            .content { text-indent: 60px; margin-bottom: 15px; }
+            .bottom-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 40px; border-top: 1px solid #000; padding-top: 20px; }
+            .attachment-part { width: 55%; font-size: 14pt; line-height: 1.7; }
+            .applicant-part { width: 40%; line-height: 1.7; }
+        }
+    </style>
 </head>
+<body onload="setInitialDate()">
 
+<div class="entry-form">
+    <div class="top-nav">
+        <a href="index.html">← गृह पृष्ठमा फर्कनुहोस्</a>
+    </div>
+    <h2>जन्म दर्ता निवेदन फारम (रोहिणी-१)</h2>
 
-<body>
+    <form id="nivedanForm">
+        <div class="input-group">
+            <label>सिफारिसको प्रकार:</label>
+            <input type="text" id="n_type" value="जन्म दर्ता गरिपाऊँ।" readonly style="background:#e9ecef;">
+        </div>
 
+        <div class="row">
+            <div class="input-group"><label>मिति (वि.सं.):</label><input type="text" id="in_today"></div>
+            <div class="input-group"><label>फोन नं.:</label><input type="text" id="in_phone" placeholder="98XXXXXXXX" required></div>
+        </div>
 
-<div
-class="page"
-id="printPage"
->
+        <div class="section-title">मुख्य विवरण</div>
+        
+        <div class="row">
+            <div class="input-group">
+                <label>निवेदक बच्चाको को हुनुहुन्छ?</label>
+                <select id="in_applicant_role">
+                    <option value="बुवा">बुवा (पिता)</option>
+                    <option value="आमा">आमा (माता)</option>
+                </select>
+            </div>
+            <div class="input-group"><label>निवेदकको नाम:</label><input type="text" id="in_name" required></div>
+        </div>
 
+        <div class="row">
+            <div class="input-group"><label>बच्चाको बुवाको नाम:</label><input type="text" id="in_father" required></div>
+            <div class="input-group"><label>बाजेको नाम:</label><input type="text" id="in_grandpa" required></div>
+        </div>
+        
+        <div class="row">
+            <div class="input-group">
+                <label>निवेदक (बाजेको के हो?):</label>
+                <select id="in_grandpa_rel">
+                    <option value="नाति">नाति</option>
+                    <option value="नातिनी">नातिनी</option>
+                    <option value="बुहारी">बुहारी</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>निवेदक (बुवाको के हो?):</label>
+                <select id="in_father_rel">
+                    <option value="छोरा">छोरा</option>
+                    <option value="छोरी">छोरी</option>
+                    <option value="श्रीमती">श्रीमती</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="input-group"><label>माता-पिताको विवाह भएको मिति:</label><input type="text" id="in_marriage_date" placeholder="२०७८/१०/१२" required></div>
+        </div>
 
-<h1>
-रोहिणी गाउँपालिका
-</h1>
+        <div class="section-title">बच्चा(हरू)को विवरण</div>
+        <div id="children_container">
+            <div class="child-box" id="child_block_1">
+                <div class="row">
+                    <div class="input-group"><label>बच्चाको नाम:</label><input type="text" class="child-name" required oninput="updatePrintView()"></div>
+                    <div class="input-group">
+                        <label>लिङ्ग:</label>
+                        <select class="child-gender" onchange="updatePrintView()">
+                            <option value="छोरा">छोरा</option>
+                            <option value="छोरी">छोरी</option>
+                        </select>
+                    </div>
+                    <div class="input-group"><label>जन्म मिति:</label><input type="text" class="child-dob" required oninput="updatePrintView()"></div>
+                </div>
+                <div class="row">
+                    <div class="input-group"><label>जन्मस्थान:</label><input type="text" class="child-birthplace" value="रोहिणी-१, रुपन्देही" required oninput="updatePrintView()"></div>
+                    <div class="input-group"><label>टोकन नम्बर:</label><input type="text" class="child-token" placeholder="टोकन नं." required oninput="updatePrintView()"></div>
+                </div>
+            </div>
+        </div>
+        
+        <button type="button" class="btn-add" onclick="addChildBox()">+ थप बच्चा थप्नुहोस्</button>
+        
+        <!-- Submit Button -->
+        <button type="submit" class="btn-submit">निवेदन पेस गर्नुहोस् (Submit)</button>
+        
+        <!-- Status Notification Box -->
+        <div id="statusBox" class="status-box"></div>
 
-<h2>
-वडा नं. १, रुपन्देही
-</h2>
-
-<h2>
-जन्मदर्ता निवेदन फारम
-</h2>
-
-
-<!-- CHILD -->
-
-<div class="section">
-
-<div class="section-title">
-१. बालबालिकाको विवरण
+        <!-- Print/Download Button (Disabled until verified) -->
+        <button type="button" id="printBtn" class="btn-print" disabled onclick="window.print()">प्रमाणित भएपछि प्रिन्ट/डाउनलोड गर्नुहोस्</button>
+    </form>
 </div>
 
+<!-- Print Layout Area -->
+<div id="print-area" style="display:none;" class="unverified-watermark" id="watermarkWrapper">
+    <div class="date">मिति: <span id="p_today"></span></div>
+    <div class="recipient">श्रीमान् वडा अध्यक्ष ज्यू,<br>रोहिणी गाउँपालिका, वडा नं. १,<br>रुपन्देही, नेपाल।</div>
+    <div id="p_subject" class="subject">विषय : जन्म दर्ता गरिपाऊँ।</div>
+    <p>महोदय,</p>
+    <div id="p_content" class="content"></div>
+    
+    <div id="p_children_table_wrapper"></div>
 
-<div class="grid">
-
-<div class="field">
-
-<label>
-बालक/बालिकाको नाम
-</label>
-
-<input
-id="childName"
-type="text"
->
-
+    <div class="bottom-container">
+        <div class="attachment-part" id="p_attachment">
+            <strong>संलग्न कागजातहरू:</strong><br>
+            १. बाबु-आमाको नागरिकता प्रतिलिपि<br>
+            २. अस्पतालको जन्म डिस्चार्ज पुर्जी वा जन्म दर्ता प्रमाणपत्रको प्रतिलिपि<br>
+            ३. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि
+        </div>
+        <div class="applicant-part">
+            <strong>निवेदक:</strong><br><br>
+            सही: ...........................<br>
+            नाम: <strong id="p_f_name">………………</strong><br>
+            ठेगाना: रोहिणी-१, रुपन्देही<br>
+            फोन: <span id="p_phone">98244</span>
+        </div>
+    </div>
 </div>
-
-
-<div class="field">
-
-<label>
-लिङ्ग
-</label>
-
-<select id="gender">
-
-<option value="">
-छान्नुहोस्
-</option>
-
-<option>
-पुरुष
-</option>
-
-<option>
-महिला
-</option>
-
-<option>
-अन्य
-</option>
-
-</select>
-
-</div>
-
-</div>
-
-
-<div class="grid">
-
-<div class="field">
-
-<label>
-जन्म मिति
-</label>
-
-<input
-id="birthDate"
-type="date"
->
-
-</div>
-
-
-<div class="field">
-
-<label>
-जन्म स्थान
-</label>
-
-<input
-id="birthPlace"
-type="text"
->
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- FATHER -->
-
-<div class="section">
-
-<div class="section-title">
-२. बाबुको विवरण
-</div>
-
-<div class="grid">
-
-<div class="field">
-
-<label>
-बाबुको नाम
-</label>
-
-<input
-id="father"
-type="text"
->
-
-</div>
-
-
-<div class="field">
-
-<label>
-बाबुको ठेगाना
-</label>
-
-<input
-id="fatherAddress"
-value="रोहिणी गाउँपालिका वडा नं. १, रुपन्देही"
->
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- MOTHER -->
-
-<div class="section">
-
-<div class="section-title">
-३. आमाको विवरण
-</div>
-
-<div class="grid">
-
-<div class="field">
-
-<label>
-आमाको नाम
-</label>
-
-<input
-id="mother"
-type="text"
->
-
-</div>
-
-
-<div class="field">
-
-<label>
-आमाको ठेगाना
-</label>
-
-<input
-id="motherAddress"
-value="रोहिणी गाउँपालिका वडा नं. १, रुपन्देही"
->
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- APPLICANT -->
-
-<div class="section">
-
-<div class="section-title">
-४. निवेदकको विवरण
-</div>
-
-
-<div class="grid">
-
-<div class="field">
-
-<label>
-निवेदकको नाम
-</label>
-
-<input
-id="name"
-type="text"
->
-
-</div>
-
-
-<div class="field">
-
-<label>
-मोबाइल नम्बर
-</label>
-
-<input
-id="mobile"
-type="tel"
-placeholder="98XXXXXXXX"
->
-
-</div>
-
-</div>
-
-
-<div class="field">
-
-<label>
-ठेगाना
-</label>
-
-<textarea id="address">
-रोहिणी गाउँपालिका वडा नं. १, रुपन्देही
-</textarea>
-
-</div>
-
-</div>
-
-
-<!-- PAYMENT -->
-
-<div class="section">
-
-<div class="section-title">
-५. eSewa भुक्तानी
-</div>
-
-<div class="field">
-
-<label>
-eSewa Code
-</label>
-
-<input
-id="esewa"
-type="text"
-placeholder="eSewa Code"
->
-
-</div>
-
-</div>
-
-
-<br><br>
-
-
-<div style="text-align:right">
-
-निवेदकको हस्ताक्षर:
-
-____________________
-
-</div>
-
-
-</div>
-
-
-
-<!-- ACTION -->
-
-<div class="action">
-
-<h3>
-निवेदन Submit / Print
-</h3>
-
-<p>
-नाम, मोबाइल र eSewa Code राखेर
-Submit & Print थिच्नुहोस्।
-</p>
-
-
-<button
-onclick="submitPrint()"
->
-📝 Submit & Print
-</button>
-
-
-<div id="status">
-Request तयार भएको छैन।
-</div>
-
-</div>
-
-
 
 <script>
-
-
-/* ==================================
-   FIREBASE
-================================== */
-
-const DB =
-"https://sunil-online-service-default-rtdb.firebaseio.com";
-
-
-const STORAGE =
-"JANMA_REQUEST_ID";
-
-
-const FORM_NAME =
-"जन्मदर्ता";
-
-
-const FORM_URL =
-"forms/janma.html";
-
-
-/* ==================================
-   PAGE LOAD
-================================== */
-
-window.onload = function(){
-
-    const params =
-        new URLSearchParams(
-            window.location.search
-        );
-
-
-    const requestId =
-        params.get("request");
-
-
-    if(requestId){
-
-        localStorage.setItem(
-            STORAGE,
-            requestId
-        );
-
-        loadRequest(requestId);
-
-    }
-
-};
-
-
-/* ==================================
-   SUBMIT PRINT
-================================== */
-
-async function submitPrint(){
-
-    const name =
-        document.getElementById("name")
-        .value.trim();
-
-    const mobile =
-        document.getElementById("mobile")
-        .value.trim();
-
-    const esewa =
-        document.getElementById("esewa")
-        .value.trim();
-
-
-    if(!name){
-
-        alert(
-            "निवेदकको नाम राख्नुहोस्।"
-        );
-
-        return;
-
-    }
-
-
-    if(!mobile){
-
-        alert(
-            "मोबाइल नम्बर राख्नुहोस्।"
-        );
-
-        return;
-
-    }
-
-
-    if(!esewa){
-
-        alert(
-            "eSewa Code राख्नुहोस्।"
-        );
-
-        return;
-
-    }
-
-
-    const oldId =
-        localStorage.getItem(STORAGE);
-
-
-    /*
-       पहिले request छ भने
-       नयाँ request नबनाउने
-    */
-
-    if(oldId){
-
-        await loadRequest(oldId);
-
-        return;
-
-    }
-
-
-    setStatus(
-        "⏳ Firebase मा Submit हुँदैछ..."
-    );
-
-
-    const data = {
-
-        name:name,
-
-        mobile:mobile,
-
-        esewa:esewa,
-
-        formName:FORM_NAME,
-
-        formUrl:FORM_URL,
-
-        status:"Pending",
-
-        childName:
-            document.getElementById(
-                "childName"
-            ).value,
-
-        gender:
-            document.getElementById(
-                "gender"
-            ).value,
-
-        birthDate:
-            document.getElementById(
-                "birthDate"
-            ).value,
-
-        birthPlace:
-            document.getElementById(
-                "birthPlace"
-            ).value,
-
-        father:
-            document.getElementById(
-                "father"
-            ).value,
-
-        fatherAddress:
-            document.getElementById(
-                "fatherAddress"
-            ).value,
-
-        mother:
-            document.getElementById(
-                "mother"
-            ).value,
-
-        motherAddress:
-            document.getElementById(
-                "motherAddress"
-            ).value,
-
-        address:
-            document.getElementById(
-                "address"
-            ).value,
-
-        createdAt:
-            new Date().toISOString()
-
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+        authDomain: "sunil-online-service.firebaseapp.com",
+        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
+        projectId: "sunil-online-service",
+        storageBucket: "sunil-online-service.appspot.com",
+        messagingSenderId: "",
+        appId: ""
     };
 
+    let db = null;
+    try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+    } catch(e) { console.error(e); }
 
-    try{
+    let childCount = 1;
+    let currentRecordId = localStorage.getItem('last_nivedan_id') || null;
 
-        const response =
-            await fetch(
-                DB + "/requests.json",
-                {
+    function setInitialDate() {
+        try {
+            const options = { year: 'numeric', month: 'numeric', day: 'numeric', calendar: 'nepali' };
+            document.getElementById('in_today').value = new Intl.DateTimeFormat('ne-NP-u-ca-nepali', options).format(new Date());
+        } catch (e) { document.getElementById('in_today').value = "२०८३/०३/२७"; }
+        updatePrintView();
 
-                    method:"POST",
+        if (currentRecordId && db) {
+            checkVerificationStatus(currentRecordId);
+        }
+    }
 
-                    headers:{
-                        "Content-Type":
-                        "application/json"
-                    },
+    function addChildBox() {
+        childCount++;
+        const container = document.getElementById('children_container');
+        const html = `
+            <div class="child-box" id="child_block_${childCount}">
+                <div class="row">
+                    <div class="input-group"><label>बच्चाको नाम:</label><input type="text" class="child-name" required oninput="updatePrintView()"></div>
+                    <div class="input-group">
+                        <label>लिङ्ग:</label>
+                        <select class="child-gender" onchange="updatePrintView()">
+                            <option value="छोरा">छोरा</option>
+                            <option value="छोरी">छोरी</option>
+                        </select>
+                    </div>
+                    <div class="input-group"><label>जन्म मिति:</label><input type="text" class="child-dob" required oninput="updatePrintView()"></div>
+                </div>
+                <div class="row">
+                    <div class="input-group"><label>जन्मस्थान:</label><input type="text" class="child-birthplace" value="रोहिणी-१, रुपन्देही" required oninput="updatePrintView()"></div>
+                    <div class="input-group"><label>टोकन नम्बर:</label><input type="text" class="child-token" placeholder="टोकन नं." required oninput="updatePrintView()"></div>
+                </div>
+                <button type="button" class="btn-danger" onclick="removeChildBox(${childCount})">यो बच्चा हटाउनुहोस्</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+        updatePrintView();
+    }
 
-                    body:
-                    JSON.stringify(data)
+    function removeChildBox(id) {
+        const block = document.getElementById(`child_block_${id}`);
+        if(block) {
+            block.remove();
+            updatePrintView();
+        }
+    }
 
+    function updatePrintView() {
+        const gV = (id) => document.getElementById(id).value.trim() || "………………";
+        
+        const role = document.getElementById('in_applicant_role').value;
+        const gRel = document.getElementById('in_grandpa_rel').value;
+        const fRel = document.getElementById('in_father_rel').value;
+
+        let con = `उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने <strong>${gV('in_grandpa')}</strong> को ${gRel}, तथा श्री <strong>${gV('in_father')}</strong> को ${fRel} <strong>${gV('in_name')}</strong> हूँ। मिति <strong>${gV('in_marriage_date')}</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।`;
+        document.getElementById('p_content').innerHTML = con;
+
+        const names = document.querySelectorAll('.child-name');
+        const genders = document.querySelectorAll('.child-gender');
+        const dobs = document.querySelectorAll('.child-dob');
+        const birthplaces = document.querySelectorAll('.child-birthplace');
+        const tokens = document.querySelectorAll('.child-token');
+
+        let tableHtml = `<table class="child-table">
+            <thead>
+                <tr>
+                    <th>क्र.सं.</th>
+                    <th>बच्चाको नाम</th>
+                    <th>लिङ्ग</th>
+                    <th>जन्म मिति</th>
+                    <th>जन्मस्थान</th>
+                    <th>टोकन नम्बर</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+        for (let i = 0; i < names.length; i++) {
+            tableHtml += `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><strong>${names[i].value.trim() || "………………"}</strong></td>
+                    <td>${genders[i].value}</td>
+                    <td>${dobs[i].value.trim() || "………………"}</td>
+                    <td>${birthplaces[i].value.trim() || "………………"}</td>
+                    <td><strong>${tokens[i].value.trim() || "………………"}</strong></td>
+                </tr>`;
+        }
+        tableHtml += `</tbody></table>`;
+        document.getElementById('p_children_table_wrapper').innerHTML = tableHtml;
+        
+        document.getElementById('p_today').innerText = gV('in_today');
+        document.getElementById('p_f_name').innerText = gV('in_name');
+        document.getElementById('p_phone').innerText = gV('in_phone');
+    }
+
+    // Event Listeners for Live Preview update
+    ['in_applicant_role', 'in_grandpa_rel', 'in_father_rel', 'in_name', 'in_father', 'in_grandpa', 'in_marriage_date', 'in_today', 'in_phone'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updatePrintView);
+        document.getElementById(id).addEventListener('change', updatePrintView);
+    });
+
+    // Form Submit to Firebase Database
+    document.getElementById('nivedanForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        updatePrintView();
+
+        const id = 'NIV-' + Date.now();
+        currentRecordId = id;
+        localStorage.setItem('last_nivedan_id', id);
+
+        const names = document.querySelectorAll('.child-name');
+        const genders = document.querySelectorAll('.child-gender');
+        const dobs = document.querySelectorAll('.child-dob');
+        const birthplaces = document.querySelectorAll('.child-birthplace');
+        const tokens = document.querySelectorAll('.child-token');
+
+        let childrenData = [];
+        for (let i = 0; i < names.length; i++) {
+            childrenData.push({
+                name: names[i].value.trim(),
+                gender: genders[i].value,
+                dob: dobs[i].value.trim(),
+                birthplace: birthplaces[i].value.trim(),
+                token: tokens[i].value.trim()
+            });
+        }
+
+        const record = {
+            id: id,
+            today: document.getElementById('in_today').value.trim(),
+            phone: document.getElementById('in_phone').value.trim(),
+            applicantRole: document.getElementById('in_applicant_role').value,
+            name: document.getElementById('in_name').value.trim(),
+            father: document.getElementById('in_father').value.trim(),
+            grandpa: document.getElementById('in_grandpa').value.trim(),
+            grandpaRel: document.getElementById('in_grandpa_rel').value,
+            fatherRel: document.getElementById('in_father_rel').value,
+            marriageDate: document.getElementById('in_marriage_date').value.trim(),
+            children: childrenData,
+            status: 'Pending Verification',
+            isVerified: false
+        };
+
+        if(db) {
+            db.ref('rochini_nivedans/' + id).set(record, (error) => {
+                if(error) {
+                    alert("डाटा सेभ गर्न समस्या भयो!");
+                } else {
+                    alert('निवेदन सफलतापुर्वक पेस भयो! अब एड्मिनले प्रमाणित (Verify) गरेपछि मात्र प्रिन्ट गर्न मिल्नेछ।');
+                    checkVerificationStatus(id);
                 }
-            );
-
-
-        if(!response.ok){
-
-            throw new Error(
-                "Firebase error"
-            );
-
+            });
+        } else {
+            alert('डेटाबेस कनेक्टेड छैन!');
         }
-
-
-        const result =
-            await response.json();
-
-
-        /*
-           Firebase ID
-        */
-
-        localStorage.setItem(
-            STORAGE,
-            result.name
-        );
-
-
-        setStatus(
-            "✅ Request Submit भयो।"
-        );
-
-
-        /*
-           अब status check
-        */
-
-        await loadRequest(
-            result.name
-        );
-
-    }
-
-    catch(error){
-
-        console.error(error);
-
-        setStatus(
-            "❌ Submit भएन। Firebase Rules जाँच गर्नुहोस्।"
-        );
-
-    }
-
-}
-
-
-/* ==================================
-   LOAD REQUEST
-================================== */
-
-async function loadRequest(id){
-
-    try{
-
-        const response =
-            await fetch(
-                DB +
-                "/requests/" +
-                id +
-                ".json"
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if(!data){
-
-            setStatus(
-                "❌ Request भेटिएन।"
-            );
-
-            return;
-
-        }
-
-
-        fillForm(data);
-
-
-        const status =
-            data.status || "Pending";
-
-
-        /* =========================
-           VERIFIED
-        ========================= */
-
-        if(status === "Verified"){
-
-            document.body
-                .classList
-                .remove(
-                    "pending-watermark"
-                );
-
-
-            setStatus(
-                "✅ Verified भयो। Clean Print खुल्दैछ..."
-            );
-
-
-            setTimeout(
-                function(){
-
-                    window.print();
-
-                },
-                700
-            );
-
-        }
-
-
-        /* =========================
-           PRINTED
-        ========================= */
-
-        else if(status === "Printed"){
-
-            document.body
-                .classList
-                .remove(
-                    "pending-watermark"
-                );
-
-
-            setStatus(
-                "🖨️ Printed"
-            );
-
-
-        }
-
-
-        /* =========================
-           REJECTED
-        ========================= */
-
-        else if(status === "Rejected"){
-
-            document.body
-                .classList
-                .add(
-                    "pending-watermark"
-                );
-
-
-            setStatus(
-                "❌ Admin ले Reject गरेको छ।"
-            );
-
-        }
-
-
-        /* =========================
-           PENDING
-        ========================= */
-
-        else{
-
-            document.body
-                .classList
-                .add(
-                    "pending-watermark"
-                );
-
-
-            setStatus(
-                "⏳ Pending — Admin Verification बाँकी छ।"
-            );
-
-
-            /*
-               Pending हुँदा पनि print
-            */
-
-            setTimeout(
-                function(){
-
-                    window.print();
-
-                },
-                700
-            );
-
-        }
-
-    }
-
-    catch(error){
-
-        console.error(error);
-
-        setStatus(
-            "❌ Firebase error"
-        );
-
-    }
-
-}
-
-
-/* ==================================
-   FILL FORM
-================================== */
-
-function fillForm(data){
-
-    if(data.name)
-        document.getElementById(
-            "name"
-        ).value = data.name;
-
-
-    if(data.mobile)
-        document.getElementById(
-            "mobile"
-        ).value = data.mobile;
-
-
-    if(data.esewa)
-        document.getElementById(
-            "esewa"
-        ).value = data.esewa;
-
-
-    if(data.childName)
-        document.getElementById(
-            "childName"
-        ).value = data.childName;
-
-
-    if(data.gender)
-        document.getElementById(
-            "gender"
-        ).value = data.gender;
-
-
-    if(data.birthDate)
-        document.getElementById(
-            "birthDate"
-        ).value = data.birthDate;
-
-
-    if(data.birthPlace)
-        document.getElementById(
-            "birthPlace"
-        ).value = data.birthPlace;
-
-
-    if(data.father)
-        document.getElementById(
-            "father"
-        ).value = data.father;
-
-
-    if(data.fatherAddress)
-        document.getElementById(
-            "fatherAddress"
-        ).value =
-        data.fatherAddress;
-
-
-    if(data.mother)
-        document.getElementById(
-            "mother"
-        ).value = data.mother;
-
-
-    if(data.motherAddress)
-        document.getElementById(
-            "motherAddress"
-        ).value =
-        data.motherAddress;
-
-
-    if(data.address)
-        document.getElementById(
-            "address"
-        ).value = data.address;
-
-}
-
-
-/* ==================================
-   STATUS
-================================== */
-
-function setStatus(text){
-
-    document.getElementById(
-        "status"
-    ).innerHTML = text;
-
-}
-
-
-/* ==================================
-   AFTER PRINT
-================================== */
-
-window.onafterprint = async function(){
-
-    const id =
-        localStorage.getItem(STORAGE);
-
-
-    if(!id){
-
-        return;
-
-    }
-
-
-    /*
-       केवल Verified request लाई
-       Printed बनाउने
-    */
-
-    try{
-
-        const response =
-            await fetch(
-                DB +
-                "/requests/" +
-                id +
-                ".json"
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if(
-            data &&
-            data.status === "Verified"
-        ){
-
-            await fetch(
-                DB +
-                "/requests/" +
-                id +
-                ".json",
-                {
-
-                    method:"PATCH",
-
-                    headers:{
-                        "Content-Type":
-                        "application/json"
-                    },
-
-                    body:JSON.stringify({
-
-                        status:"Printed",
-
-                        printedAt:
-                        new Date().toISOString()
-
-                    })
-
+    });
+
+    // Check Firebase Realtime Status for Verification
+    function checkVerificationStatus(recId) {
+        const statusBox = document.getElementById('statusBox');
+        const printBtn = document.getElementById('printBtn');
+        const printArea = document.getElementById('print-area');
+
+        statusBox.style.display = 'block';
+        statusBox.innerText = "स्थिति: एड्मिनबाट प्रमाणित हुन बाँकी छ (Pending)...";
+
+        db.ref('rochini_nivedans/' + recId).on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                if (data.isVerified === true) {
+                    statusBox.style.background = "#d4edda";
+                    statusBox.style.color = "#155724";
+                    statusBox.innerText = "सुझाव: तपाईंको निवेदन वडा कार्यालयबाट प्रमाणित (Verified) भइसकेको છે!";
+                    
+                    // Enable Print/Download Button
+                    printBtn.disabled = false;
+                    printBtn.innerText = "A4 साइजमा प्रिन्ट / डाउनलोड गर्नुहोस्";
+                    
+                    // Remove Watermark class
+                    printArea.classList.remove('unverified-watermark');
+                } else {
+                    statusBox.style.background = "#fff3cd";
+                    statusBox.style.color = "#856404";
+                    statusBox.innerText = "स्थिति: एड्मिनबाट प्रमाणित हुन बाँकी छ। कृपया प्रतीक्षा गर्नुहोस्।";
+                    printBtn.disabled = true;
+                    printArea.classList.add('unverified-watermark');
                 }
-            );
-
-
-            setStatus(
-                "🖨️ Print भयो। Status: Printed"
-            );
-
-        }
-
+            }
+        });
     }
-
-    catch(error){
-
-        console.error(error);
-
-    }
-
-};
-
 </script>
-
 </body>
-
 </html>
