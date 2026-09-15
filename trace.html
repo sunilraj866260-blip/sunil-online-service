@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>निवेदन ट्र्याक गर्नुहोस् - रोहिणी-१</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        :root { --primary: #1e3799; --secondary: #27ae60; --danger: #c0392b; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; padding: 10px; margin: 0; }
+        .container { max-width: 950px; width: 100%; margin: auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 10px; font-size: 20px; }
+        .nav-links { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .nav-links a { text-decoration: none; background: var(--primary); color: white; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: bold; }
+        
+        .input-group { margin-bottom: 15px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        .row { display: flex; gap: 10px; }
+
+        /* Print Preview Modal Container */
+        #printView { display: none; flex-direction: column; align-items: center; background: #555555; padding: 10px 0; margin-top: 20px; border-radius: 6px; }
+        .print-container {
+            position: relative;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm 15mm;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #d3d3d3;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+            line-height: 2.1;
+            font-size: 13pt;
+            color: black;
+            text-align: justify;
+        }
+        .watermark {
+            position: absolute; top: 38%; left: 5%; width: 90%;
+            font-size: 60px; color: rgba(231, 76, 60, 0.25); 
+            transform: rotate(-35deg); font-weight: bold; text-align: center;
+            pointer-events: none; user-select: none;
+            border: 8px dashed rgba(231, 76, 60, 0.25); padding: 10px; box-sizing: border-box;
+        }
+        .child-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
+        .child-table th, .child-table td { border: 1px solid #000; padding: 6px; text-align: left; font-size: 11pt; }
+        .child-table th { background-color: #f2f2f2; }
+        .date { text-align: right; margin-bottom: 20px; }
+        .recipient { line-height: 1.4; margin-bottom: 20px; }
+        .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 25px 0; font-size: 15pt; }
+        .content { text-indent: 40px; margin-bottom: 15px; }
+        .bottom-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; border-top: 1px solid #000; padding-top: 15px; flex-wrap: wrap; gap: 20px; }
+        .attachment-part { width: 100%; font-size: 11pt; line-height: 1.6; }
+        .applicant-part { width: 100%; line-height: 1.6; }
+
+        @page { size: A4 portrait; margin: 0; }
+        @media print {
+            body { background: white; margin: 0; padding: 0; }
+            body * { visibility: hidden; }
+            .container, .print-container, .print-container * { visibility: visible; }
+            .container { box-shadow: none; padding: 0; background: transparent; }
+            .no-print { display: none !important; }
+            .print-container { 
+                position: absolute; left: 0; top: 0; width: 210mm; height: 297mm;
+                border: none; box-shadow: none; margin: 0; padding: 25mm 20mm;
+            }
+        }
+    </style>
+</head>
+<body onload="checkURLParams()">
+
+<div class="container">
+    <div class="nav-links no-print">
+        <a href="index.html">← गृहपृष्ठमा जानुहोस्</a>
+        <a href="admin.html" style="background:var(--secondary);">Admin Panel</a>
+    </div>
+
+    <h2>निवेदन ट्र्याक गर्नुहोस्</h2>
+    
+    <div class="row no-print" style="margin-bottom: 15px;">
+        <div class="input-group" style="margin-bottom:0; flex:1;"><input type="text" id="traceSearchInput" placeholder="मोबाइल नम्बर हाल्नुहोस् (उदा: 98xxxxxxxx)"></div>
+        <button onclick="traceApplication()" style="padding:10px 20px; background:var(--primary); color:white; border:none; border-radius:4px; cursor:pointer;">खोज्नुहोस्</button>
+    </div>
+    <div id="traceResult"></div>
+
+    <!-- A4 PRINT PREVIEW MODAL -->
+    <div id="printView">
+        <div class="no-print" style="margin-bottom: 15px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button id="mainPrintBtn" onclick="triggerPrint()" disabled style="padding: 10px 20px; font-weight:bold; background:var(--secondary); color:white; border:none; border-radius:4px; cursor:pointer;">Download / Print A4 PDF</button>
+            <button onclick="closePrintView()" style="padding: 10px 20px; background:var(--danger); color:white; border:none; cursor:pointer; border-radius:4px;">बन्द गर्नुहोस्</button>
+        </div>
+
+        <div class="print-container" id="printableArea">
+            <div id="watermarkOverlay" class="watermark">FREE COPY</div>
+            <div class="date">मिति: <span id="p_today"></span></div>
+            <div class="recipient">श्रीमान् वडा अध्यक्ष ज्यू,<br>रोहिणी गाउँपालिका, वडा नं. १,<br>रुपन्देही, नेपाल।</div>
+            <div id="p_subject" class="subject"></div>
+            <p>महोदय,</p>
+            <div id="p_content" class="content"></div>
+            <div id="p_children_table_wrapper"></div>
+            <div class="bottom-container">
+                <div class="attachment-part" id="p_attachment"></div>
+                <div class="applicant-part">
+                    <strong>निवेदक:</strong><br><br>
+                    सही: ...........................<br>
+                    नाम: <strong id="p_f_name">………………</strong><br>
+                    ठेगाना: रोहिणी-१, रुपन्देही<br>
+                    फोन: <span id="p_phone">98244</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+        authDomain: "sunil-online-service.firebaseapp.com",
+        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
+        projectId: "sunil-online-service",
+        storageBucket: "sunil-online-service.appspot.com",
+        messagingSenderId: "",
+        appId: ""
+    };
+
+    let db = null;
+    let allNivedansData = {};
+
+    try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+        db.ref('rochini_nivedans').on('value', (snapshot) => {
+            allNivedansData = snapshot.val() || {};
+            if(document.getElementById('traceSearchInput').value) {
+                traceApplication();
+            }
+        });
+    } catch(e) { console.error(e); }
+
+    function checkURLParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const phone = urlParams.get('phone');
+        if(phone) {
+            document.getElementById('traceSearchInput').value = phone;
+            setTimeout(traceApplication, 1000);
+        }
+    }
+
+    function traceApplication() {
+        const query = document.getElementById('traceSearchInput').value.trim();
+        const container = document.getElementById('traceResult');
+        container.innerHTML = '';
+
+        const results = Object.values(allNivedansData).filter(item => 
+            item.phone === query || item.esewaCode === query || item.id === query
+        );
+
+        if(results.length === 0) {
+            container.innerHTML = '<p style="color:red;">कुनै पनि निवेदन भेटिएन।</p>';
+            return;
+        }
+
+        results.forEach(item => {
+            const card = document.createElement('div');
+            card.style.cssText = "border:1px solid #ccc; padding:15px; margin-top:10px; border-radius:5px; background:#fff; word-break:break-all;";
+            card.innerHTML = `
+                <h4>निवेदन ID: ${item.id}</h4>
+                <p><strong>निवेदक:</strong> ${item.name} | <strong>फोन:</strong> ${item.phone}</p>
+                <p><strong>स्थिति:</strong> <span style="color:${item.isVerified ? 'green' : 'orange'}">${item.status}</span></p>
+                
+                ${!item.isVerified ? `
+                    <div style="background:#fff3cd; padding:10px; margin:10px 0; border:1px solid #ffeeba; border-radius:4px;">
+                        <p style="margin:0 0 5px 0;"><strong>eSewa भुक्तानी कोड (Rs. 50):</strong></p>
+                        <input type="text" id="esewa_in_${item.id}" placeholder="eSewa Txn Code" value="${item.esewaCode || ''}">
+                        <button onclick="submitPayment('${item.id}')" style="margin-top:5px; padding:6px 12px; background:var(--secondary); color:white; border:none; border-radius:4px; cursor:pointer; width:100%;">भुक्तानी कोड बुझाउनुहोस्</button>
+                    </div>
+                ` : `<p style="color:green;"><b>✓ भुक्तानी प्रमाणित भयो</b> | eSewa Code: ${item.esewaCode}</p>`}
+
+                <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white; padding:10px; border:none; border-radius:4px; cursor:pointer; width:100%; margin-top:5px; font-weight:bold;">
+                    A4 Preview हेर्नुहोस् (Watermark सहित)
+                </button>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function submitPayment(id) {
+        const code = document.getElementById(`esewa_in_${id}`).value.trim();
+        if(!code) return alert('कृपया eSewa Code हाल्नुहोस्');
+
+        if(db) {
+            db.ref('rochini_nivedans/' + id).update({
+                paymentType: 'PAID',
+                esewaCode: code,
+                status: 'Payment Pending Admin Verification'
+            }).then(() => {
+                alert('भुक्तानी कोड सफलतापूर्वक पठाइयो!');
+                traceApplication();
+            });
+        }
+    }
+
+    function openPrintModal(id) {
+        const item = allNivedansData[id];
+        if(!item) return;
+
+        document.getElementById('p_today').innerText = item.today || "………………";
+        document.getElementById('p_subject').innerText = "विषय : जन्म दर्ता गरिपाऊँ।";
+        
+        let con = `उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने <strong>${item.grandpa || "………………"}</strong> को ${item.grandpaRel}, तथा श्री <strong>${item.father || "………………"}</strong> को ${item.fatherRel} <strong>${item.name || "………………"}</strong> हूँ। मिति <strong>${item.marriageDate || "………………"}</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।`;
+        document.getElementById('p_content').innerHTML = con;
+
+        let tableHtml = `<div style="overflow-x:auto;"><table class="child-table">
+            <thead><tr><th>क्र.सं.</th><th>बच्चाको नाम</th><th>लिङ्ग</th><th>जन्म मिति</th><th>जन्मस्थान</th><th>टोकन नम्बर</th></tr></thead><tbody>`;
+
+        if(item.children && item.children.length > 0) {
+            item.children.forEach((c, i) => {
+                tableHtml += `<tr><td>${i + 1}</td><td><strong>${c.name}</strong></td><td>${c.gender}</td><td>${c.dob}</td><td>${c.birthplace}</td><td><strong>${c.token}</strong></td></tr>`;
+            });
+        }
+        tableHtml += `</tbody></table></div>`;
+        document.getElementById('p_children_table_wrapper').innerHTML = tableHtml;
+        document.getElementById('p_attachment').innerHTML = `<strong>संलग्न कागजातहरू:</strong><br>१. बाबु-आमाको नागरिकता प्रतिलिपि<br>२. अस्पतालको जन्म डिस्चार्ज पुर्जी वा जन्म दर्ता प्रमाणपत्रको प्रतिलिपि<br>३. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि`;
+        document.getElementById('p_f_name').innerText = item.name || "………………";
+        document.getElementById('p_phone').innerText = item.phone || "………………";
+
+        const watermark = document.getElementById('watermarkOverlay');
+        const printBtn = document.getElementById('mainPrintBtn');
+
+        if(item.isVerified === true) {
+            watermark.style.display = 'none';
+            printBtn.disabled = false;
+            printBtn.innerText = "Download / Print A4 PDF (Verified)";
+            printBtn.style.background = "var(--secondary)";
+        } else {
+            watermark.style.display = 'block';
+            printBtn.disabled = true;
+            printBtn.innerText = "Download Disabled (Payment Verification Needed)";
+            printBtn.style.background = "#95a5a6";
+        }
+
+        document.getElementById('printView').style.display = 'flex';
+        window.scrollTo(0, document.getElementById('printView').offsetTop);
+    }
+
+    function triggerPrint() {
+        const printBtn = document.getElementById('mainPrintBtn');
+        if(!printBtn.disabled) window.print();
+    }
+
+    function closePrintView() {
+        document.getElementById('printView').style.display = 'none';
+    }
+</script>
+</body>
+</html>
