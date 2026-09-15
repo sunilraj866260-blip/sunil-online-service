@@ -1,49 +1,191 @@
+
 <!DOCTYPE html>
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - वडा सिफारिस प्रणाली</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Dashboard - रोहिणी-१</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <style>
-        :root { --primary: #1e3799; --secondary: #27ae60; --danger: #c0392b; --bg-light: #f4f7f6; }
-        body { font-family: 'Arial', sans-serif; background-color: var(--bg-light); padding: 20px; margin: 0; }
-        .container { max-width: 400px; margin: 50px auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: var(--primary); margin-bottom: 20px; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
-        .btn-login { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        .error-msg { color: var(--danger); font-size: 13px; text-align: center; margin-top: 10px; }
+        :root { --primary: #1e3799; --secondary: #27ae60; --danger: #c0392b; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; padding: 15px; margin: 0; }
+        .container { max-width: 1000px; width: 100%; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 10px; font-size: 22px; }
+        
+        .top-nav { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .top-nav a { text-decoration: none; background: var(--primary); color: white; padding: 8px 15px; border-radius: 5px; font-size: 14px; font-weight: bold; display: inline-block; }
+
+        /* Login Box Styling */
+        #loginSection { max-width: 400px; margin: 40px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .btn-login { width: 100%; background: var(--primary); color: white; padding: 10px; border: none; border-radius: 4px; font-weight: bold; font-size: 15px; cursor: pointer; }
+        .btn-logout { background: var(--danger); color: white; padding: 6px 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; }
+
+        /* Admin Table */
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 600px; }
+        table, th, td { border: 1px solid #ddd; padding: 10px; font-size: 14px; text-align: left; }
+        th { background-color: var(--primary); color: white; }
+
+        button { cursor: pointer; padding: 6px 12px; border-radius: 4px; border: none; font-weight: bold; color: white; font-size: 13px; }
+        .btn-approve { background: var(--secondary); }
+        .btn-reject { background: var(--danger); }
+        .btn-view { background: #2980b9; }
+
+        /* Modal Preview Styling */
+        #printView { display: none; flex-direction: column; align-items: center; background: #555555; padding: 15px 0; margin-top: 20px; border-radius: 6px; }
+        .print-container {
+            position: relative;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm 15mm;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #d3d3d3;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+            line-height: 2.1;
+            font-size: 13pt;
+            color: black;
+            text-align: justify;
+        }
+
+        .watermark {
+            position: absolute; 
+            top: 38%; 
+            left: 5%; 
+            width: 90%;
+            font-size: 60px;
+            color: rgba(231, 76, 60, 0.25); 
+            transform: rotate(-35deg);
+            font-weight: bold; 
+            text-align: center;
+            pointer-events: none; 
+            user-select: none;
+            border: 8px dashed rgba(231, 76, 60, 0.25);
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .child-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
+        .child-table th, .child-table td { border: 1px solid #000; padding: 6px; text-align: left; font-size: 11pt; }
+        .child-table th { background-color: #f2f2f2; }
+
+        .date { text-align: right; margin-bottom: 20px; }
+        .recipient { line-height: 1.4; margin-bottom: 20px; }
+        .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 25px 0; font-size: 15pt; }
+        .content { text-indent: 40px; margin-bottom: 15px; }
+        .bottom-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; border-top: 1px solid #000; padding-top: 15px; flex-wrap: wrap; gap: 20px; }
+        .attachment-part { width: 100%; font-size: 11pt; line-height: 1.6; }
+        .applicant-part { width: 100%; line-height: 1.6; }
+
+        @media print {
+            body { background: white; margin: 0; padding: 0; }
+            body * { visibility: hidden; }
+            .container, .print-container, .print-container * { visibility: visible; }
+            .container { box-shadow: none; padding: 0; background: transparent; }
+            .no-print { display: none !important; }
+            .print-container { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 210mm;
+                height: 297mm;
+                border: none; 
+                box-shadow: none;
+                margin: 0;
+                padding: 25mm 20mm;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="container" id="login-box">
-    <h2>Admin Login</h2>
-    <form id="loginForm">
-        <div class="input-group">
-            <label>Admin Email:</label>
-            <input type="email" id="admin_email" placeholder="admin@rochini1.gov.np" required>
+<div class="container">
+    <div class="top-nav no-print">
+        <a href="index.html">← गृह पृष्ठ (Home) मा जानुहोस्</a>
+        <div id="logoutArea" style="display: none;">
+            <span id="adminEmailDisplay" style="margin-right: 10px; font-weight: bold; font-size: 13px;"></span>
+            <button onclick="logoutAdmin()" class="btn-logout">लगआउट (Logout)</button>
         </div>
-        <div class="input-group">
-            <label>Password:</label>
-            <input type="password" id="admin_pass" placeholder="********" required>
-        </div>
-        <button type="submit" class="btn-login">लगइन गर्नुहोस्</button>
-        <div id="error-message" class="error-msg"></div>
-    </form>
-</div>
+    </div>
 
-<!-- Admin Dashboard (Initially Hidden) -->
-<div id="dashboard-box" style="display:none; max-width: 950px; margin: auto; background: white; padding: 20px; border-radius: 10px;">
-    <h2>Admin Dashboard (रोहिणी-१)</h2>
-    <p>स्वागत छ एड्मिन! तपाईं सफलतापूर्वक लगइन हुनुभएको छ।</p>
-    <button onclick="logoutAdmin()" style="background:var(--danger); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">लगआउट (Logout)</button>
-    <!-- यहाँ तपाईंको आवेदनहरूको लिस्ट देखाउने टेबल राख्न सक्नुहुन्छ -->
+    <!-- 1. Admin Login Form -->
+    <div id="loginSection">
+        <h2>एड्मिन लगइन</h2>
+        <p style="color: #666; font-size: 13px; margin-bottom: 20px;">डैशबोर्ड हेर्नको लागि इमेल र पासवर्ड लेख्नुहोस्:</p>
+        <div class="input-group">
+            <label>इमेल (Email):</label>
+            <input type="email" id="admin_email" placeholder="admin@example.com">
+        </div>
+        <div class="input-group">
+            <label>पासवर्ड (Password):</label>
+            <input type="password" id="admin_password" placeholder="********">
+        </div>
+        <button type="button" class="btn-login" onclick="loginAdmin()">लगइन गर्नुहोस् (Login)</button>
+    </div>
+
+    <!-- 2. Main Dashboard (Hidden until login) -->
+    <div id="dashboardSection" style="display: none;">
+        <h2>वडा एड्मिन कन्ट्रोल प्यानल (रोहिणी-१)</h2>
+        <p class="no-print" style="text-align: center; color: #666;">प्रयोगकर्ताहरूले पेश गरेका निवेदनहरूको सूची, प्रमाणीकरण र अस्वीकार:</p>
+
+        <!-- Admin Dashboard Table -->
+        <div class="table-responsive no-print">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>निवेदक नाम</th>
+                        <th>फोन नं.</th>
+                        <th>eSewa Code</th>
+                        <th>स्थिति (Status)</th>
+                        <th>कार्य (Actions)</th>
+                    </tr>
+                </thead>
+                <tbody id="adminTableBody">
+                    <tr><td colspan="6" style="text-align: center;">डाटा लोड हुँदैछ...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Print / View Modal Area -->
+        <div id="printView" style="display:none;">
+            <div class="no-print" style="margin-bottom: 15px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button id="mainPrintBtn" onclick="window.print()" class="btn-approve" style="padding: 10px 20px;">प्रिन्ट / डाउनलोड गर्नुहोस्</button>
+                <button onclick="closePrintView()" class="btn-reject" style="padding: 10px 20px;">बन्द गर्नुहोस् (Close)</button>
+            </div>
+
+            <div class="print-container" id="printableArea">
+                <div id="watermarkOverlay" class="watermark">FREE COPY</div>
+
+                <div class="date">मिति: <span id="p_today"></span></div>
+                <div class="recipient">श्रीमान् वडा अध्यक्ष ज्यू,<br>रोहिणी गाउँपालिका, वडा नं. १,<br>रुपन्देही, नेपाल।</div>
+                <div id="p_subject" class="subject"></div>
+                <p>महोदय,</p>
+                <div id="p_content" class="content"></div>
+                
+                <div id="p_children_table_wrapper"></div>
+
+                <div class="bottom-container">
+                    <div class="attachment-part" id="p_attachment"></div>
+                    <div class="applicant-part">
+                        <strong>निवेदक:</strong><br><br>
+                        सही: ...........................<br>
+                        नाम: <strong id="p_f_name">………………</strong><br>
+                        ठेगाना: रोहिणी-१, रुपन्देही<br>
+                        फोन: <span id="p_phone">98244</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -57,48 +199,176 @@
         appId: ""
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    let db = null;
+    let auth = null;
+    let allNivedansData = {};
 
-    // Check if already logged in
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            document.getElementById('login-box').style.display = 'none';
-            document.getElementById('dashboard-box').style.display = 'block';
-        } else {
-            document.getElementById('login-box').style.display = 'block';
-            document.getElementById('dashboard-box').style.display = 'none';
-        }
-    });
+    try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+        auth = firebase.auth();
+        
+        // Auth State Listener
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('dashboardSection').style.display = 'block';
+                document.getElementById('logoutArea').style.display = 'flex';
+                document.getElementById('adminEmailDisplay').innerText = user.email;
+                fetchNivedansData();
+            } else {
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('dashboardSection').style.display = 'none';
+                document.getElementById('logoutArea').style.display = 'none';
+            }
+        });
+    } catch(e) {
+        console.error("Firebase connection error:", e);
+    }
 
-    // Login Form Submit Handler
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
+    function loginAdmin() {
         const email = document.getElementById('admin_email').value.trim();
-        const pass = document.getElementById('admin_pass').value.trim();
-        const errorDiv = document.getElementById('error-message');
+        const password = document.getElementById('admin_password').value.trim();
 
-        auth.signInWithEmailAndPassword(email, pass)
-            .then((userCredential) => {
-                // Successful login
-                errorDiv.innerText = "";
-            })
+        if(!email || !password) {
+            alert("कृपया इमेल र पासवर्ड दुवै भर्नुहोस्!");
+            return;
+        }
+
+        auth.signInWithEmailAndPassword(email, password)
             .catch((error) => {
-                // Handle Errors
-                errorDiv.innerText = "गलत इमेल वा पासवर्ड! कृपया पुन: प्रयास गर्नुहोस्।";
-                console.error(error.message);
+                alert("लगइन असफल भयो: " + error.message);
             });
-    });
+    }
 
-    // Logout Function
     function logoutAdmin() {
-        auth.signOut().then(() => {
-            alert('सफलतापूर्वक लगआउट हुनुभयो!');
-        }).catch((error) => {
-            console.error(error);
+        auth.signOut();
+    }
+
+    function fetchNivedansData() {
+        db.ref('rochini_nivedans').on('value', (snapshot) => {
+            allNivedansData = snapshot.val() || {};
+            loadAdminDashboard();
         });
     }
-</script>
 
+    function loadAdminDashboard() {
+        const tbody = document.getElementById('adminTableBody');
+        tbody.innerHTML = '';
+        const list = Object.values(allNivedansData);
+
+        if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">कुनै पनि निवेदन फेला परेन।</td></tr>`;
+            return;
+        }
+
+        list.reverse().forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.id}</td>
+                <td><strong>${item.name}</strong></td>
+                <td>${item.phone}</td>
+                <td>${item.esewaCode ? `<span style="color:blue; font-weight:bold;">${item.esewaCode}</span>` : '<span style="color:gray;">छैन</span>'}</td>
+                <td><b style="color:${item.isVerified ? 'green' : 'orange'}">${item.status}</b></td>
+                <td>
+                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                        <button onclick="verifyAndApprove('${item.id}')" class="btn-approve">Approve</button>
+                        <button onclick="rejectNivedan('${item.id}')" class="btn-reject">Reject</button>
+                        <button onclick="openPrintModal('${item.id}')" class="btn-view">View</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 1. Verify & Approve Function
+    function verifyAndApprove(id) {
+        if(db) {
+            db.ref('rochini_nivedans/' + id).update({ 
+                status: 'Verified & Approved',
+                paymentType: 'PAID VERIFIED',
+                isVerified: true
+            }).then(() => {
+                alert('सफलतापूर्वक Approve गरियो!');
+            });
+        }
+    }
+
+    // 2. Reject Function
+    function rejectNivedan(id) {
+        if(db) {
+            db.ref('rochini_nivedans/' + id).update({ 
+                status: 'Rejected',
+                isVerified: false
+            }).then(() => {
+                alert('निवेदन Reject गरियो!');
+            });
+        }
+    }
+
+    // 3. View / Print Modal Function
+    function openPrintModal(id) {
+        const item = allNivedansData[id];
+        if(!item) return;
+
+        document.getElementById('p_today').innerText = item.today || "………………";
+        document.getElementById('p_subject').innerText = "विषय : जन्म दर्ता गरिपाऊँ।";
+        
+        let con = `उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने <strong>${item.grandpa || "………………"}</strong> को ${item.grandpaRel}, तथा श्री <strong>${item.father || "………………"}</strong> को ${item.fatherRel} <strong>${item.name || "………………"}</strong> हूँ। मिति <strong>${item.marriageDate || "………………"}</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।`;
+        document.getElementById('p_content').innerHTML = con;
+
+        let tableHtml = `<div style="overflow-x:auto;"><table class="child-table">
+            <thead>
+                <tr>
+                    <th>क्र.सं.</th>
+                    <th>बच्चाको नाम</th>
+                    <th>लिङ्ग</th>
+                    <th>जन्म मिति</th>
+                    <th>जन्मस्थान</th>
+                    <th>टोकन नम्बर</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+        if(item.children && item.children.length > 0) {
+            item.children.forEach((c, i) => {
+                tableHtml += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><strong>${c.name}</strong></td>
+                        <td>${c.gender}</td>
+                        <td>${c.dob}</td>
+                        <td>${c.birthplace}</td>
+                        <td><strong>${c.token}</strong></td>
+                    </tr>`;
+            });
+        }
+        tableHtml += `</tbody></table></div>`;
+        document.getElementById('p_children_table_wrapper').innerHTML = tableHtml;
+
+        document.getElementById('p_attachment').innerHTML = `<strong>संलग्न कागजातहरू:</strong><br>१. बाबु-आमाको नागरिकता प्रतिलिपि<br>२. अस्पतालको जन्म डिस्चार्ज पुर्जी वा जन्म दर्ता प्रमाणपत्रको प्रतिलिपि<br>३. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि`;
+        document.getElementById('p_f_name').innerText = item.name || "………………";
+        document.getElementById('p_phone').innerText = item.phone || "………………";
+
+        const watermark = document.getElementById('watermarkOverlay');
+        const printBtn = document.getElementById('mainPrintBtn');
+
+        if(item.isVerified === true) {
+            watermark.style.display = 'none';
+            printBtn.style.display = 'inline-block';
+        } else {
+            watermark.style.display = 'block';
+            printBtn.style.display = 'inline-block';
+        }
+
+        document.getElementById('printView').style.display = 'flex';
+        window.scrollTo(0, document.getElementById('printView').offsetTop);
+    }
+
+    function closePrintView() {
+        document.getElementById('printView').style.display = 'none';
+    }
+</script>
 </body>
 </html>
