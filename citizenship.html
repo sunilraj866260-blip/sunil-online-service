@@ -3,46 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>नेपाली नागरिकता सिफारिस प्रणाली - रोहिणी-१</title>
+    <title>नेपाली नागरिकता सिफारिस प्रणाली - रोहिणी वडा नं. १</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root { --primary: #b71515; --secondary: #27ae60; --danger: #c0392b; }
         * { box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; padding: 10px; margin: 0; }
-        .container { max-width: 950px; width: 100%; margin: auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 10px; font-size: 20px; }
+        body { font-family: 'Arial', sans-serif; background-color: #f1f2f6; padding: 10px; margin: 0; }
+        .master-card { max-width: 950px; width: 100%; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        h2 { text-align: center; color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-top: 0; font-size: 22px; }
         
         /* Navigation Tabs */
         .nav-tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
-        .nav-tabs button { flex: 1; min-width: 100px; padding: 10px; border: none; background: #718093; color: white; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; text-align: center; }
+        .nav-tabs button { flex: 1; min-width: 120px; padding: 12px; border: none; background: #718093; color: white; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; text-align: center; transition: background 0.3s; }
         .nav-tabs button.active-tab { background: var(--primary); }
+        .nav-tabs button:hover { opacity: 0.9; }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
+        .section-title { background: #e9ecef; padding: 10px; margin: 20px 0 10px 0; font-weight: bold; border-left: 6px solid var(--primary); color: #2d3436; font-size: 15px; }
         .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #333; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-        .row { display: flex; gap: 10px; flex-wrap: wrap; }
-        .row .input-group { flex: 1; min-width: 240px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        .row { display: flex; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; }
+        .row div { flex: 1; min-width: 245px; }
         
-        /* Buttons */
-        .btn-submit { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
-        
+        .btn-submit { width: 100%; padding: 18px; background: var(--secondary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; margin-top: 20px; }
+        .btn-submit:hover { background: #218838; }
         button:disabled { background: #95a5a6 !important; cursor: not-allowed !important; opacity: 0.6; }
 
-        .section-title { background: #e8ecef; padding: 8px; margin: 15px 0 10px 0; font-weight: bold; border-left: 6px solid var(--primary); font-size: 15px; color: #2d3436; }
-        
-        /* Admin Table */
+        /* Admin Table Styles */
         .table-responsive { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 500px; }
-        table, th, td { border: 1px solid #ddd; padding: 8px; font-size: 13px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 600px; }
+        table, th, td { border: 1px solid #ddd; padding: 10px; font-size: 14px; text-align: left; }
         th { background-color: var(--primary); color: white; }
 
         /* Printable A4 Modal Container */
-        #printView { display: flex; flex-direction: column; align-items: center; background: #555555; padding: 10px 0; margin-top: 20px; border-radius: 6px; }
+        #printView { display: flex; flex-direction: column; align-items: center; background: #555555; padding: 20px 0; margin-top: 20px; border-radius: 8px; }
         .print-container {
             position: relative;
             width: 210mm;
@@ -65,7 +64,7 @@
             top: 38%; 
             left: 5%; 
             width: 90%;
-            font-size: 60px;
+            font-size: 65px;
             color: rgba(231, 76, 60, 0.25); 
             transform: rotate(-35deg);
             font-weight: bold; 
@@ -73,40 +72,40 @@
             pointer-events: none; 
             user-select: none;
             border: 8px dashed rgba(231, 76, 60, 0.25);
-            padding: 10px;
+            padding: 15px;
             box-sizing: border-box;
+            z-index: 10;
         }
 
-        .date { text-align: right; margin-bottom: 10px; }
-        .recipient { line-height: 1.4; margin-bottom: 15px; float: left; }
+        .p-top-section { margin-bottom: 8px; }
+        .recipient { line-height: 1.4; float: left; }
+        .date { text-align: right; margin-bottom: 8px; }
         .clear { clear: both; }
-        .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 15px 0; font-size: 14pt; }
-        .content { text-indent: 40px; margin-bottom: 15px; }
+        .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 12px 0; font-size: 14pt; }
+        .content { text-indent: 50px; margin-bottom: 12px; }
+        .thumb-section { display: flex; justify-content: space-between; margin-top: 10px; margin-bottom: 10px; }
+        .thumb-box { border: 1px solid black; width: 80px; height: 80px; display: inline-block; text-align: center; line-height: 50px; font-size: 9.5pt; margin-right: 5px; }
         
-        .thumb-section { display: flex; justify-content: space-between; margin: 15px 0; }
-        .thumb-box { border: 1px solid black; width: 70px; height: 70px; display: inline-block; text-align: center; line-height: 70px; font-size: 9pt; margin-right: 5px; }
-        
-        .documents-list { margin-top: 15px; font-size: 11pt; line-height: 1.5; }
+        .documents-list { margin-top: 10px; line-height: 1.4; font-size: 11pt; }
         .documents-list table { width: 100%; border-collapse: collapse; border: none; }
-        .documents-list td { border: none; padding: 3px 0; width: 50%; display: none; }
-        .documents-list td.show-doc { display: table-cell; }
-
+        .documents-list td { border: none; width: 50%; padding: 3px 0; display: none !important; } 
+        .documents-list td.show-doc { display: table-cell !important; } 
+        
         .sanaakhat-box { 
             margin-top: 15px; 
             border: 1px solid black; 
             padding: 10px 12px; 
-            line-height: 1.5; 
-            font-size: 10.5pt;
+            line-height: 1.6; 
+            font-size: 11pt;
             box-sizing: border-box;
         }
 
         @page { size: A4 portrait; margin: 0; }
         @media print {
-            body { background: white; margin: 0; padding: 0; }
+            body { background: white !important; padding: 0 !important; margin: 0 !important; }
             body * { visibility: hidden; }
-            .container, .print-container, .print-container * { visibility: visible; }
-            .container { box-shadow: none; padding: 0; background: transparent; }
-            .no-print { display: none !important; }
+            .master-card, #printView > div:first-child { display: none !important; }
+            .print-container, .print-container * { visibility: visible !important; }
             .print-container { 
                 position: absolute; 
                 left: 0; 
@@ -121,50 +120,60 @@
         }
     </style>
 </head>
-<body onload="setInitialDate()">
+<body onload="initDate()">
 
-<div class="container">
-    <!-- Back to Home Button -->
-    <div style="margin-bottom: 10px;" class="no-print">
-        <a href="index.html" style="text-decoration:none; background:var(--primary); color:white; padding:6px 12px; border-radius:4px; font-size:13px; display:inline-block;">← गृह पृष्ठ (Home) मा जानुहोस्</a>
-    </div>
-
-    <h2>नेपाली नागरिकता सिफारिस प्रणाली (रोहिणी-१)</h2>
-
-    <!-- Main Navigation Tabs -->
-    <div class="nav-tabs no-print">
-        <button id="btn-form" class="active-tab" onclick="switchTab('forms-tab')">नागरिकता फारम</button>
-        <button id="btn-trace" onclick="switchTab('trace-tab')">स्थिति (Trace)</button>
-        <button id="btn-admin" onclick="switchTab('admin-tab')">Admin Panel</button>
-    </div>
+<div class="master-card">
+    
 
     <!-- 1. FORMS TAB -->
     <div id="forms-tab" class="tab-content active no-print">
         <form id="nivedanForm">
             <div class="row">
-                <div class="input-group"><label>मिति (वि.सं.):</label><input type="text" id="in_today"></div>
-                <div class="input-group"><label>फोन नं. (मोबाइल):</label><input type="text" id="in_phone" placeholder="98XXXXXXXX" required></div>
-            </div>
-
-            <div class="section-title">१. ठेगाना र व्यक्तिगत विवरण</div>
-            <div class="row">
-                <div class="input-group"><label>निवेदकको नाम थर (नागरिकता लिने):</label><input type="text" id="cz_app_name" required></div>
-                <div class="input-group"><label>जिल्ला:</label><input type="text" id="cz_district" value="रुपन्देही"></div>
-            </div>
-            <div class="row">
-                <div class="input-group"><label>गाउँपालिका / नगरपालिका:</label><input type="text" id="cz_local_body" value="रोहिणी गाउँपालिका"></div>
-                <div class="input-group"><label>वडा नं.:</label><input type="text" id="cz_ward_no" value="१"></div>
-            </div>
-            <div class="row">
-                <div class="input-group"><label>टोलको नाम:</label><input type="text" id="cz_toll" placeholder="उदा: पिप्रहवा" required></div>
-                <div class="input-group"><label>जन्म मिति (वि.सं.):</label><input type="text" id="cz_dob" placeholder="२०८०/०१/०१" required></div>
-            </div>
-
-            <div class="section-title">२. पारिवारिक विवरण</div>
-            <div class="row">
-                <div class="input-group"><label>बाजेको नाम थर:</label><input type="text" id="cz_grand_name" required></div>
                 <div class="input-group">
-                    <label>नाता (बाजेतर्फ):</label>
+                    <label>आजको मिति (वि.सं.):</label>
+                    <input type="text" id="in_date">
+                </div>
+                <div class="input-group">
+                    <label>फोन नम्बर (मोबाइल - ट्र्याक गर्नको लागि):</label>
+                    <input type="text" id="in_phone" placeholder="98XXXXXXXX" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-group" style="flex:1;">
+                    <label>निवेदकको नाम थर (नागरिकता लिने व्यक्ति):</label>
+                    <input type="text" id="cz_app_name" placeholder="नागरिकता लिनेको नाम" required>
+                </div>
+            </div>
+
+            <div class="section-title">१. ठेगाना र पारिवारिक विवरण</div>
+            <div class="row">
+                <div>
+                    <label>जिल्ला :</label>
+                    <input type="text" id="cz_district" value="रुपन्देही">
+                </div>
+                <div>
+                    <label>गाउँपालिका / नगरपालिका :</label>
+                    <input type="text" id="cz_local_body" value="रोहिणी गाउँपालिका">
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <label>वडा नं. :</label>
+                    <input type="text" id="cz_ward_no" value="१">
+                </div>
+                <div>
+                    <label>टोलको नाम :</label>
+                    <input type="text" id="cz_toll" placeholder="उदा: पिप्रहवा / धखई" required>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div>
+                    <label>बाजेको नाम थर :</label>
+                    <input type="text" id="cz_grand_name" placeholder="बाजेको नाम" required>
+                </div>
+                <div>
+                    <label>नाता छान्नुहोस् (बाजे तर्फको) :</label>
                     <select id="cz_grand_relation">
                         <option value="नाति">नाति</option>
                         <option value="नातिनी">नातिनी</option>
@@ -173,9 +182,12 @@
                 </div>
             </div>
             <div class="row">
-                <div class="input-group"><label>बाबुको नाम थर:</label><input type="text" id="cz_father_name" required></div>
-                <div class="input-group">
-                    <label>नाता (बाबुतर्फ):</label>
+                <div>
+                    <label>बाबुको नाम थर :</label>
+                    <input type="text" id="cz_father_name" placeholder="बाबुको नाम" required>
+                </div>
+                <div>
+                    <label>नाता छान्नुहोस् (बाबु तर्फको) :</label>
                     <select id="cz_parent_relation">
                         <option value="छोरा">छोरा</option>
                         <option value="छोरी">छोरी</option>
@@ -184,9 +196,12 @@
                 </div>
             </div>
             <div class="row">
-                <div class="input-group"><label>पति/पत्नीको नाम (विवाहित भए):</label><input type="text" id="cz_spouse_name" placeholder="छ भने लेख्नुहोस्"></div>
-                <div class="input-group">
-                    <label>नाता (पति/पत्नी):</label>
+                <div>
+                    <label>पति वा पत्नीको नाम थर (विवाहितको हकमा) :</label>
+                    <input type="text" id="cz_spouse_name" placeholder="नभए खाली छोड्नुहोस्">
+                </div>
+                <div>
+                    <label>नाता (पति/पत्नी छान्नुहोस्) :</label>
                     <select id="cz_spouse_relation">
                         <option value="">-- छान्नुहोस् --</option>
                         <option value="पति">पति</option>
@@ -194,69 +209,77 @@
                     </select>
                 </div>
             </div>
-
-            <div class="section-title">३. संलग्न कागजातहरू (थान)</div>
             <div class="row">
-                <div class="input-group"><label>बाबु आमाको नागरिकता प्रतिलिपि:</label><input type="text" id="doc_1" value="१"></div>
-                <div class="input-group"><label>जन्म दर्ता प्रमाणपत्र प्रतिलिपि:</label><input type="text" id="doc_2" value="१"></div>
-            </div>
-            <div class="row">
-                <div class="input-group"><label>शैक्षिक प्रमाणपत्र प्रतिलिपि:</label><input type="text" id="doc_3" placeholder="०"></div>
-                <div class="input-group"><label>सनाखत व्यक्तिको नागरिकता प्रतिलिपि:</label><input type="text" id="doc_4" value="१"></div>
-            </div>
-            <div class="row">
-                <div class="input-group"><label>विवाह दर्ता प्रमाणपत्र प्रतिलिपि:</label><input type="text" id="doc_5" placeholder="०"></div>
-                <div class="input-group"><label>अन्य कागजात:</label><input type="text" id="doc_6" placeholder="०"></div>
+                <div>
+                    <label>जन्म मिति (वि.सं.) :</label>
+                    <input type="text" id="cz_dob" placeholder="२०--/--/--" required>
+                </div>
             </div>
 
-            <div class="section-title">४. सनाखत गर्ने व्यक्तिको विवरण</div>
+            <div class="section-title">२. संलग्न कागजातहरू (खाली छोडेमा वा ० लेखेमा प्रिन्ट गर्दा स्वतः लुक्नेछ)</div>
             <div class="row">
-                <div class="input-group"><label>सनाखत गर्नेको नाम थर:</label><input type="text" id="s_name" required></div>
-                <div class="input-group">
-                    <label>नाता (निवेदकको):</label>
+                <div><label>१. बाबु आमाको ना.प्र.प. प्रतिलिपि (थान) :</label><input type="text" id="doc_1" value="१"></div>
+                <div><label>२. जन्म दर्ता प्रमाण-पत्रको प्रतिलिपि (थान) :</label><input type="text" id="doc_2" value="१"></div>
+            </div>
+            <div class="row">
+                <div><label>३. शैक्षिक प्रमाण-पत्रको प्रतिलिपि (थान) :</label><input type="text" id="doc_3" placeholder="०"></div>
+                <div><label>४. सनाखत व्यक्तिको ना.प्र.प. प्रतिलिपि :</label><input type="text" id="doc_4" value="१"></div>
+            </div>
+            <div class="row">
+                <div><label>५. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि (थान) :</label><input type="text" id="doc_5" placeholder="०"></div>
+                <div><label>६. अन्य कागजात (थान) :</label><input type="text" id="doc_6" placeholder="०"></div>
+            </div>
+
+            <div class="section-title">३. सनाखत गर्ने व्यक्तिको विवरण</div>
+            <div class="row">
+                <div><label>सनाखत बस्नेको नाम थर :</label><input type="text" id="s_name" placeholder="उदा: राम बहादुर भर" required></div>
+                <div>
+                    <label>नाता (निवेदकका) :</label>
                     <select id="s_rel">
                         <option value="पिता">पिता</option>
                         <option value="काका">काका</option>
                         <option value="दाजु">दाजु</option>
                         <option value="आमा">आमा</option>
+                        <option value="दिदी">दिदी</option>
+                        <option value="बहिनी">बहिनी</option>
                         <option value="संरक्षक">संरक्षक</option>
                     </select>
                 </div>
             </div>
             <div class="row">
-                <div class="input-group"><label>नागरिकता प्रमाणपत्र नं.:</label><input type="text" id="s_cit_no" required></div>
-                <div class="input-group"><label>जारी जिल्ला:</label><input type="text" id="s_cit_dist" value="रुपन्देही"></div>
+                <div><label>सनाखत बस्नेको ठेगाना वडा नं. :</label><input type="text" id="s_ward" value="१"></div>
+                <div><label>नागरिकता प्रमाणपत्र नं. :</label><input type="text" id="s_cit_no" required></div>
             </div>
             <div class="row">
-                <div class="input-group"><label>उमेर (वर्ष):</label><input type="text" id="s_age" required></div>
-                <div class="input-group"><label>वडा नं.:</label><input type="text" id="s_ward" value="१"></div>
+                <div><label>नागरिकता जारी जिल्ला :</label><input type="text" id="s_cit_dist" value="रुपन्देही"></div>
+                <div><label>उमेर (वर्ष) :</label><input type="text" id="s_age" placeholder="उदा: ४५" required></div>
             </div>
 
-            <button type="submit" class="btn-submit">निवेदन सेभ गर्नुहोस्</button>
+            <button type="submit" class="btn-submit">निवेदन अनलाइन सेभ गर्नुहोस्</button>
         </form>
     </div>
 
     <!-- 2. TRACE & PAYMENT TAB -->
     <div id="trace-tab" class="tab-content no-print">
-        <h3>मोबाइल नम्बर वा ID बाट निवेदन खोज्नुहोस्</h3>
+        <h3>मोबाइल नम्बर वा निवेदन ID बाट स्थिति खोज्नुहोस्</h3>
         <div class="row" style="margin-bottom: 15px;">
             <div class="input-group" style="margin-bottom:0;"><input type="text" id="traceSearchInput" placeholder="मोबाइल नम्बर (उदा: 98xxxxxxxx)"></div>
-            <button onclick="traceApplication()" style="padding:10px 20px; background:var(--primary); color:white; border:none; border-radius:4px; cursor:pointer; width:100%;">खोज्नुहोस्</button>
+            <button onclick="traceApplication()" style="padding:12px 20px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; width:100%; font-size:16px; font-weight:bold;">खोज्नुहोस्</button>
         </div>
         <div id="traceResult"></div>
     </div>
 
-    <!-- 3. ADMIN DASHBOARD -->
+    <!-- 3. ADMIN DASHBOARD TAB -->
     <div id="admin-tab" class="tab-content no-print">
-        <h3>Admin Control Panel</h3>
+        <h3>Admin Control Panel (वडा प्रशासक प्यानल)</h3>
         <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>नाम</th>
+                        <th>निवेदकको नाम</th>
                         <th>फोन</th>
-                        <th>eSewa Code</th>
+                        <th>eSewa Txn Code</th>
                         <th>स्थिति</th>
                         <th>कार्य</th>
                     </tr>
@@ -268,29 +291,34 @@
         </div>
     </div>
 
-    <!-- 4. A4 PRINT PREVIEW MODAL -->
+    <!-- 4. A4 WATERMARK PRINT PREVIEW CONTAINER -->
     <div id="printView" style="display:none;">
-        <div class="no-print" style="margin-bottom: 15px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <button id="mainPrintBtn" onclick="triggerPrint()" disabled style="padding: 10px 20px; font-weight:bold; background:var(--secondary); color:white; border:none; border-radius:4px; cursor:pointer;">Download / Print A4 PDF</button>
-            <button onclick="closePrintView()" style="padding: 10px 20px; background:var(--danger); color:white; border:none; cursor:pointer; border-radius:4px;">बन्द गर्नुहोस् (Close)</button>
+        <div class="no-print" style="margin-bottom: 15px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; width: 100%;">
+            <button id="mainPrintBtn" onclick="triggerPrint()" disabled style="padding: 12px 25px; font-weight:bold; background:var(--secondary); color:white; border:none; border-radius:6px; cursor:pointer; font-size:16px;">Download / Print A4 PDF</button>
+            <button onclick="closePrintView()" style="padding: 12px 25px; background:var(--danger); color:white; border:none; cursor:pointer; border-radius:6px; font-weight:bold; font-size:16px;">बन्द गर्नुहोस् (Close)</button>
         </div>
 
         <div class="print-container" id="printableArea">
             <div id="watermarkOverlay" class="watermark">FREE COPY</div>
 
-            <div class="date">मिति :- <span id="p_today"></span></div>
-            <div class="recipient">
-                <strong>श्रीमान् अध्यक्ष ज्यू,</strong><br>
-                <strong>रोहिणी गाउँपालिका</strong><br>
-                <strong>नं. १ वडा कार्यालय</strong><br>
-                <strong>रुपन्देही, लुम्बिनी प्रदेश, नेपाल।</strong>
+            <div class="date">मिति :- <span id="p_date"></span></div>
+
+            <div class="p-top-section">
+                <div class="recipient">
+                    <strong>श्रीमान् अध्यक्ष ज्यु,</strong><br>
+                    <strong>रोहिणी गाउँपालिका</strong><br>
+                    <strong>नं. १ वडा कार्यालय</strong><br>
+                    <strong>रुपन्देही, लुम्बिनी प्रदेश, नेपाल।</strong><br>
+                </div>
+                <div class="clear"></div>
             </div>
-            <div class="clear"></div>
 
             <div class="subject">विषय :- नेपाली नागरिकताको लागि सिफारिस पाउँ ।</div>
+            
             <p>महोदय,</p>
+            
             <div class="content">
-                सविनय नम्र निवेदन यस प्रकार छ की जिल्ला <strong><span id="p_district">रुपन्देही</span></strong>, <strong><span id="p_local_body">रोहिणी गाउँपालिका</span></strong> वडा नं. <strong><span id="p_ward_no">१</span></strong> को <strong><span id="p_toll">..................</span> (टोल)</strong> मा स्थायी बसोबास गरिआएको श्री <strong><span id="p_grand_name">..................</span></strong> को <strong><span id="p_grand_rel">नाति/नातिनी</span></strong>, श्री <strong><span id="p_father_name">..................</span></strong> को <strong><span id="p_parent_rel">छोरा/छोरी</span></strong>, <span id="p_spouse_block">श्री <strong><span id="p_spouse_name">..................</span></strong> को <strong><span id="p_spouse_rel">पति/पत्नी</span></strong></span> जन्म मिति <strong><span id="p_dob">..................</span></strong> मा भएको श्री <strong><span id="p_app_name">..................</span></strong> हूँ। मैले हालसम्म नेपाली नागरिकताको प्रमाणपत्र नलिएको र हाल मलाई आवश्यक परेको हुँदा वंशजको नाताले नेपाली नागरिकताको प्रमाणपत्रको लागि सिफारिस गरी पाउँ भनी तपसिलका कागजात संलग्न राखी यो निवेदन पेश गरेको छु। <br>
+                सविनय नम्र निवेदन यस प्रकार छ की जिल्ला <strong><span id="p_district">रुपन्देही</span></strong>, <strong><span id="p_local_body">रोहिणी गाउँपालिका</span></strong> वडा नं. <strong><span id="p_ward_no">१</span></strong> को <strong><span id="p_toll">........................................</span> (टोल)</strong> मा स्थायी बसोबास गरिआएको श्री <strong><span id="p_grand_name">....................................................................</span></strong> को <strong><span id="p_grand_rel">नाति/नातिनी/बुहारी</span></strong>, श्री <strong><span id="p_father_name">....................................................................</span></strong> को <strong><span id="p_parent_rel">छोरा/छोरी/पत्नी</span></strong>, <span id="p_spouse_block">श्री <strong><span id="p_spouse_name">....................................................................</span></strong> को <strong><span id="p_spouse_rel">पति/पत्नी</span></strong></span> जन्म मिति <strong><span id="p_dob">........................................</span></strong> मा भएको श्री <strong><span id="p_app_name">....................................................................</span></strong> हूँ। मैले हालसम्म नेपाली नागरिकताको प्रमाणपत्र नलिएको र हाल मलाई आवश्यक परेको हुँदा वंशजको नाताले नेपाली नागरिकताको प्रमाणपत्रको लागि सिफारिस गरी पाउँ भनी तपसिलका कागजात थान संलग्न राखी यो निवेदन पेश गरेको छु । <br>
                 उल्लेखित व्यहोरा फरक छैन, ठिक साँचो हो । फरक परी झुट्ठा ठहरे प्रचलित कानून बमोजिम सजाय भोग्न मन्जुर छु । श्रीमानको जो आदेश ।
             </div>
 
@@ -306,7 +334,7 @@
             </div>
 
             <div class="documents-list">
-                <strong><u>संलग्न कागजातहरू:</u></strong>
+                <strong><u>संलग्न कागजातहरु:</u></strong>
                 <table>
                     <tr>
                         <td id="p_d1_row">१. बाबु आमाको ना.प्र.प. प्रतिलिपि थान: <strong id="p_doc_1"></strong></td>
@@ -325,18 +353,20 @@
 
             <div class="sanaakhat-box">
                 <strong><u>सनाखत गर्ने व्यक्तिको विवरण:</u></strong> <br>
-                यसमा लेखिएको विवरण भएको निवेदक <span id="p_s_app_name">.......................</span> मेरो <strong><span id="p_s_rel"></span></strong> नाता हो । निजले यस अघि नागरिकताको प्रमाण-पत्र लिएको छैन । लेखिएको विवरण ठिक साँचो हो, झुठ्ठा ठहरे कानून बमोजिम सहूँला बुझाउँला भनी सहीछाप गर्ने निवेदकको संरक्षक: <br>
+                यसमा लेखिएको विवरण भएको निवेदक <span id="p_s_app_name">.......................</span> मेरो <strong><span id="p_s_rel"></span></strong>नाता हो । निजले यस अघि नागरिकताको प्रमाण-पत्र लिएको/लिएको छैन । लेखिएको विवरण ठिक साँचो हो, झुठ्ठा ठहरे कानून बमोजिम सहूँला बुझाउँला भनी सहीछाप गर्ने निवेदकका पिता/काका/दाजु वा संरक्षक: <br>
+                
                 नाम, थर: <strong><span id="p_s_name"></span></strong> &nbsp;&nbsp;&nbsp;&nbsp; उमेर: <strong><span id="p_s_age"></span></strong> वर्ष <br>
-                ठेगाना: रोहिणी गाउँपालिका वडा नं. <strong><span id="p_s_ward">१</span></strong>, रुपन्देही <br>
+                ठेगाना: <span id="p_s_local">रोहिणी गाउँपालिका</span> वडा नं. <strong><span id="p_s_ward">१</span></strong>, <span id="p_s_district_fixed">रुपन्देही</span> <br>
                 नागरिकता प्रमाणपत्र नं.: <strong><span id="p_s_cit_no"></span></strong>, जारी जिल्ला: <strong><span id="p_s_cit_dist"></span></strong> <br>
+                
                 <div style="display: flex; justify-content: space-between; margin-top: 4px; align-items: flex-end;">
                     <div>
                         <strong>औंठा छाप:</strong> &nbsp;
-                        <div class="thumb-box" style="height: 50px; line-height: 50px;"></div>
-                        <div class="thumb-box" style="height: 50px; line-height: 50px;"></div>
+                        <div class="thumb-box" style="height: 80px; line-height: 80px;"></div>
+                        <div class="thumb-box" style="height: 80px; line-height: 80px;"></div>
                     </div>
                     <div>
-                        सनाखत हस्ताक्षर: ...........................................
+                       सनाखत हस्ताक्षर: .....................................................
                     </div>
                 </div>
             </div>
@@ -370,11 +400,13 @@
         console.error("Firebase init error:", e);
     }
 
-    function setInitialDate() {
+    function initDate() {
         try {
             const options = { year: 'numeric', month: 'numeric', day: 'numeric', calendar: 'nepali' };
-            document.getElementById('in_today').value = new Intl.DateTimeFormat('ne-NP-u-ca-nepali', options).format(new Date());
-        } catch (e) { document.getElementById('in_today').value = "२०८३/०३/२७"; }
+            document.getElementById('in_date').value = new Intl.DateTimeFormat('ne-NP-u-ca-nepali', options).format(new Date());
+        } catch (e) {
+            document.getElementById('in_date').value = "२०८३/०३/२७";
+        }
     }
 
     function switchTab(tabId) {
@@ -392,24 +424,25 @@
 
     document.getElementById('nivedanForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const id = 'CZ-' + Date.now();
+        const id = 'CIT-' + Date.now();
 
         const record = {
             id: id,
-            today: document.getElementById('in_today').value.trim(),
+            type: 'नेपाली नागरिकता सिफारिस',
+            today: document.getElementById('in_date').value.trim(),
             phone: document.getElementById('in_phone').value.trim(),
             appName: document.getElementById('cz_app_name').value.trim(),
             district: document.getElementById('cz_district').value.trim(),
             localBody: document.getElementById('cz_local_body').value.trim(),
             wardNo: document.getElementById('cz_ward_no').value.trim(),
             toll: document.getElementById('cz_toll').value.trim(),
-            dob: document.getElementById('cz_dob').value.trim(),
             grandName: document.getElementById('cz_grand_name').value.trim(),
-            grandRel: document.getElementById('cz_grand_relation').value,
+            grandRelation: document.getElementById('cz_grand_relation').value,
             fatherName: document.getElementById('cz_father_name').value.trim(),
-            parentRel: document.getElementById('cz_parent_relation').value,
+            parentRelation: document.getElementById('cz_parent_relation').value,
             spouseName: document.getElementById('cz_spouse_name').value.trim(),
-            spouseRel: document.getElementById('cz_spouse_relation').value,
+            spouseRelation: document.getElementById('cz_spouse_relation').value,
+            dob: document.getElementById('cz_dob').value.trim(),
             
             docs: {
                 d1: document.getElementById('doc_1').value.trim(),
@@ -420,12 +453,14 @@
                 d6: document.getElementById('doc_6').value.trim()
             },
 
-            sName: document.getElementById('s_name').value.trim(),
-            sRel: document.getElementById('s_rel').value,
-            sCitNo: document.getElementById('s_cit_no').value.trim(),
-            sCitDist: document.getElementById('s_cit_dist').value.trim(),
-            sAge: document.getElementById('s_age').value.trim(),
-            sWard: document.getElementById('s_ward').value.trim(),
+            sanaakhat: {
+                name: document.getElementById('s_name').value.trim(),
+                rel: document.getElementById('s_rel').value,
+                ward: document.getElementById('s_ward').value.trim(),
+                citNo: document.getElementById('s_cit_no').value.trim(),
+                citDist: document.getElementById('s_cit_dist').value.trim(),
+                age: document.getElementById('s_age').value.trim()
+            },
 
             status: 'Pending Verification',
             paymentType: 'FREE',
@@ -436,9 +471,9 @@
         if(db) {
             db.ref('rochini_nivedans/' + id).set(record, (error) => {
                 if(error) {
-                    alert("डाटा सेभ गर्न समस्या भयो!");
+                    alert("डाटा सेभ गर्दा त्रुटि भयो!");
                 } else {
-                    alert('निवेदन सफलतापुर्वक सेभ भयो!');
+                    alert('नागरिकता सिफारिस निवेदन सफलतापूर्वक सेभ भयो!');
                     document.getElementById('nivedanForm').reset();
                     switchTab('trace-tab');
                     document.getElementById('traceSearchInput').value = record.phone;
@@ -458,27 +493,27 @@
         );
 
         if(results.length === 0) {
-            container.innerHTML = '<p style="color:red;">कुनै पनि निवेदन भेटिएन।</p>';
+            container.innerHTML = '<p style="color:red; font-weight:bold; margin-top:10px;">कुनै पनि निवेदन भेटिएन।</p>';
             return;
         }
 
         results.forEach(item => {
             const card = document.createElement('div');
-            card.style.cssText = "border:1px solid #ccc; padding:15px; margin-top:10px; border-radius:5px; background:#fff; word-break:break-all;";
+            card.style.cssText = "border:1px solid #ccc; padding:15px; margin-top:10px; border-radius:6px; background:#fff; word-break:break-all;";
             card.innerHTML = `
-                <h4>निवेदन ID: ${item.id}</h4>
+                <h4>निवेदन ID: ${item.id} (${item.type})</h4>
                 <p><strong>निवेदक:</strong> ${item.appName} | <strong>फोन:</strong> ${item.phone}</p>
-                <p><strong>स्थिति:</strong> <span style="color:${item.isVerified ? 'green' : 'orange'}">${item.status}</span></p>
+                <p><strong>स्थिति:</strong> <span style="color:${item.isVerified ? 'green' : 'orange'}; font-weight:bold;">${item.status}</span></p>
                 
                 ${!item.isVerified ? `
-                    <div style="background:#fff3cd; padding:10px; margin:10px 0; border:1px solid #ffeeba; border-radius:4px;">
+                    <div style="background:#fff3cd; padding:12px; margin:10px 0; border:1px solid #ffeeba; border-radius:6px;">
                         <p style="margin:0 0 5px 0;"><strong>eSewa भुक्तानी कोड (Rs. 50):</strong></p>
-                        <input type="text" id="esewa_in_${item.id}" placeholder="eSewa Txn Code" value="${item.esewaCode || ''}">
-                        <button onclick="submitPayment('${item.id}')" style="margin-top:5px; padding:6px 12px; background:var(--secondary); color:white; border:none; border-radius:4px; cursor:pointer; width:100%;">भुक्तानी कोड बुझाउनुहोस्</button>
+                        <input type="text" id="esewa_in_${item.id}" placeholder="eSewa Txn Code हाल्नुहोस्" value="${item.esewaCode || ''}">
+                        <button onclick="submitPayment('${item.id}')" style="margin-top:8px; padding:10px; background:var(--secondary); color:white; border:none; border-radius:6px; cursor:pointer; width:100%; font-weight:bold;">भुक्तानी कोड बुझाउनुहोस्</button>
                     </div>
                 ` : `<p style="color:green;"><b>✓ भुक्तानी प्रमाणित भयो</b> | eSewa Code: ${item.esewaCode}</p>`}
 
-                <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white; padding:10px; border:none; border-radius:4px; cursor:pointer; width:100%; margin-top:5px; font-weight:bold;">
+                <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white; padding:12px; border:none; border-radius:6px; cursor:pointer; width:100%; margin-top:5px; font-weight:bold; font-size:15px;">
                     A4 Preview हेर्नुहोस् (Watermark सहित)
                 </button>
             `;
@@ -488,7 +523,7 @@
 
     function submitPayment(id) {
         const code = document.getElementById(`esewa_in_${id}`).value.trim();
-        if(!code) return alert('कृपया eSewa Code हाल्नुहोस्');
+        if(!code) return alert('कृपया eSewa Txn Code हाल्नुहोस्');
 
         if(db) {
             db.ref('rochini_nivedans/' + id).update({
@@ -507,19 +542,24 @@
         tbody.innerHTML = '';
         const list = Object.values(allNivedansData);
 
+        if(list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">कुनै डाटा उपलब्ध छैन।</td></tr>`;
+            return;
+        }
+
         list.forEach(item => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${item.id}</td>
-                <td>${item.appName || item.name}</td>
+                <td>${item.appName || 'N/A'}</td>
                 <td>${item.phone}</td>
                 <td>${item.esewaCode || 'N/A'}</td>
                 <td><b>${item.status}</b></td>
                 <td>
-                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                        <button onclick="verifyAndApprove('${item.id}')" style="background:var(--secondary); color:white; border:none; padding:5px 8px; border-radius:3px; cursor:pointer;">Approve</button>
-                        <button onclick="updateStatus('${item.id}', 'Rejected', false)" style="background:var(--danger); color:white; border:none; padding:5px 8px; border-radius:3px; cursor:pointer;">Reject</button>
-                        <button onclick="openPrintModal('${item.id}')" style="padding:5px 8px; border-radius:3px; cursor:pointer;">View</button>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        <button onclick="verifyAndApprove('${item.id}')" style="background:var(--secondary); color:white; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">Approve</button>
+                        <button onclick="updateStatus('${item.id}', 'Rejected', false)" style="background:var(--danger); color:white; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">Reject</button>
+                        <button onclick="openPrintModal('${item.id}')" style="background:#718093; color:white; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">View</button>
                     </div>
                 </td>
             `;
@@ -534,7 +574,7 @@
                 paymentType: 'PAID VERIFIED',
                 isVerified: true
             }).then(() => {
-                alert('सफलतापूर्वक Approve भयो! अब युजरले Download गर्न सक्नेछन्।');
+                alert('सफलतापूर्वक Approve भयो! अब युजरले वाटरमार्क बिना प्रिन्ट गर्न सक्नेछन्।');
             });
         }
     }
@@ -545,7 +585,7 @@
                 status: newStatus,
                 isVerified: isVerified
             }).then(() => {
-                alert('स्थिति अपडेट गरियो!');
+                alert('निवेदन स्थिति अपडेट गरियो!');
             });
         }
     }
@@ -554,29 +594,31 @@
         const item = allNivedansData[id];
         if(!item) return;
 
-        document.getElementById('p_today').innerText = item.today || "………………";
+        document.getElementById('p_date').innerText = item.today || "………………";
         document.getElementById('p_district').innerText = item.district || "रुपन्देही";
         document.getElementById('p_local_body').innerText = item.localBody || "रोहिणी गाउँपालिका";
         document.getElementById('p_ward_no').innerText = item.wardNo || "१";
         document.getElementById('p_toll').innerText = item.toll || "………………";
+        
+        document.getElementById('p_app_name').innerText = item.appName || "………………";
+        document.getElementById('p_s_app_name').innerText = item.appName || "………………";
+        
         document.getElementById('p_grand_name').innerText = item.grandName || "………………";
-        document.getElementById('p_grand_rel').innerText = item.grandRel || "नाति";
+        document.getElementById('p_grand_rel').innerText = item.grandRelation || "नाति";
+        
         document.getElementById('p_father_name').innerText = item.fatherName || "………………";
-        document.getElementById('p_parent_rel').innerText = item.parentRel || "छोरा";
+        document.getElementById('p_parent_rel').innerText = item.parentRelation || "छोरा";
         
         if(item.spouseName) {
             document.getElementById('p_spouse_block').style.display = "inline";
             document.getElementById('p_spouse_name').innerText = item.spouseName;
-            document.getElementById('p_spouse_rel').innerText = item.spouseRel || "पति/पत्नी";
+            document.getElementById('p_spouse_rel').innerText = item.spouseRelation || "पति/पत्नी";
         } else {
             document.getElementById('p_spouse_block').style.display = "none";
         }
 
         document.getElementById('p_dob').innerText = item.dob || "………………";
-        document.getElementById('p_app_name').innerText = item.appName || "………………";
-        document.getElementById('p_s_app_name').innerText = item.appName || "………………";
 
-        // कागजातहरू लुकाउने/देखाउने
         if(item.docs) {
             for (let i = 1; i <= 6; i++) {
                 let val = item.docs['d' + i];
@@ -590,12 +632,14 @@
             }
         }
 
-        document.getElementById('p_s_name').innerText = item.sName || "………………";
-        document.getElementById('p_s_rel').innerText = item.sRel || "पिता";
-        document.getElementById('p_s_ward').innerText = item.sWard || "१";
-        document.getElementById('p_s_cit_no').innerText = item.sCitNo || "………………";
-        document.getElementById('p_s_cit_dist').innerText = item.sCitDist || "रुपन्देही";
-        document.getElementById('p_s_age').innerText = item.sAge || "……";
+        if(item.sanaakhat) {
+            document.getElementById('p_s_name').innerText = item.sanaakhat.name || "……………";
+            document.getElementById('p_s_rel').innerText = item.sanaakhat.rel || "पिता";
+            document.getElementById('p_s_ward').innerText = item.sanaakhat.ward || "१";
+            document.getElementById('p_s_cit_no').innerText = item.sanaakhat.citNo || "……………";
+            document.getElementById('p_s_cit_dist').innerText = item.sanaakhat.citDist || "रुपन्देही";
+            document.getElementById('p_s_age').innerText = item.sanaakhat.age || "……";
+        }
 
         const watermark = document.getElementById('watermarkOverlay');
         const printBtn = document.getElementById('mainPrintBtn');
