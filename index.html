@@ -19,7 +19,7 @@
         .tab-content { display: none; }
         .active { display: block; }
 
-        /* Card Grid Layout for Icon Display */
+        /* Card Grid Layout */
         .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         @media (max-width: 400px) { .card-grid { grid-template-columns: 1fr; } }
         
@@ -52,11 +52,13 @@
         }
         .btn-card:hover { background: #219150; }
 
-        /* Inputs & Form */
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #2c3e50; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
-        .btn-submit { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        /* Form Controls */
+        .form-section { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-top: 15px; }
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-weight: bold; margin-bottom: 4px; font-size: 13px; color: #2c3e50; }
+        input, select, textarea { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+        .btn-submit { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; margin-top: 10px; }
+        .btn-back { background: #7f8c8d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-bottom: 15px; }
 
         /* Admin Table */
         .table-responsive { overflow-x: auto; }
@@ -64,45 +66,27 @@
         table, th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
         th { background-color: var(--primary); color: white; }
 
-        /* Mobile Responsive A4 Preview Container */
+        /* A4 Mobile Fit Preview */
         #printView {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: #555555;
+            background: #555;
             padding: 15px 0;
             margin-top: 20px;
             border-radius: 6px;
             width: 100%;
             overflow-x: hidden;
         }
-        .print-scaler {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            overflow: hidden;
-        }
+        .print-scaler { width: 100%; display: flex; justify-content: center; align-items: flex-start; overflow: hidden; }
         .print-container {
-            position: relative;
-            width: 210mm;
-            min-height: 297mm;
-            padding: 20mm;
-            background: #ffffff;
-            border: 1px solid #d3d3d3;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-            box-sizing: border-box;
-            line-height: 1.8;
-            font-size: 14pt;
-            color: black;
-            transform-origin: top center;
+            position: relative; width: 210mm; min-height: 297mm; padding: 20mm; background: #fff;
+            border: 1px solid #d3d3d3; box-shadow: 0 0 15px rgba(0,0,0,0.5); box-sizing: border-box;
+            line-height: 1.8; font-size: 14pt; color: black; transform-origin: top center;
         }
         .watermark {
-            position: absolute; 
-            top: 40%; left: 5%; width: 90%;
-            font-size: 75px; color: rgba(231, 76, 60, 0.22); 
-            transform: rotate(-35deg); font-weight: bold; text-align: center;
-            pointer-events: none; user-select: none;
+            position: absolute; top: 40%; left: 5%; width: 90%; font-size: 75px; color: rgba(231, 76, 60, 0.22);
+            transform: rotate(-35deg); font-weight: bold; text-align: center; pointer-events: none;
             border: 8px dashed rgba(231, 76, 60, 0.22); padding: 10px; box-sizing: border-box;
         }
 
@@ -113,10 +97,7 @@
             .container { box-shadow: none; padding: 0; background: transparent; }
             .print-scaler { transform: scale(1) !important; height: auto !important; }
             .print-container, .print-container * { visibility: visible; }
-            .print-container { 
-                position: absolute; left: 0; top: 0; width: 210mm; height: 297mm;
-                border: none; box-shadow: none; margin: 0; padding: 20mm; transform: none !important;
-            }
+            .print-container { position: absolute; left: 0; top: 0; width: 210mm; height: 297mm; border: none; box-shadow: none; margin: 0; padding: 20mm; transform: none !important; }
             .no-print { display: none !important; }
         }
     </style>
@@ -127,91 +108,85 @@
     <!-- Navigation Bar -->
     <nav class="no-print">
         <button onclick="showTab('home-tab')">गृह पृष्ठ (Services)</button>
-        <button onclick="showTab('forms-tab')">सामान्य फारम</button>
         <button onclick="showTab('trace-tab')">स्थिति (Trace)</button>
         <button onclick="showTab('admin-tab')">Admin Login</button>
     </nav>
 
-    <!-- 1. INDEX CARDS -->
+    <!-- 1. INDEX / CARDS VIEW & MAIN FORM AREA -->
     <div id="home-tab" class="tab-content active no-print">
-        <h3 style="text-align: center; margin-bottom: 15px;">सबै अनलाइन सिफारिस सेवाहरू</h3>
-        <div class="card-grid">
-            <div class="service-card">
-                <div><div class="icon">👶</div><h4>जन्म दर्ता</h4><p>जन्म दर्ताको लागि अनलाइन निवेदन</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/janma.html')">निवेदन खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">💍</div><h4>विवाह दर्ता</h4><p>विवाह दर्ताको लागि अनलाइन निवेदन</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/vivah.html')">निवेदन खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">⚰️</div><h4>मृत्यु दर्ता</h4><p>मृत्यु दर्ताको लागि निवेदन फारम</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/mrityu.html')">निवेदन खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">🏠</div><h4>बसाइँसराइ</h4><p>बसाइँसराइ सिफारिस फारम</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/basaisarai.html')">निवेदन खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">🪪</div><h4>नागरिकता सिफारिस</h4><p>नागरिकता सिफारिस निवेदन</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/nagarikata.html')">निवेदन खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">🗺️</div><h4>चारकिल्ला प्रमाण</h4><p>चारकिल्ला प्रमाणित फारम</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/charKilla.html')">निवेदन खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">👨‍👩‍👧</div><h4>नाता प्रमाणित</h4><p>नाता प्रमाणित सिफारिस फारम</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/nata.html')">निवेदन खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">📜</div><h4>सम्बन्ध विच्छेद</h4><p>सम्बन्ध विच्छेद सिफारिस फारम</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/sambandha.html')">निवेदन खोल्नुहोस्</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 2. SAMANYA FORM TAB (Only Icon Cards Shown) -->
-    <div id="forms-tab" class="tab-content no-print">
-        <h3 style="text-align: center; margin-bottom: 15px;">निवेदन फारम छान्नुहोस्</h3>
         
-        <div class="card-grid">
-            <div class="service-card">
-                <div><div class="icon">👶</div><h4>जन्म दर्ता</h4><p>जन्म दर्ता फारम</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/janma.html')">फारम खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">💍</div><h4>विवाह दर्ता</h4><p>विवाह दर्ता फारम</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/vivah.html')">फारम खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">⚰️</div><h4>मृत्यु दर्ता</h4><p>मृत्यु दर्ता फारम</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/mrityu.html')">फारम खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">🏠</div><h4>बसाइँसराइ</h4><p>बसाइँसराइ फारम</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/basaisarai.html')">फारम खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">🪪</div><h4>नागरिकता</h4><p>नागरिकता सिफारिस</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/nagarikata.html')">फारम खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">🗺️</div><h4>चारकिल्ला</h4><p>चारकिल्ला फारम</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/charKilla.html')">फारम खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">👨‍👩‍👧</div><h4>नाता प्रमाणित</h4><p>नाता प्रमाणित फारम</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/nata.html')">फारम खोल्नुहोस्</button>
-            </div>
-            <div class="service-card">
-                <div><div class="icon">📜</div><h4>सम्बन्ध विच्छेद</h4><p>सम्बन्ध विच्छेद फारम</p></div>
-                <button class="btn-card" onclick="openFormFile('forms/sambandha.html')">फारम खोल्नुहोस्</button>
+        <!-- Grid view for selecting forms -->
+        <div id="serviceGridArea">
+            <h3 style="text-align: center; margin-bottom: 15px;">सबै अनलाइन सिफारिस सेवाहरू</h3>
+            <div class="card-grid">
+                <div class="service-card">
+                    <div><div class="icon">👶</div><h4>जन्म दर्ता</h4><p>जन्म दर्ताको लागि अनलाइन निवेदन</p></div>
+                    <button class="btn-card" onclick="loadMainForm('janma')">फारम भर्नुहोस्</button>
+                </div>
+                <div class="service-card">
+                    <div><div class="icon">💍</div><h4>विवाह दर्ता</h4><p>विवाह दर्ताको लागि अनलाइन निवेदन</p></div>
+                    <button class="btn-card" onclick="loadMainForm('vivah')">फारम भर्नुहोस्</button>
+                </div>
+                <div class="service-card">
+                    <div><div class="icon">⚰️</div><h4>मृत्यु दर्ता</h4><p>मृत्यु दर्ताको लागि निवेदन फारम</p></div>
+                    <button class="btn-card" onclick="loadMainForm('mrityu')">फारम भर्नुहोस्</button>
+                </div>
+                <div class="service-card">
+                    <div><div class="icon">🏠</div><h4>बसाइँसराइ</h4><p>बसाइँसराइ सिफारिस फारम</p></div>
+                    <button class="btn-card" onclick="loadMainForm('basaisarai')">फारम भर्नुहोस्</button>
+                </div>
+                <div class="service-card">
+                    <div><div class="icon">🪪</div><h4>नागरिकता सिफारिस</h4><p>नागरिकता सिफारिस निवेदन</p></div>
+                    <button class="btn-card" onclick="loadMainForm('nagarikata')">फारम भर्नुहोस्</button>
+                </div>
+                <div class="service-card">
+                    <div><div class="icon">🗺️</div><h4>चारकिल्ला प्रमाण</h4><p>चारकिल्ला प्रमाणित फारम</p></div>
+                    <button class="btn-card" onclick="loadMainForm('charKilla')">फारम भर्नुहोस्</button>
+                </div>
+                <div class="service-card">
+                    <div><div class="icon">👨‍👩‍👧</div><h4>नाता प्रमाणित</h4><p>नाता प्रमाणित सिफारिस फारम</p></div>
+                    <button class="btn-card" onclick="loadMainForm('nata')">फारम भर्नुहोस्</button>
+                </div>
+                <div class="service-card">
+                    <div><div class="icon">📜</div><h4>सम्बन्ध विच्छेद</h4><p>सम्बन्ध विच्छेद सिफारिस फारम</p></div>
+                    <button class="btn-card" onclick="loadMainForm('sambandha')">फारम भर्नुहोस्</button>
+                </div>
             </div>
         </div>
+
+        <!-- Inline Dynamic Form Area (Shows inside Main Screen) -->
+        <div id="dynamicFormContainer" style="display: none;" class="form-section">
+            <button class="btn-back" onclick="closeMainForm()">← मुख्य सूचीमा फर्कनुहोस्</button>
+            <h3 id="formTitle" style="text-align: center; color: var(--primary); margin-top: 0;"></h3>
+            
+            <form id="applicationForm">
+                <input type="hidden" id="selectedType">
+
+                <div class="input-group">
+                    <label>आवेदकको पूरा नाम:</label>
+                    <input type="text" id="app_name" placeholder="नेपालीमा नाम" required>
+                </div>
+
+                <div class="input-group">
+                    <label>मोबाइल नम्बर:</label>
+                    <input type="text" id="app_phone" placeholder="98XXXXXXXX" required>
+                </div>
+
+                <!-- Specific Fields Inserted Here dynamically -->
+                <div id="specificFields"></div>
+
+                <div class="input-group">
+                    <label>थप विवरण / कैफियत:</label>
+                    <textarea id="app_details" rows="3" placeholder="थप विवरण..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">निवेदन बुझाउनुहोस् (Save)</button>
+            </form>
+        </div>
+
     </div>
 
-    <!-- 3. TRACE TAB -->
+    <!-- 2. TRACE TAB -->
     <div id="trace-tab" class="tab-content no-print">
         <h3>निवेदन खोज्नुहोस्</h3>
         <div style="display: flex; gap: 8px; margin-bottom: 15px;">
@@ -221,7 +196,7 @@
         <div id="traceResult"></div>
     </div>
 
-    <!-- 4. ADMIN TAB -->
+    <!-- 3. ADMIN TAB -->
     <div id="admin-tab" class="tab-content no-print">
         <div id="adminLoginForm">
             <h3>Admin Login</h3>
@@ -259,7 +234,7 @@
         </div>
     </div>
 
-    <!-- 5. A4 MOBILE FIT PREVIEW -->
+    <!-- 4. A4 MOBILE FIT PREVIEW -->
     <div id="printView" style="display:none;">
         <div class="no-print" style="margin-bottom: 15px; text-align: center;">
             <button id="mainPrintBtn" onclick="triggerPrint()" disabled style="padding: 8px 18px; font-weight:bold;">Print Page</button>
@@ -313,11 +288,129 @@
     function showTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
+        if(tabId === 'home-tab') closeMainForm();
     }
 
-    function openFormFile(fileUrl) {
-        window.location.href = fileUrl;
+    /* Inline Form Switcher */
+    function loadMainForm(typeKey) {
+        const gridArea = document.getElementById('serviceGridArea');
+        const formContainer = document.getElementById('dynamicFormContainer');
+        const titleArea = document.getElementById('formTitle');
+        const specFields = document.getElementById('specificFields');
+        const typeInput = document.getElementById('selectedType');
+
+        gridArea.style.display = 'none';
+        formContainer.style.display = 'block';
+
+        let htmlContent = '';
+
+        if(typeKey === 'janma') {
+            titleArea.innerText = "जन्म दर्ता निवेदन";
+            typeInput.value = "जन्म दर्ता";
+            htmlContent = `
+                <div class="input-group"><label>बालक/बालिकाको नाम:</label><input type="text" id="child_name" required></div>
+                <div class="input-group"><label>जन्म मिति:</label><input type="date" id="dob" required></div>
+                <div class="input-group"><label>बाबुको नाम:</label><input type="text" id="father_name" required></div>
+                <div class="input-group"><label>आमाको नाम:</label><input type="text" id="mother_name" required></div>
+            `;
+        } else if(typeKey === 'vivah') {
+            titleArea.innerText = "विवाह दर्ता निवेदन";
+            typeInput.value = "विवाह दर्ता";
+            htmlContent = `
+                <div class="input-group"><label>दुल्हाको नाम:</label><input type="text" id="groom_name" required></div>
+                <div class="input-group"><label>दुल्हीको नाम:</label><input type="text" id="bride_name" required></div>
+                <div class="input-group"><label>विवाह मिति:</label><input type="date" id="marriage_date" required></div>
+            `;
+        } else if(typeKey === 'mrityu') {
+            titleArea.innerText = "मृत्यु दर्ता निवेदन";
+            typeInput.value = "मृत्यु दर्ता";
+            htmlContent = `
+                <div class="input-group"><label>मृतकको नाम:</label><input type="text" id="deceased_name" required></div>
+                <div class="input-group"><label>मृत्यु मिति:</label><input type="date" id="death_date" required></div>
+            `;
+        } else if(typeKey === 'basaisarai') {
+            titleArea.innerText = "बसाइँसराइ सिफारिस फारम";
+            typeInput.value = "बसाइँसराइ सिफारिस";
+            htmlContent = `
+                <div class="input-group"><label>हालको ठेगाना:</label><input type="text" id="current_address" required></div>
+                <div class="input-group"><label>जाने ठेगाना:</label><input type="text" id="destination_address" required></div>
+            `;
+        } else if(typeKey === 'nagarikata') {
+            titleArea.innerText = "नागरिकता सिफारिस फारम";
+            typeInput.value = "नागरिकता सिफारिस";
+            htmlContent = `
+                <div class="input-group"><label>जन्म मिति:</label><input type="date" id="dob_citizen" required></div>
+                <div class="input-group"><label>बाबुको नाम:</label><input type="text" id="father_citizen" required></div>
+            `;
+        } else if(typeKey === 'charKilla') {
+            titleArea.innerText = "चारकिल्ला प्रमाणित फारम";
+            typeInput.value = "चारकिल्ला प्रमाण";
+            htmlContent = `
+                <div class="input-group"><label>कित्ता नम्बर:</label><input type="text" id="kitta_no" required></div>
+                <div class="input-group"><label>क्षेत्रफल:</label><input type="text" id="area_size" required></div>
+            `;
+        } else if(typeKey === 'nata') {
+            titleArea.innerText = "नाता प्रमाणित सिफारिस फारम";
+            typeInput.value = "नाता प्रमाणित";
+            htmlContent = `
+                <div class="input-group"><label>नाता प्रमाणित गराउने व्यक्तिको नाम:</label><input type="text" id="rel_person" required></div>
+                <div class="input-group"><label>सम्बन्ध/नाता:</label><input type="text" id="relation_type" required></div>
+            `;
+        } else if(typeKey === 'sambandha') {
+            titleArea.innerText = "सम्बन्ध विच्छेद सिफारिस फारम";
+            typeInput.value = "सम्बन्ध विच्छेद";
+            htmlContent = `
+                <div class="input-group"><label>पति/पत्नीको नाम:</label><input type="text" id="spouse_name" required></div>
+            `;
+        }
+
+        specFields.innerHTML = htmlContent;
     }
+
+    function closeMainForm() {
+        document.getElementById('serviceGridArea').style.display = 'block';
+        document.getElementById('dynamicFormContainer').style.display = 'none';
+        document.getElementById('applicationForm').reset();
+    }
+
+    document.getElementById('applicationForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const id = 'NIV-' + Date.now();
+        const today = new Date().toISOString().split('T')[0];
+
+        // Combine inputs into details string
+        let formDetails = document.getElementById('app_details').value.trim() + "\n";
+        const specDiv = document.getElementById('specificFields');
+        const inputs = specDiv.querySelectorAll('input');
+        inputs.forEach(inp => {
+            const label = inp.previousElementSibling ? inp.previousElementSibling.innerText : '';
+            formDetails += label + " " + inp.value + "\n";
+        });
+
+        const record = {
+            id: id,
+            date: today,
+            type: document.getElementById('selectedType').value,
+            name: document.getElementById('app_name').value.trim(),
+            phone: document.getElementById('app_phone').value.trim(),
+            details: formDetails,
+            status: 'Pending Verification',
+            isVerified: false,
+            esewaCode: ''
+        };
+
+        if(db) {
+            db.ref('simple_nivedans/' + id).set(record, (err) => {
+                if(!err) {
+                    alert('निवेदन सफलतापुर्वक सेभ भयो!');
+                    closeMainForm();
+                    showTab('trace-tab');
+                    document.getElementById('traceSearchInput').value = record.phone;
+                    traceApplication();
+                }
+            });
+        }
+    });
 
     function checkAdminLogin() {
         const u = document.getElementById('adminUser').value.trim();
