@@ -23,14 +23,28 @@
         table, th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: var(--primary); color: white; }
         
-        /* Links style for old applications index */
-        .old-nivedan-link {
-            color: #2980b9;
-            text-decoration: underline;
-            cursor: pointer;
-            font-weight: bold;
+        /* GitHub Document Links Grid Style */
+        .github-links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
         }
-        .old-nivedan-link:hover { color: #16a085; }
+        .github-card {
+            border: 1px solid #ddd;
+            border-left: 5px solid var(--primary);
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .github-card a {
+            color: #2980b9;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .github-card a:hover { text-decoration: underline; color: #16a085; }
 
         /* Printable A4 Preview Container */
         #printView {
@@ -141,22 +155,34 @@
 
         <hr style="margin: 30px 0;">
 
-        <!-- OLD NIVEDAN INDEX LINK LIST -->
-        <h3>पुराना निवेदनहरू (Index / Registered List)</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>निवेदन लिङ्क (ID)</th>
-                    <th>प्रकार</th>
-                    <th>आवेदकको नाम</th>
-                    <th>मिति</th>
-                    <th>कार्य (Action)</th>
-                </tr>
-            </thead>
-            <tbody id="oldNivedanIndexBody">
-                <!-- Dynamic Old Nivedans Index -->
-            </tbody>
-        </table>
+        <!-- GITHUB PURANO NIVEDAN FILES INDEX LINKS -->
+        <h3>पुरानो निवेदन फारमहरूको सङ्ग्रह (GitHub Links Index)</h3>
+        <div class="github-links-grid">
+            <div class="github-card">
+                <a href="./forms/janma-nivedan.html" target="_blank">📄 जन्म दर्ता निवेदन फारम</a>
+                <small>डाउनलोड / प्रिन्टको लागि पुराना ढाँचाहरू</small>
+            </div>
+            <div class="github-card">
+                <a href="./forms/bibaha-nivedan.html" target="_blank">📄 विवाह दर्ता निवेदन फारम</a>
+                <small>विवाह प्रमाणित पुराना फारमहरू</small>
+            </div>
+            <div class="github-card">
+                <a href="./forms/mrityu-nivedan.html" target="_blank">📄 मृत्यु दर्ता निवेदन फारम</a>
+                <small>मृत्यु दर्ता ढाँचा</small>
+            </div>
+            <div class="github-card">
+                <a href="./forms/basaisarai-nivedan.html" target="_blank">📄 बसाइँसराई निवेदन फारम</a>
+                <small>बसाइँसराई दर्ता फारम</small>
+            </div>
+            <div class="github-card">
+                <a href="./forms/nagarikata-sifaris.html" target="_blank">📄 नागरिकता सिफारिश फारम</a>
+                <small>नागरिकताको लागि सिफारिश ढाँचा</small>
+            </div>
+            <div class="github-card">
+                <a href="./forms/charkilla-praman.html" target="_blank">📄 चारकिल्ला प्रमाण फारम</a>
+                <small>चारकिल्ला प्रमाणित फारम</small>
+            </div>
+        </div>
     </div>
 
     <!-- 2. TRACE & PAYMENT TAB -->
@@ -243,7 +269,6 @@
         
         db.ref('nivedans').on('value', (snapshot) => {
             allNivedansData = snapshot.val() || {};
-            loadOldNivedansIndex();
             loadAdminDashboard();
         });
     } catch(e) {
@@ -255,7 +280,6 @@
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         if(tabId === 'admin-tab') loadAdminDashboard();
-        if(tabId === 'forms-tab') loadOldNivedansIndex();
     }
 
     // ==========================================
@@ -292,41 +316,7 @@
     });
 
     // ==========================================
-    // 3. LOAD OLD NIVEDANS INDEX LIST IN FORMS TAB
-    // ==========================================
-    function loadOldNivedansIndex() {
-        const tbody = document.getElementById('oldNivedanIndexBody');
-        tbody.innerHTML = '';
-        const list = Object.values(allNivedansData);
-
-        if(list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">कुनै पनि पुराना निवेदन भेटिएन।</td></tr>';
-            return;
-        }
-
-        list.forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>
-                    <span class="old-nivedan-link" onclick="openPrintModal('${item.id}')">
-                        ${item.id}
-                    </span>
-                </td>
-                <td>${item.formType}</td>
-                <td>${item.applicantName}</td>
-                <td>${item.date}</td>
-                <td>
-                    <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white;">
-                        Preview / View
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    // ==========================================
-    // 4. TRACE & PAYMENT
+    // 3. TRACE & PAYMENT
     // ==========================================
     function traceApplication() {
         const query = document.getElementById('traceSearchInput').value.trim();
@@ -382,7 +372,7 @@
     }
 
     // ==========================================
-    // 5. ADMIN DASHBOARD
+    // 4. ADMIN DASHBOARD
     // ==========================================
     function loadAdminDashboard() {
         const tbody = document.getElementById('adminTableBody');
@@ -416,7 +406,7 @@
     }
 
     // ==========================================
-    // 6. PRINT & WATERMARK CONTROL
+    // 5. PRINT & WATERMARK CONTROL
     // ==========================================
     function openPrintModal(id) {
         const item = allNivedansData[id];
@@ -433,7 +423,6 @@
         const watermark = document.getElementById('watermarkOverlay');
         const printBtn = document.getElementById('mainPrintBtn');
 
-        // Payment status Verified भएमा Watermark हट्छ र Print on हुन्छ
         const isVerified = (item.paymentType === 'PAID' && item.status === 'Approved');
 
         if(!isVerified) {
