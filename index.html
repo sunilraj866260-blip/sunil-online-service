@@ -52,13 +52,10 @@
         }
         .btn-card:hover { background: #219150; }
 
-        /* Form Controls */
+        /* External File Loader Container */
         .form-section { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-top: 15px; }
-        .input-group { margin-bottom: 12px; }
-        label { display: block; font-weight: bold; margin-bottom: 4px; font-size: 13px; color: #2c3e50; }
-        input, select, textarea { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
-        .btn-submit { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; margin-top: 10px; }
-        .btn-back { background: #7f8c8d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-bottom: 15px; }
+        .btn-back { background: #7f8c8d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-bottom: 15px; font-weight: bold; }
+        #externalFileContent { width: 100%; min-height: 400px; }
 
         /* Admin Table */
         .table-responsive { overflow-x: auto; }
@@ -121,67 +118,45 @@
             <div class="card-grid">
                 <div class="service-card">
                     <div><div class="icon">👶</div><h4>जन्म दर्ता</h4><p>जन्म दर्ताको लागि अनलाइन निवेदन</p></div>
-                    <button class="btn-card" onclick="loadMainForm('janma')">फारम भर्नुहोस्</button>
+                    <button class="btn-card" onclick="loadGitHubForm('janma.html')">फारम भर्नुहोस्</button>
                 </div>
                 <div class="service-card">
                     <div><div class="icon">💍</div><h4>विवाह दर्ता</h4><p>विवाह दर्ताको लागि अनलाइन निवेदन</p></div>
-                    <button class="btn-card" onclick="loadMainForm('vivah')">फारम भर्नुहोस्</button>
+                    <button class="btn-card" onclick="loadGitHubForm('vivah.html')">फारम भर्नुहोस्</button>
                 </div>
                 <div class="service-card">
                     <div><div class="icon">⚰️</div><h4>मृत्यु दर्ता</h4><p>मृत्यु दर्ताको लागि निवेदन फारम</p></div>
-                    <button class="btn-card" onclick="loadMainForm('mrityu')">फारम भर्नुहोस्</button>
+                    <button class="btn-card" onclick="loadGitHubForm('mrityu.html')">फारम भर्नुहोस्</button>
                 </div>
                 <div class="service-card">
                     <div><div class="icon">🏠</div><h4>बसाइँसराइ</h4><p>बसाइँसराइ सिफारिस फारम</p></div>
-                    <button class="btn-card" onclick="loadMainForm('basaisarai')">फारम भर्नुहोस्</button>
+                    <button class="btn-card" onclick="loadGitHubForm('basaisarai.html')">फारम भर्नुहोस्</button>
                 </div>
                 <div class="service-card">
                     <div><div class="icon">🪪</div><h4>नागरिकता सिफारिस</h4><p>नागरिकता सिफारिस निवेदन</p></div>
-                    <button class="btn-card" onclick="loadMainForm('nagarikata')">फारम भर्नुहोस्</button>
+                    <button class="btn-card" onclick="loadGitHubForm('nagarikata.html')">फारम भर्नुहोस्</button>
                 </div>
                 <div class="service-card">
                     <div><div class="icon">🗺️</div><h4>चारकिल्ला प्रमाण</h4><p>चारकिल्ला प्रमाणित फारम</p></div>
-                    <button class="btn-card" onclick="loadMainForm('charKilla')">फारम भर्नुहोस्</button>
+                    <button class="btn-card" onclick="loadGitHubForm('charKilla.html')">फारम भर्नुहोस्</button>
                 </div>
                 <div class="service-card">
                     <div><div class="icon">👨‍👩‍👧</div><h4>नाता प्रमाणित</h4><p>नाता प्रमाणित सिफारिस फारम</p></div>
-                    <button class="btn-card" onclick="loadMainForm('nata')">फारम भर्नुहोस्</button>
+                    <button class="btn-card" onclick="loadGitHubForm('nata.html')">फारम भर्नुहोस्</button>
                 </div>
                 <div class="service-card">
                     <div><div class="icon">📜</div><h4>सम्बन्ध विच्छेद</h4><p>सम्बन्ध विच्छेद सिफारिस फारम</p></div>
-                    <button class="btn-card" onclick="loadMainForm('sambandha')">फारम भर्नुहोस्</button>
+                    <button class="btn-card" onclick="loadGitHubForm('sambandha.html')">फारम भर्नुहोस्</button>
                 </div>
             </div>
         </div>
 
-        <!-- Inline Dynamic Form Area (Shows inside Main Screen) -->
+        <!-- Dynamic Form Container (GitHub Content Loads Here) -->
         <div id="dynamicFormContainer" style="display: none;" class="form-section">
             <button class="btn-back" onclick="closeMainForm()">← मुख्य सूचीमा फर्कनुहोस्</button>
-            <h3 id="formTitle" style="text-align: center; color: var(--primary); margin-top: 0;"></h3>
-            
-            <form id="applicationForm">
-                <input type="hidden" id="selectedType">
-
-                <div class="input-group">
-                    <label>आवेदकको पूरा नाम:</label>
-                    <input type="text" id="app_name" placeholder="नेपालीमा नाम" required>
-                </div>
-
-                <div class="input-group">
-                    <label>मोबाइल नम्बर:</label>
-                    <input type="text" id="app_phone" placeholder="98XXXXXXXX" required>
-                </div>
-
-                <!-- Specific Fields Inserted Here dynamically -->
-                <div id="specificFields"></div>
-
-                <div class="input-group">
-                    <label>थप विवरण / कैफियत:</label>
-                    <textarea id="app_details" rows="3" placeholder="थप विवरण..." required></textarea>
-                </div>
-
-                <button type="submit" class="btn-submit">निवेदन बुझाउनुहोस् (Save)</button>
-            </form>
+            <div id="externalFileContent">
+                <p style="text-align:center;">फारम लोड हुँदैछ...</p>
+            </div>
         </div>
 
     </div>
@@ -291,126 +266,36 @@
         if(tabId === 'home-tab') closeMainForm();
     }
 
-    /* Inline Form Switcher */
-    function loadMainForm(typeKey) {
+    /* GitHub Direct File Loader */
+    function loadGitHubForm(fileName) {
         const gridArea = document.getElementById('serviceGridArea');
         const formContainer = document.getElementById('dynamicFormContainer');
-        const titleArea = document.getElementById('formTitle');
-        const specFields = document.getElementById('specificFields');
-        const typeInput = document.getElementById('selectedType');
+        const fileContentArea = document.getElementById('externalFileContent');
 
         gridArea.style.display = 'none';
         formContainer.style.display = 'block';
+        fileContentArea.innerHTML = '<p style="text-align:center;">फारम लोड हुँदैछ, कृपया पर्खनुहोस्...</p>';
 
-        let htmlContent = '';
+        const rawUrl = `https://raw.githubusercontent.com/sunilraj866260-blip/sunil-online-service/main/forms/${fileName}`;
 
-        if(typeKey === 'janma') {
-            titleArea.innerText = "जन्म दर्ता निवेदन";
-            typeInput.value = "जन्म दर्ता";
-            htmlContent = `
-                <div class="input-group"><label>बालक/बालिकाको नाम:</label><input type="text" id="child_name" required></div>
-                <div class="input-group"><label>जन्म मिति:</label><input type="date" id="dob" required></div>
-                <div class="input-group"><label>बाबुको नाम:</label><input type="text" id="father_name" required></div>
-                <div class="input-group"><label>आमाको नाम:</label><input type="text" id="mother_name" required></div>
-            `;
-        } else if(typeKey === 'vivah') {
-            titleArea.innerText = "विवाह दर्ता निवेदन";
-            typeInput.value = "विवाह दर्ता";
-            htmlContent = `
-                <div class="input-group"><label>दुल्हाको नाम:</label><input type="text" id="groom_name" required></div>
-                <div class="input-group"><label>दुल्हीको नाम:</label><input type="text" id="bride_name" required></div>
-                <div class="input-group"><label>विवाह मिति:</label><input type="date" id="marriage_date" required></div>
-            `;
-        } else if(typeKey === 'mrityu') {
-            titleArea.innerText = "मृत्यु दर्ता निवेदन";
-            typeInput.value = "मृत्यु दर्ता";
-            htmlContent = `
-                <div class="input-group"><label>मृतकको नाम:</label><input type="text" id="deceased_name" required></div>
-                <div class="input-group"><label>मृत्यु मिति:</label><input type="date" id="death_date" required></div>
-            `;
-        } else if(typeKey === 'basaisarai') {
-            titleArea.innerText = "बसाइँसराइ सिफारिस फारम";
-            typeInput.value = "बसाइँसराइ सिफारिस";
-            htmlContent = `
-                <div class="input-group"><label>हालको ठेगाना:</label><input type="text" id="current_address" required></div>
-                <div class="input-group"><label>जाने ठेगाना:</label><input type="text" id="destination_address" required></div>
-            `;
-        } else if(typeKey === 'nagarikata') {
-            titleArea.innerText = "नागरिकता सिफारिस फारम";
-            typeInput.value = "नागरिकता सिफारिस";
-            htmlContent = `
-                <div class="input-group"><label>जन्म मिति:</label><input type="date" id="dob_citizen" required></div>
-                <div class="input-group"><label>बाबुको नाम:</label><input type="text" id="father_citizen" required></div>
-            `;
-        } else if(typeKey === 'charKilla') {
-            titleArea.innerText = "चारकिल्ला प्रमाणित फारम";
-            typeInput.value = "चारकिल्ला प्रमाण";
-            htmlContent = `
-                <div class="input-group"><label>कित्ता नम्बर:</label><input type="text" id="kitta_no" required></div>
-                <div class="input-group"><label>क्षेत्रफल:</label><input type="text" id="area_size" required></div>
-            `;
-        } else if(typeKey === 'nata') {
-            titleArea.innerText = "नाता प्रमाणित सिफारिस फारम";
-            typeInput.value = "नाता प्रमाणित";
-            htmlContent = `
-                <div class="input-group"><label>नाता प्रमाणित गराउने व्यक्तिको नाम:</label><input type="text" id="rel_person" required></div>
-                <div class="input-group"><label>सम्बन्ध/नाता:</label><input type="text" id="relation_type" required></div>
-            `;
-        } else if(typeKey === 'sambandha') {
-            titleArea.innerText = "सम्बन्ध विच्छेद सिफारिस फारम";
-            typeInput.value = "सम्बन्ध विच्छेद";
-            htmlContent = `
-                <div class="input-group"><label>पति/पत्नीको नाम:</label><input type="text" id="spouse_name" required></div>
-            `;
-        }
-
-        specFields.innerHTML = htmlContent;
+        fetch(rawUrl)
+            .then(response => {
+                if (!response.ok) throw new Error('फाइल भेटिएन');
+                return response.text();
+            })
+            .then(html => {
+                fileContentArea.innerHTML = html;
+            })
+            .catch(err => {
+                fileContentArea.innerHTML = `<p style="color:red; text-align:center;">फारम लोड गर्न सकिएन: ${err.message}<br>कृपया <b>forms/${fileName}</b> फाइल GitHub मा छ वा छैन पक्का गर्नुहोस्।</p>`;
+            });
     }
 
     function closeMainForm() {
         document.getElementById('serviceGridArea').style.display = 'block';
         document.getElementById('dynamicFormContainer').style.display = 'none';
-        document.getElementById('applicationForm').reset();
+        document.getElementById('externalFileContent').innerHTML = '';
     }
-
-    document.getElementById('applicationForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const id = 'NIV-' + Date.now();
-        const today = new Date().toISOString().split('T')[0];
-
-        // Combine inputs into details string
-        let formDetails = document.getElementById('app_details').value.trim() + "\n";
-        const specDiv = document.getElementById('specificFields');
-        const inputs = specDiv.querySelectorAll('input');
-        inputs.forEach(inp => {
-            const label = inp.previousElementSibling ? inp.previousElementSibling.innerText : '';
-            formDetails += label + " " + inp.value + "\n";
-        });
-
-        const record = {
-            id: id,
-            date: today,
-            type: document.getElementById('selectedType').value,
-            name: document.getElementById('app_name').value.trim(),
-            phone: document.getElementById('app_phone').value.trim(),
-            details: formDetails,
-            status: 'Pending Verification',
-            isVerified: false,
-            esewaCode: ''
-        };
-
-        if(db) {
-            db.ref('simple_nivedans/' + id).set(record, (err) => {
-                if(!err) {
-                    alert('निवेदन सफलतापुर्वक सेभ भयो!');
-                    closeMainForm();
-                    showTab('trace-tab');
-                    document.getElementById('traceSearchInput').value = record.phone;
-                    traceApplication();
-                }
-            });
-        }
-    });
 
     function checkAdminLogin() {
         const u = document.getElementById('adminUser').value.trim();
