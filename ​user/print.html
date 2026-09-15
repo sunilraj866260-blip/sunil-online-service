@@ -2,194 +2,61 @@
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>निवेदन प्रिन्ट - A4 Size View</title>
+    <title>सिफारिस पत्र</title>
+    <link rel="stylesheet" href="../css/print.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="../config/firebase-config.js"></script>
-    <style>
-        :root { --primary: #2c3e50; --secondary: #27ae60; --danger: #e74c3c; }
-        * { box-sizing: border-box; }
-        
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 10px; 
-            background: #f4f6f9; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* 📱 Mobile Container Wrapper */
-        .wrapper {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        /* 🖨️ Mobile Preview Adaptive Container */
-        .a4-wrapper {
-            width: 100%;
-            background: #e9ecef;
-            padding: 15px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            overflow-x: auto; /* मोबाइलमा नअटेमा सुरक्षित स्क्रोल गराउन */
-        }
-
-        /* 📄 Strict A4 Dimensions (Standard Paper Size) */
-        .a4-page {
-            width: 210mm;
-            min-height: 297mm;
-            padding: 20mm;
-            background: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.15);
-            font-size: 13pt;
-            line-height: 1.8;
-            box-sizing: border-box;
-            position: relative;
-        }
-
-        /* 📱 Responsive Scaling for Mobile Screens */
-        @media screen and (max-width: 768px) {
-            .a4-wrapper {
-                padding: 5px;
-            }
-            .a4-page {
-                width: 100% !important; /* मोबाइल स्क्रिनमा १००% फिट हुने */
-                min-height: auto;
-                padding: 15px !important; /* मोबाइलमा सुहाउँदो मार्जिन */
-                font-size: 10.5pt !important;
-                box-shadow: none;
-            }
-        }
-
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        table, th, td { border: 1px solid #333; padding: 6px; text-align: left; }
-
-        .btn-box { 
-            display: flex; 
-            gap: 10px; 
-            margin: 15px 0; 
-            width: 100%;
-            max-width: 900px;
-        }
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-        }
-        .btn-print { background: var(--secondary); color: white; }
-        .btn-back { background: var(--primary); color: white; }
-
-        /* 🖨️ Strict A4 Printing Rules */
-        @media print {
-            body { background: white; padding: 0; }
-            .btn-box { display: none !important; }
-            .a4-wrapper { padding: 0; background: transparent; }
-            .a4-page {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 210mm !important;
-                height: 297mm !important;
-                padding: 20mm !important;
-                font-size: 13pt !important;
-                box-shadow: none !important;
-            }
-        }
-    </style>
 </head>
 <body>
 
-<div class="btn-box">
-    <a href="javascript:history.back()" class="btn btn-back">⬅️ पछाडि फर्कनुहोस्</a>
-    <button onclick="window.print()" class="btn btn-print">🖨️ A4 प्रिन्ट गर्नुहोस्</button>
-</div>
+<div class="print-page">
+    <div class="header">
+        <h3>अनुसूची - ५</h3>
+        <h2>रोहिणी गाउँपालिका</h2>
+        <h4>वडा नं. १ को कार्यालय, रुपन्देही</h4>
+    </div>
+    <hr>
+    <div class="content">
+        <div class="date">मिति: <span id="pDate">२०८३-०५-१५</span></div>
+        <p><strong>श्रीमान् वडा अध्यक्ष ज्यू,</strong><br>रोहिणी गाउँपालिका, वडा नं. १,<br>रुपन्देही, नेपाल।</p>
 
-<div class="wrapper">
-    <div class="a4-wrapper">
-        <div class="a4-page" id="printablePaper">
-            <div style="text-align: right;">मिति: <span id="p_date">Loading...</span></div>
-            
-            <div style="margin-top: 15px;">
-                श्रीमान् वडा अध्यक्ष ज्यू,<br>
-                रोहिणी गाउँपालिका, वडा नं. १,<br>
-                रुपन्देही, नेपाल।
-            </div>
+        <div class="subject">विषय: <span id="pSubject">जन्म दर्ता गरिपाऊँ।</span></div>
 
-            <div style="text-align: center; font-weight: bold; text-decoration: underline; margin: 25px 0; font-size: 15pt;">
-                विषय: <span id="p_subject"></span>
-            </div>
+        <p>महोदय,</p>
+        <p style="text-indent: 50px;">
+            उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने श्री <strong id="pGrandFather">-</strong> को नाति, तथा श्री <strong id="pFather">-</strong> को छोरा <strong id="pName">-</strong> हूँ। मिति <strong id="pMiti">-</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुँदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।
+        </p>
+    </div>
 
-            <p>महोदय,</p>
-            <div id="p_content" style="text-indent: 40px; text-align: justify;">
-                विवरण लोड हुँदैछ...
-            </div>
-
-            <div id="p_table_box"></div>
-
-            <div style="display: flex; justify-content: space-between; margin-top: 50px; flex-wrap: wrap; gap: 20px;">
-                <div style="flex: 1; min-width: 180px; font-size: 10pt;">
-                    <strong>संलग्न कागजातहरू:</strong><br>
-                    १. नागरिकताको प्रतिलिपि<br>
-                    २. सम्बन्धित सिफारिस कागजात
-                </div>
-                <div style="flex: 1; min-width: 180px;">
-                    <strong>निवेदक:</strong><br><br>
-                    सही: ...........................<br>
-                    नाम: <strong id="p_name">...</strong><br>
-                    फोन: <span id="p_phone">...</span>
-                </div>
-            </div>
+    <div class="footer">
+        <div></div>
+        <div style="text-align: center;">
+            <p>.......................................</p>
+            <p><strong>भवदीय / वडा सचिव</strong></p>
         </div>
+    </div>
+
+    <div class="no-print" style="text-align:center; margin-top:30px;">
+        <button onclick="window.print()" style="padding:10px 25px; background:#27ae60; color:white; border:none; border-radius:4px; font-size:16px; cursor:pointer;">🖨️ A4 साइजमा प्रिन्ट गर्नुहोस्</button>
     </div>
 </div>
 
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const nivedanId = urlParams.get('id');
-
-    if (nivedanId) {
-        // Firebase बाट डाटा तान्ने
-        firebase.database().ref('nivedans/' + nivedanId).once('value').then((snapshot) => {
-            const item = snapshot.val();
-            if (item) {
-                document.getElementById('p_date').innerText = item.date || new Date().toLocaleDateString('ne-NP');
-                document.getElementById('p_subject').innerText = (item.formType || 'निवेदन') + ' गरिपाऊँ।';
-                document.getElementById('p_name').innerText = item.applicantName || 'N/A';
-                document.getElementById('p_phone').innerText = item.mobileNumber || 'N/A';
-
-                document.getElementById('p_content').innerHTML = `
-                    उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने 
-                    <strong>${item.grandpaName || '…………'}</strong> को ${item.grandpaRel || 'नाति'}, तथा श्री 
-                    <strong>${item.fatherName || '…………'}</strong> को ${item.fatherRel || 'छोरा'} 
-                    <strong>${item.applicantName}</strong> हूँ। मेरो नियमानुसार <strong>${item.formType}</strong> आवश्यक परेको हुँदा यो निवेदन पेश गरेको छु।
-                `;
-
-                if(item.children && item.children.length > 0) {
-                    let t = `<table><thead><tr><th>क्र.सं.</th><th>नाम</th><th>लिङ्ग</th><th>जन्म मिति</th></tr></thead><tbody>`;
-                    item.children.forEach((c, i) => {
-                        t += `<tr><td>${i+1}</td><td>${c.name}</td><td>${c.gender}</td><td>${c.dob}</td></tr>`;
-                    });
-                    t += `</tbody></table>`;
-                    document.getElementById('p_table_box').innerHTML = t;
-                }
-            } else {
-                alert('निवेदन फेला परेन!');
-            }
-        });
-    } else {
-        alert('गलत Tracking ID!');
-    }
+const id = new URLSearchParams(window.location.search).get('id');
+if(id) {
+    db.ref('nivedans/' + id).once('value').then(s => {
+        if(s.exists()) {
+            const d = s.val();
+            document.getElementById('pDate').innerText = d.date || '२०८३-०५-१५';
+            document.getElementById('pSubject').innerText = (d.formType || 'जन्म दर्ता') + ' गरिपाऊँ।';
+            document.getElementById('pName').innerText = d.applicantName || '';
+            document.getElementById('pFather').innerText = d.fatherName || '';
+            document.getElementById('pGrandFather').innerText = d.grandFatherName || '';
+            document.getElementById('pMiti').innerText = d.eventDate || '';
+        }
+    });
+}
 </script>
 
 </body>
