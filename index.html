@@ -211,6 +211,7 @@
         </div>
 
         <div class="print-container" id="printableArea">
+            <!-- FREE WATERMARK OVERLAY -->
             <div id="watermarkOverlay" class="watermark" style="display:none;">FREE COPY</div>
             
             <div style="text-align: center;">
@@ -284,6 +285,7 @@
             details: document.getElementById('details').value,
             status: 'Pending',
             paymentType: 'FREE',
+            isVerified: false,
             esewaCode: '',
             date: new Date().toLocaleDateString('ne-NP')
         };
@@ -304,7 +306,7 @@
     });
 
     // ==========================================
-    // 3. TRACE & PAYMENT
+    // 3. TRACE & PAYMENT (FREE PREVIEW SUPPORT)
     // ==========================================
     function traceApplication() {
         const query = document.getElementById('traceSearchInput').value.trim();
@@ -326,18 +328,19 @@
             card.innerHTML = `
                 <h4>${item.formType} (${item.id})</h4>
                 <p><strong>आवेदक:</strong> ${item.applicantName} | <strong>मोबाइल:</strong> ${item.mobileNumber}</p>
-                <p><strong>स्थिति:</strong> <span style="color:${item.status === 'Approved' ? 'green' : 'orange'}">${item.status}</span> | <strong>प्रकार:</strong> ${item.paymentType}</p>
+                <p><strong>स्थिति:</strong> <span style="color:${item.isVerified ? 'green' : 'orange'}">${item.status}</span> | <strong>भुक्तानी:</strong> ${item.paymentType}</p>
                 
-                ${item.paymentType === 'FREE' ? `
+                ${!item.isVerified ? `
                     <div style="background:#fff3cd; padding:10px; margin:10px 0;">
                         <p><strong>PAID PRINT (Rs. 50 eSewa QR):</strong></p>
-                        <input type="text" id="esewa_in_${item.id}" placeholder="eSewa Txn Code">
-                        <button onclick="submitPayment('${item.id}')">Code Save</button>
+                        <input type="text" id="esewa_in_${item.id}" placeholder="eSewa Txn Code" value="${item.esewaCode || ''}">
+                        <button onclick="submitPayment('${item.id}')">Submit eSewa Code</button>
                     </div>
-                ` : `<p><b>eSewa Ref Code:</b> ${item.esewaCode}</p>`}
+                ` : `<p style="color:green;"><b>✓ Payment Verified</b> (eSewa Code: ${item.esewaCode})</p>`}
 
+                <!-- Free Preview Button ALWAYS Active -->
                 <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white;">
-                    Preview (A4 Printable View)
+                    Free Preview (A4 View)
                 </button>
             `;
             container.appendChild(card);
@@ -351,16 +354,17 @@
         if(db) {
             db.ref('nivedans/' + id).update({
                 paymentType: 'PAID',
-                esewaCode: code
+                esewaCode: code,
+                status: 'Payment Code Submitted'
             }).then(() => {
-                alert('भुक्तानी कोड अपलोड भयो! एडमिनले भेरिफाई गरेपछि वाटरमार्क हट्नेछ र प्रिन्ट खुल्नेछ।');
+                alert('भुक्तानी कोड सेभ भयो! Admin ले Verify गरेपछि Print Button Enable हुनेछ।');
                 traceApplication();
             });
         }
     }
 
     // ==========================================
-    // 4. ADMIN DASHBOARD
+    // 4. ADMIN DASHBOARD (VERIFICATION CONTROL)
     // ==========================================
     function loadAdminDashboard() {
         const tbody = document.getElementById('adminTableBody');
@@ -376,8 +380,8 @@
                 <td>${item.esewaCode || 'N/A'} (${item.paymentType})</td>
                 <td><b>${item.status}</b></td>
                 <td>
-                    <button onclick="updateStatus('${item.id}', 'Approved')">Approve / Verify</button>
-                    <button onclick="updateStatus('${item.id}', 'Rejected')">Reject</button>
+                    <button onclick="verifyAndApprove('${item.id}')" style="background:var(--secondary); color:white;">Verify & Approve</button>
+                    <button onclick="updateStatus('${item.id}', 'Rejected', false)">Reject</button>
                     <button onclick="openPrintModal('${item.id}')">Preview</button>
                 </td>
             `;
@@ -385,9 +389,24 @@
         });
     }
 
-    function updateStatus(id, newStatus) {
+    function verifyAndApprove(id) {
         if(db) {
-            db.ref('nivedans/' + id).update({ status: newStatus }).then(() => {
+            db.ref('nivedans/' + id).update({ 
+                status: 'Approved',
+                paymentType: 'PAID',
+                isVerified: true
+            }).then(() => {
+                alert('Payment Verified र Application Approve गरियो! अब Print Option खुल्नेछ।');
+            });
+        }
+    }
+
+    function updateStatus(id, newStatus, isVerified = false) {
+        if(db) {
+            db.ref('nivedans/' + id).update({ 
+                status: newStatus,
+                isVerified: isVerified
+            }).then(() => {
                 alert('स्थिति अपडेट गरियो!');
             });
         }
@@ -411,16 +430,16 @@
         const watermark = document.getElementById('watermarkOverlay');
         const printBtn = document.getElementById('mainPrintBtn');
 
-        const isVerified = (item.paymentType === 'PAID' && item.status === 'Approved');
-
-        if(!isVerified) {
-            watermark.style.display = 'block';
-            printBtn.disabled = true;
-            printBtn.innerText = "Print Disabled (Pay & Verify Required)";
-        } else {
+        // Verification Check: Admin ले Verify गरेपछि मात्र Print enable हुने
+        if(item.isVerified === true) {
             watermark.style.display = 'none';
             printBtn.disabled = false;
             printBtn.innerText = "Print Page";
+            printBtn.style.background = "var(--secondary)";
+        } else {
+            watermark.style.display = 'block';
+            printBtn.disabled = true;
+            printBtn.innerText = "Print Disabled (Payment Verification Required)";
         }
 
         document.getElementById('printView').style.display = 'flex';
