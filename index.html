@@ -18,6 +18,7 @@
         .active { display: block; }
         form { display: flex; flex-direction: column; gap: 10px; }
         input, select, button { padding: 8px; font-size: 16px; }
+        button:disabled { background: #cccccc !important; cursor: not-allowed; opacity: 0.6; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         table, th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: var(--primary); color: white; }
@@ -139,7 +140,7 @@
 
 <script>
     // ==========================================
-    // 1. UPDATED FIREBASE CONFIG WITH YOUR DETAILS
+    // 1. FIREBASE CONFIG
     // ==========================================
     const firebaseConfig = {
         apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
@@ -158,7 +159,6 @@
         firebase.initializeApp(firebaseConfig);
         db = firebase.database();
         
-        // Listen to Data changes in Firebase Realtime Database
         db.ref('nivedans').on('value', (snapshot) => {
             allNivedansData = snapshot.val() || {};
             loadAdminDashboard();
@@ -175,7 +175,7 @@
     }
 
     // ==========================================
-    // 2. FORM SUBMIT -> FIREBASE
+    // 2. FORM SUBMIT
     // ==========================================
     document.getElementById('nivedanForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -195,7 +195,7 @@
         if(db) {
             db.ref('nivedans/' + id).set(newNivedan, (error) => {
                 if(error) {
-                    alert("डाटा सेभ गर्न समस्या भयो! Firebase Security Rules चेक गर्नुहोस्।");
+                    alert("डाटा सेभ गर्न समस्या भयो!");
                 } else {
                     alert('निवेदन सफलतापूर्वक सेभ भयो!');
                     document.getElementById('nivedanForm').reset();
@@ -208,7 +208,7 @@
     });
 
     // ==========================================
-    // 3. TRACE & PAYMENT (Firebase Connected)
+    // 3. TRACE & PAYMENT (Disabled Print if Unverified)
     // ==========================================
     function traceApplication() {
         const query = document.getElementById('traceSearchInput').value.trim();
@@ -225,12 +225,15 @@
         }
 
         results.forEach(item => {
+            // Verify condition: Paid हुन पर्‍यो र Admin ले Approve गरेको हुनुपर्छ
+            const isVerified = (item.paymentType === 'PAID' && item.status === 'Approved');
+            
             const card = document.createElement('div');
             card.style.cssText = "border:1px solid #ccc; padding:15px; margin-top:10px; border-radius:5px;";
             card.innerHTML = `
                 <h4>${item.formType} (${item.id})</h4>
                 <p><strong>आवेदक:</strong> ${item.applicantName} | <strong>मोबाइल:</strong> ${item.mobileNumber}</p>
-                <p><strong>स्थिति:</strong> <span style="color:blue">${item.status}</span> | <strong>प्रकार:</strong> ${item.paymentType}</p>
+                <p><strong>स्थिति:</strong> <span style="color:${item.status === 'Approved' ? 'green' : 'orange'}">${item.status}</span> | <strong>प्रकार:</strong> ${item.paymentType}</p>
                 
                 ${item.paymentType === 'FREE' ? `
                     <div style="background:#fff3cd; padding:10px; margin:10px 0;">
@@ -240,7 +243,11 @@
                     </div>
                 ` : `<p><b>eSewa Ref Code:</b> ${item.esewaCode}</p>`}
 
-                <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white;">Print / View</button>
+                <button onclick="openPrintModal('${item.id}')" 
+                        ${!isVerified ? 'disabled' : ''} 
+                        style="background:${isVerified ? 'var(--primary)' : '#ccc'}; color:white;">
+                    ${isVerified ? 'Print / View' : 'Print Locked (Pay & Verification Required)'}
+                </button>
             `;
             container.appendChild(card);
         });
@@ -255,7 +262,7 @@
                 paymentType: 'PAID',
                 esewaCode: code
             }).then(() => {
-                alert('भुक्तानी कोड अपडेट भयो!');
+                alert('भुक्तानी कोड अपलोड भयो! एडमिनले भेरिफाई गरेपछि प्रिन्ट खोल्नेछ।');
                 traceApplication();
             });
         }
@@ -278,7 +285,7 @@
                 <td>${item.esewaCode || 'N/A'} (${item.paymentType})</td>
                 <td><b>${item.status}</b></td>
                 <td>
-                    <button onclick="updateStatus('${item.id}', 'Approved')">Approve</button>
+                    <button onclick="updateStatus('${item.id}', 'Approved')">Approve / Verify</button>
                     <button onclick="updateStatus('${item.id}', 'Rejected')">Reject</button>
                     <button onclick="openPrintModal('${item.id}')">View</button>
                 </td>
@@ -289,7 +296,9 @@
 
     function updateStatus(id, newStatus) {
         if(db) {
-            db.ref('nivedans/' + id).update({ status: newStatus });
+            db.ref('nivedans/' + id).update({ status: newStatus }).then(() => {
+                alert('स्थिति अपडेट गरियो!');
+            });
         }
     }
 
