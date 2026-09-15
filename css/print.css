@@ -1,44 +1,51 @@
 @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&display=swap');
 
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Mukta', sans-serif;
+}
+
 body {
     background: #e0e0e0;
-    font-family: 'Mukta', sans-serif;
     margin: 0;
     padding: 0;
 }
 
+/* A4 Size Paper Styling */
 .print-page {
     width: 210mm;
-    min-height: 297mm; /* A4 Size */
-    padding: 20mm;
+    min-height: 297mm;
+    padding: 25mm 20mm;
     margin: 20px auto;
-    background: white;
+    background: #ffffff !important;
     box-shadow: 0 0 10px rgba(0,0,0,0.15);
     position: relative;
-    box-sizing: border-box;
     overflow: hidden;
 }
 
-/* Watermark CSS - Pure Seal Text & Border */
+/* Stamp Style Watermark Background */
 .print-page::before {
-    content: "नेपाल सरकार\A नेपाल सिफारिस प्रणाली";
+    content: "नेपाल सरकार\A स्थानीय तह सिफारिस";
     white-space: pre;
     position: absolute;
-    top: 45%;
+    top: 48%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(-30deg);
-    font-size: 32px;
-    font-weight: bold;
-    color: rgba(200, 0, 0, 0.08); /* Faint Red Seal Watermark */
+    font-size: 36px;
+    font-weight: 700;
+    color: rgba(180, 0, 0, 0.12) !important; /* Visual Opacity */
     text-align: center;
-    line-height: 1.6;
-    border: 8px double rgba(200, 0, 0, 0.08);
-    padding: 30px 50px;
+    line-height: 1.5;
+    border: 7px double rgba(180, 0, 0, 0.12) !important;
+    padding: 40px 60px;
     border-radius: 50%;
     pointer-events: none;
     z-index: 1;
 }
 
+/* Header & Content Styling */
 .header {
     text-align: center;
     color: #c0392b;
@@ -47,46 +54,60 @@ body {
 }
 
 .header h3 { font-size: 16px; margin: 0; }
-.header h2 { font-size: 24px; margin: 5px 0; font-weight: 700; }
+.header h2 { font-size: 26px; margin: 5px 0; font-weight: 700; }
 .header h4 { font-size: 18px; margin: 0; color: #333; }
 
 hr {
     border: none;
     border-top: 2px solid #c0392b;
-    margin: 15px 0;
+    margin: 15px 0 25px 0;
 }
 
 .content {
     font-size: 18px;
-    line-height: 2;
+    line-height: 2.2;
     color: #000;
-    margin-top: 30px;
     position: relative;
     z-index: 2;
 }
 
 .footer {
-    margin-top: 100px;
+    margin-top: 80px;
     font-size: 16px;
     position: relative;
     z-index: 2;
 }
 
-/* Force Watermark & Styling in Print Mode */
+/* STRICT PRINT RULES (Ensures Watermark appears) */
 @media print {
+    html, body {
+        background: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
     * {
         -webkit-print-color-adjust: exact !important; /* Chrome, Safari, Edge */
-        print-color-adjust: exact !important; /* Firefox */
+        print-color-adjust: exact !important;        /* Firefox */
+        color-adjust: exact !important;
     }
-    body {
-        background: none;
-        padding: 0;
-    }
+
     .print-page {
-        box-shadow: none;
-        margin: 0;
-        width: 100%;
+        box-shadow: none !important;
+        margin: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        padding: 15mm !important;
     }
+
+    /* Force Watermark Visibility on Paper */
+    .print-page::before {
+        display: block !important;
+        visibility: visible !important;
+        color: rgba(150, 0, 0, 0.15) !important;
+        border-color: rgba(150, 0, 0, 0.15) !important;
+    }
+
     .no-print {
         display: none !important;
     }
