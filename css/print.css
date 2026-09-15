@@ -18,7 +18,7 @@ body {
     padding: 0;
 }
 
-/* A4 Page Layout */
+/* A4 Sheet Container */
 .print-page {
     width: 210mm;
     min-height: 297mm;
@@ -30,47 +30,45 @@ body {
     overflow: hidden;
 }
 
-/* Permanent Seal Watermark */
+/* Circular Seal Watermark (Always Visible) */
 .print-page::before {
-    content: "नेपाल सरकार\A स्थानीय तह सिफारिस";
+    content: "नेपाल सरकार\A रोहिणी गाउँपालिका\A वडा नं. १ को कार्यालय";
     white-space: pre;
     position: absolute;
-    top: 50%;
+    top: 45%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(-30deg);
-    font-size: 38px;
+    font-size: 32px;
     font-weight: 700;
-    color: rgba(200, 0, 0, 0.08) !important;
+    color: rgba(200, 0, 0, 0.12) !important;
     text-align: center;
     line-height: 1.5;
-    border: 8px double rgba(200, 0, 0, 0.08) !important;
-    padding: 40px 60px;
+    border: 8px double rgba(200, 0, 0, 0.12) !important;
+    padding: 40px 50px;
     border-radius: 50%;
     pointer-events: none;
     z-index: 1;
 }
 
-/* Header & Text Structure */
 .header {
     text-align: center;
     color: #c0392b;
     position: relative;
     z-index: 2;
-    margin-bottom: 20px;
 }
 
-.header h3 { font-size: 18px; margin: 0; }
+.header h3 { font-size: 16px; margin: 0; }
 .header h2 { font-size: 28px; margin: 5px 0; font-weight: 700; }
 .header h4 { font-size: 20px; margin: 0; color: #2c3e50; }
 
 hr {
     border: none;
     border-top: 2px solid #c0392b;
-    margin: 10px 0 20px 0;
+    margin: 15px 0 25px 0;
 }
 
 .content {
-    font-size: 19px;
+    font-size: 18px;
     line-height: 2;
     color: #000;
     position: relative;
@@ -78,37 +76,33 @@ hr {
     text-align: justify;
 }
 
-.content .date {
-    text-align: right;
-    font-weight: bold;
-    margin-bottom: 15px;
+/* Application Table styling for A4 */
+.content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
 }
 
-.content .subject {
+.content table th, .content table td {
+    border: 1px solid #000;
+    padding: 8px;
     text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    margin: 20px 0;
-    text-decoration: underline;
 }
 
 .footer {
-    margin-top: 80px;
-    font-size: 18px;
+    margin-top: 60px;
+    font-size: 16px;
     position: relative;
     z-index: 2;
-    display: flex;
-    justify-content: space-between;
 }
 
-/* Print Settings Force Fit */
+/* PRINT RULES FOR BROWSER (A4 Guarantee & Watermark Force) */
 @media print {
     html, body {
         background: none !important;
         margin: 0 !important;
         padding: 0 !important;
-        width: 100%;
-        height: 100%;
+        width: 100% !important;
     }
     
     * {
@@ -120,14 +114,17 @@ hr {
         box-shadow: none !important;
         margin: 0 !important;
         width: 100% !important;
-        height: 100% !important;
-        padding: 20mm 25mm !important;
+        min-height: 100vh !important;
+        padding: 15mm 20mm !important;
         page-break-after: avoid;
     }
 
     .print-page::before {
         display: block !important;
         visibility: visible !important;
+        opacity: 1 !important;
+        color: rgba(180, 0, 0, 0.15) !important;
+        border-color: rgba(180, 0, 0, 0.15) !important;
     }
 
     .no-print {
