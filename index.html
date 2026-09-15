@@ -23,6 +23,15 @@
         table, th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: var(--primary); color: white; }
         
+        /* Links style for old applications index */
+        .old-nivedan-link {
+            color: #2980b9;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .old-nivedan-link:hover { color: #16a085; }
+
         /* Printable A4 Preview Container */
         #printView {
             display: flex;
@@ -129,6 +138,25 @@
 
             <button type="submit" style="background:var(--secondary); color:white;">निवेदन बुझाउनुहोस् (Save)</button>
         </form>
+
+        <hr style="margin: 30px 0;">
+
+        <!-- OLD NIVEDAN INDEX LINK LIST -->
+        <h3>पुराना निवेदनहरू (Index / Registered List)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>निवेदन लिङ्क (ID)</th>
+                    <th>प्रकार</th>
+                    <th>आवेदकको नाम</th>
+                    <th>मिति</th>
+                    <th>कार्य (Action)</th>
+                </tr>
+            </thead>
+            <tbody id="oldNivedanIndexBody">
+                <!-- Dynamic Old Nivedans Index -->
+            </tbody>
+        </table>
     </div>
 
     <!-- 2. TRACE & PAYMENT TAB -->
@@ -215,6 +243,7 @@
         
         db.ref('nivedans').on('value', (snapshot) => {
             allNivedansData = snapshot.val() || {};
+            loadOldNivedansIndex();
             loadAdminDashboard();
         });
     } catch(e) {
@@ -226,6 +255,7 @@
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         if(tabId === 'admin-tab') loadAdminDashboard();
+        if(tabId === 'forms-tab') loadOldNivedansIndex();
     }
 
     // ==========================================
@@ -262,7 +292,41 @@
     });
 
     // ==========================================
-    // 3. TRACE & PAYMENT
+    // 3. LOAD OLD NIVEDANS INDEX LIST IN FORMS TAB
+    // ==========================================
+    function loadOldNivedansIndex() {
+        const tbody = document.getElementById('oldNivedanIndexBody');
+        tbody.innerHTML = '';
+        const list = Object.values(allNivedansData);
+
+        if(list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">कुनै पनि पुराना निवेदन भेटिएन।</td></tr>';
+            return;
+        }
+
+        list.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <span class="old-nivedan-link" onclick="openPrintModal('${item.id}')">
+                        ${item.id}
+                    </span>
+                </td>
+                <td>${item.formType}</td>
+                <td>${item.applicantName}</td>
+                <td>${item.date}</td>
+                <td>
+                    <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white;">
+                        Preview / View
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // ==========================================
+    // 4. TRACE & PAYMENT
     // ==========================================
     function traceApplication() {
         const query = document.getElementById('traceSearchInput').value.trim();
@@ -318,7 +382,7 @@
     }
 
     // ==========================================
-    // 4. ADMIN DASHBOARD
+    // 5. ADMIN DASHBOARD
     // ==========================================
     function loadAdminDashboard() {
         const tbody = document.getElementById('adminTableBody');
@@ -352,7 +416,7 @@
     }
 
     // ==========================================
-    // 5. PRINT & WATERMARK CONTROL
+    // 6. PRINT & WATERMARK CONTROL
     // ==========================================
     function openPrintModal(id) {
         const item = allNivedansData[id];
