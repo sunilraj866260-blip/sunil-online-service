@@ -173,7 +173,6 @@
         .btn-action.btn-danger { background-color: #dc3545; }
         .btn-action:hover { opacity: 0.8; }
 
-        /* Trace & Admin Panel UI Styling */
         .panel-container {
             max-width: 900px;
             margin: 20px auto;
@@ -222,7 +221,12 @@
 </head>
 <body>
 
-    
+    <!-- Top Tabs Navigation -->
+    <div class="app-tabs">
+        <button class="tab-btn active" onclick="switchTab('formTab')">📝 निवेदन फारम (Form)</button>
+        <button class="tab-btn" onclick="switchTab('traceTab')">🔍 निवेदन खोज्नुहोस् (Trace)</button>
+        <button class="tab-btn" onclick="switchTab('adminTab')">🛡️ एड्मिन प्यानल (Admin Panel)</button>
+    </div>
 
     <!-- TAB 1: FORM APPLICATION -->
     <div id="formTab" class="tab-content active">
@@ -363,7 +367,7 @@
         </div>
     </div>
 
-    <!-- TAB 2: TRACE TAB (USER TRACKING & ESEWA CODE) -->
+    <!-- TAB 2: TRACE TAB -->
     <div id="traceTab" class="tab-content">
         <div class="panel-container">
             <div class="panel-title">🔍 निवेदन खोज्नुहोस् र प्रिन्ट गर्नुहोस् (Trace & Download)</div>
@@ -382,7 +386,7 @@
     <div id="adminTab" class="tab-content">
         <div class="panel-container" style="max-width: 1050px;">
             <div class="panel-title">🛡️ वडा कार्यालय एड्मिन प्यानल (Admin Verification Panel)</div>
-            <p style="font-size: 10.5pt; color: #55-;">सबमिट गरिएका निवेदनहरूको सूची तथा eSewa भुक्तानी प्रमाणित गरी स्वीकृति (Approve) दिनुहोस्:</p>
+            <p style="font-size: 10.5pt; color: #555;">सबमिट गरिएका निवेदनहरूको सूची तथा eSewa भुक्तानी प्रमाणित गरी स्वीकृति (Approve) दिनुहोस्:</p>
             
             <div style="overflow-x: auto;">
                 <table class="admin-table">
@@ -406,7 +410,7 @@
     </div>
 
     <script>
-        // --- Firebase Configuration (Demo/Public Config - Update with your actual project keys) ---
+        // --- Firebase Configuration (Public Test Database) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDummyKeyForRohiniWada1SystemXYZ",
             authDomain: "rochini-wada1-nivedan.firebaseapp.com",
@@ -417,7 +421,6 @@
             appId: "1:123456789012:web:abcdef1234567890"
         };
 
-        // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -442,9 +445,11 @@
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             
             document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-
+            
+            if (tabId === 'formTab') document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            if (tabId === 'traceTab') document.querySelectorAll('.tab-btn')[1].classList.add('active');
             if (tabId === 'adminTab') {
+                document.querySelectorAll('.tab-btn')[2].classList.add('active');
                 loadAdminPanelData();
             }
         }
@@ -520,13 +525,11 @@
             }
         }
 
-        // Auto Resize Inputs listener
         document.querySelectorAll('.auto-resize').forEach(input => {
             adjustWidth(input);
             input.addEventListener('input', () => adjustWidth(input));
         });
 
-        // Sync Applicant Name
         document.getElementById('sig_applicant_name').addEventListener('input', function() {
             const bodyName = document.getElementById('body_applicant_name');
             bodyName.value = this.value;
@@ -538,7 +541,7 @@
             adjustWidth(sigName);
         });
 
-        // --- Firebase Submit Action ---
+        // --- Submit Application ---
         function submitApplication() {
             const applicantName = document.getElementById('sig_applicant_name').value.trim();
             const phone = document.getElementById('applicant_phone').value.trim();
@@ -548,7 +551,6 @@
                 return;
             }
 
-            // Gather Data
             const formData = {
                 purposeCode: document.getElementById('purpose_select').value,
                 date: document.getElementById('app_date').value,
@@ -562,23 +564,19 @@
                 timestamp: Date.now()
             };
 
-            // Push to Firebase rochini_nivedans/ root
             const newRef = db.ref('rochini_nivedans').push();
             newRef.set(formData)
                 .then(() => {
-                    alert('तपाईंको निवेदन सफलताપूर्वक दर्ता भयो! अब "निवेदन खोज्नुहोस् (Trace)" ट्याबमा गएर मोबाइल नम्बरमार्फत eSewa कोड पेश गर्नुहोस्।');
-                    // Switch to Trace Tab & preset phone
+                    alert('तपाईंको निवेदन सफलताપूर्वक दर्ता भयो!');
                     document.getElementById('search_phone_input').value = phone;
                     switchTab('traceTab');
-                    document.querySelectorAll('.app-tabs button')[1].classList.add('active');
-                    document.querySelectorAll('.app-tabs button')[0].classList.remove('active');
                 })
                 .catch((error) => {
                     alert('डेटा सेभ गर्न समस्या आयो: ' + error.message);
                 });
         }
 
-        // --- Trace Application Logic ---
+        // --- Trace Application ---
         function traceApplication() {
             const phone = document.getElementById('search_phone_input').value.trim();
             const container = document.getElementById('trace_result_container');
@@ -634,12 +632,12 @@
 
             db.ref(`rochini_nivedans/${key}`).update({ esewaCode: codeInput })
                 .then(() => {
-                    alert('eSewa कोड सफलतापूर्वक सेभ भयो। वडा कार्यालयबाट अप्रुभ भएपछि प्रिन्ट गर्न सकिनेछ।');
+                    alert('eSewa कोड सफलतापूर्वक सेभ भयो।');
                     traceApplication();
                 });
         }
 
-        // --- Admin Panel Logic ---
+        // --- Admin Panel ---
         function loadAdminPanelData() {
             const tbody = document.getElementById('admin_table_body');
             tbody.innerHTML = '<tr><td colspan="7">डेटा लोड हुँदैछ...</td></tr>';
@@ -689,14 +687,27 @@
                 if (snapshot.exists()) {
                     const val = snapshot.val();
                     if (val.status === 'Approved') {
-                        // Remove watermark for approved documents during print view
+                        // Switch back to Form tab so user can see the document preview before printing
+                        switchTab('formTab');
+                        
+                        // Fill data into form elements temporarily for preview
+                        document.getElementById('sig_applicant_name').value = val.applicantName;
+                        document.getElementById('body_applicant_name').value = val.applicantName;
+                        if(val.phone) document.getElementById('applicant_phone').value = val.phone;
+                        if(val.citizenshipNo) document.getElementById('applicant_citizenship').value = val.citizenshipNo;
+                        if(val.grandpaName) document.getElementById('grandpa_name').value = val.grandpaName;
+                        if(val.fatherName) document.getElementById('father_name').value = val.fatherName;
+                        document.getElementById('purpose_select').value = val.purposeCode;
+                        updatePurpose();
+
+                        // Hide Watermark for Approved Print
                         const wm = document.getElementById('watermark_el');
                         if (wm) wm.style.display = 'none';
 
-                        window.print();
-
-                        // Restore watermark element after print dialog closes
-                        setTimeout(() => { if(wm) wm.style.display = 'block'; }, 1000);
+                        setTimeout(() => {
+                            window.print();
+                            if(wm) wm.style.display = 'block';
+                        }, 300);
                     } else {
                         alert('यो निवेदन अझै एड्मिनबाट स्वीकृत (Approve) भएको छैन!');
                     }
