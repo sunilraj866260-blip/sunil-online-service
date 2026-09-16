@@ -39,10 +39,10 @@
         .child-box { border: 1px dashed var(--primary); padding: 10px; margin-bottom: 15px; background: #f9fbfd; border-radius: 6px; }
         .address-card { background: #e0f2fe; border: 1px solid #bae6fd; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; color: #0369a1; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
-        /* Admin Table */
+        /* Admin Table - Font color set to black */
         .table-responsive { width: 100%; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 500px; }
-        table, th, td { border: 1px solid #ddd; padding: 8px; font-size: 13px; text-align: left; }
+        table, th, td { border: 1px solid #ddd; padding: 8px; font-size: 13px; text-align: left; color: #000000; }
         th { background-color: var(--primary); color: white; }
 
         /* Printable A4 Modal Container */
@@ -81,16 +81,18 @@
         }
 
         .child-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
-        .child-table th, .child-table td { border: 1px solid #000; padding: 6px; text-align: left; font-size: 11pt; }
+        .child-table th, .child-table td { border: 1px solid #000; padding: 6px; text-align: left; font-size: 11pt; color: #000; }
         .child-table th { background-color: #f2f2f2; }
 
         .date { text-align: right; margin-bottom: 20px; }
         .recipient { line-height: 1.4; margin-bottom: 20px; }
         .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 25px 0; font-size: 15pt; }
         .content { text-indent: 40px; margin-bottom: 15px; }
-        .bottom-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; border-top: 1px solid #000; padding-top: 15px; flex-wrap: wrap; gap: 20px; }
-        .attachment-part { width: 100%; font-size: 11pt; line-height: 1.6; }
-        .applicant-part { width: 100%; line-height: 1.6; }
+        
+        /* Bottom container layout for attachment and applicant side-by-side */
+        .bottom-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; border-top: 1px solid #000; padding-top: 15px; flex-wrap: nowrap; gap: 20px; }
+        .attachment-part { width: 55%; font-size: 11pt; line-height: 1.6; }
+        .applicant-part { width: 40%; line-height: 1.6; text-align: right; }
 
         @page { size: A4 portrait; margin: 0; }
         @media print {
@@ -310,6 +312,15 @@
     }
 
     function switchTab(tabId) {
+        // यदि 'जन्म दर्ता फारम' (forms-tab) मा क्लिक गरियो भने सिधै address.html मा नभई पहिले सेभ भएको ठेगाना चेक गरी फारम देखाउने (र ठेगाना नभए मात्र address.html मा पठाउने)
+        if(tabId === 'forms-tab') {
+            const saved = localStorage.getItem('savedAddress');
+            if(!saved) {
+                window.location.href = 'address.html';
+                return;
+            }
+        }
+
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-tabs button').forEach(el => el.classList.remove('active-tab'));
         
