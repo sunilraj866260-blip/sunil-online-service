@@ -209,7 +209,7 @@
         }
     }
 
-    // ठेगाना सेभ गरेर मुख्य निवेदन पेजमा जाने (Redirect) फंक्सन
+    // ठेगाना सेभ गरेर सिधै जन्म दर्ता (birth.html) पेजमा जाने फंक्सन
     function saveAndRedirect(event) {
         event.preventDefault();
 
@@ -225,8 +225,8 @@
         // ব্রাউजरको LocalStorage मा सेभ गर्ने
         localStorage.setItem('savedAddress', JSON.stringify(addressData));
 
-        // अर्को निवेदन पेजमा पठाउने (तपाईंले आफ्नो मुख्य फाइलको नाम 'nivedan.html' वा 'index.html' राख्न सक्नुहुन्छ)
-        window.location.href = 'nivedan.html'; 
+        // यहाँ फाइलको नाम ठ्याक्कै मिलाइएको छ (birth.html)
+        window.location.href = 'birth.html'; 
     }
 
     window.addEventListener('DOMContentLoaded', () => {
