@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>सिफारिस प्रणाली - रोहिणी-१</title>
+    <title>जन्म दर्ता सिफारिस प्रणाली</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -37,6 +37,7 @@
 
         .section-title { background: #e8ecef; padding: 8px; margin: 15px 0 10px 0; font-weight: bold; border-left: 6px solid var(--primary); font-size: 15px; }
         .child-box { border: 1px dashed var(--primary); padding: 10px; margin-bottom: 15px; background: #f9fbfd; border-radius: 6px; }
+        .address-card { background: #e0f2fe; border: 1px solid #bae6fd; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; color: #0369a1; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
         /* Admin Table */
         .table-responsive { width: 100%; overflow-x: auto; }
@@ -62,7 +63,6 @@
             text-align: justify;
         }
 
-        /* Diagonal Watermark Styling */
         .watermark {
             position: absolute; 
             top: 38%; 
@@ -100,39 +100,32 @@
             .container { box-shadow: none; padding: 0; background: transparent; }
             .no-print { display: none !important; }
             .print-container { 
-                position: absolute; 
-                left: 0; 
-                top: 0; 
-                width: 210mm;
-                height: 297mm;
-                border: none; 
-                box-shadow: none;
-                margin: 0;
-                padding: 25mm 20mm;
+                position: absolute; left: 0; top: 0; width: 210mm; height: 297mm; border: none; box-shadow: none; margin: 0; padding: 25mm 20mm;
             }
         }
     </style>
 </head>
-<body onload="setInitialDate()">
+<body onload="checkAddressAndLoad(); setInitialDate();">
 
 <div class="container">
-    <!-- Back to Home Button -->
-    <div style="margin-bottom: 10px;" class="no-print">
-        <a href="index.html" style="text-decoration:none; background:var(--primary); color:white; padding:6px 12px; border-radius:4px; font-size:13px; display:inline-block;">← गृह पृष्ठ (Home) मा जानुहोस्</a>
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs no-print">
+        <button id="btn-form" class="active-tab" onclick="switchTab('forms-tab')">📝 जन्म दर्ता फारम</button>
+        <button id="btn-trace" onclick="switchTab('trace-tab')">🔍 ट्रान्स / भुक्तानी</button>
+        <button id="btn-admin" onclick="switchTab('admin-tab')">⚙️ Admin Panel</button>
     </div>
-
-    
 
     <!-- 1. FORMS TAB -->
     <div id="forms-tab" class="tab-content active no-print">
-        <form id="nivedanForm">
-            <div class="input-group">
-                <label>सिफारिसको प्रकार:</label>
-                <select id="n_type">
-                    <option value="जन्म दर्ता गरिपाऊँ।">जन्म दर्ता गरिपाऊँ।</option>
-                </select>
-            </div>
+        <h2>जन्म दर्ता सिफारिस अनलाइन निवेदन</h2>
 
+        <!-- ठेगाना देखाउने कार्ड र परिवर्तन गर्ने लिंक -->
+        <div class="address-card" id="displayAddressBox">
+            <span>📍 <b>ठेगाना:</b> लोड हुँदैछ...</span>
+            <a href="address.html" style="background:var(--primary); color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:12px; font-weight:bold;">ठेगाना फेर्नुहोस्</a>
+        </div>
+
+        <form id="nivedanForm">
             <div class="row">
                 <div class="input-group"><label>मिति (वि.सं.):</label><input type="text" id="in_today"></div>
                 <div class="input-group"><label>फोन नं. (मोबाइल):</label><input type="text" id="in_phone" placeholder="98XXXXXXXX" required></div>
@@ -194,7 +187,7 @@
                         <div class="input-group"><label>जन्म मिति:</label><input type="text" class="child-dob" required></div>
                     </div>
                     <div class="row">
-                        <div class="input-group"><label>जन्मस्थान:</label><input type="text" class="child-birthplace" value="रोहिणी-१, रुपन्देही" required></div>
+                        <div class="input-group"><label>जन्मस्थान:</label><input type="text" class="child-birthplace" id="default_birthplace" required></div>
                         <div class="input-group"><label>टोकन नम्बर:</label><input type="text" class="child-token" placeholder="टोकन नं." required></div>
                     </div>
                 </div>
@@ -230,9 +223,7 @@
                         <th>कार्य</th>
                     </tr>
                 </thead>
-                <tbody id="adminTableBody">
-                    <!-- Dynamic Data -->
-                </tbody>
+                <tbody id="adminTableBody"></tbody>
             </table>
         </div>
     </div>
@@ -248,8 +239,8 @@
             <div id="watermarkOverlay" class="watermark">FREE COPY</div>
 
             <div class="date">मिति: <span id="p_today"></span></div>
-            <div class="recipient">श्रीमान् वडा अध्यक्ष ज्यू,<br>रोहिणी गाउँपालिका, वडा नं. १,<br>रुपन्देही, नेपाल।</div>
-            <div id="p_subject" class="subject"></div>
+            <div class="recipient">श्रीमान् वडा अध्यक्ष ज्यू,<br><span id="p_palika_info">गाउँपालिका, वडा नं. १</span>,<br><span id="p_district_info">जिल्ला, नेपाल।</span></div>
+            <div id="p_subject" class="subject">विषय : जन्म दर्ता गरिपाऊँ।</div>
             <p>महोदय,</p>
             <div id="p_content" class="content"></div>
             
@@ -261,8 +252,8 @@
                     <strong>निवेदक:</strong><br><br>
                     सही: ...........................<br>
                     नाम: <strong id="p_f_name">………………</strong><br>
-                    ठेगाना: रोहिणी-१, रुपन्देही<br>
-                    फोन: <span id="p_phone">98244</span>
+                    ठेगाना: <span id="p_applicant_address">………………</span><br>
+                    फोन: <span id="p_phone">………………</span>
                 </div>
             </div>
         </div>
@@ -275,24 +266,38 @@
         authDomain: "sunil-online-service.firebaseapp.com",
         databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
         projectId: "sunil-online-service",
-        storageBucket: "sunil-online-service.appspot.com",
-        messagingSenderId: "",
-        appId: ""
+        storageBucket: "sunil-online-service.appspot.com"
     };
 
     let db = null;
     let allNivedansData = {};
+    let globalAddress = {};
 
     try {
         firebase.initializeApp(firebaseConfig);
         db = firebase.database();
-        
         db.ref('rochini_nivedans').on('value', (snapshot) => {
             allNivedansData = snapshot.val() || {};
             loadAdminDashboard();
         });
-    } catch(e) {
-        console.error("Firebase init error:", e);
+    } catch(e) { console.error(e); }
+
+    function checkAddressAndLoad() {
+        const saved = localStorage.getItem('savedAddress');
+        if(!saved) {
+            alert('पहिले ठेगाना छान्नुहोस्!');
+            window.location.href = 'address.html';
+            return;
+        }
+        globalAddress = JSON.parse(saved);
+        
+        // डिस्प्ले कार्ड अपडेट गर्ने
+        document.getElementById('displayAddressBox').querySelector('span').innerHTML = `
+            📍 <b>ठेगाना:</b> ${globalAddress.province}, ${globalAddress.district}, ${globalAddress.palikaName} ${globalAddress.localType}-${globalAddress.ward}, ${globalAddress.tole}
+        `;
+        
+        // जन्मस्थानको पूर्वनिर्धारित बक्समा ठेगाना राख्ने
+        document.getElementById('default_birthplace').value = `${globalAddress.palikaName} ${globalAddress.localType}-${globalAddress.ward}, ${globalAddress.district}`;
     }
 
     let childCount = 1;
@@ -320,6 +325,7 @@
     function addChildBox() {
         childCount++;
         const container = document.getElementById('children_container');
+        const defaultPlace = `${globalAddress.palikaName || ''} ${globalAddress.localType || ''}-${globalAddress.ward || ''}, ${globalAddress.district || ''}`;
         const html = `
             <div class="child-box" id="child_block_${childCount}">
                 <div class="row">
@@ -334,7 +340,7 @@
                     <div class="input-group"><label>जन्म मिति:</label><input type="text" class="child-dob" required></div>
                 </div>
                 <div class="row">
-                    <div class="input-group"><label>जन्मस्थान:</label><input type="text" class="child-birthplace" value="रोहिणी-१, रुपन्देही" required></div>
+                    <div class="input-group"><label>जन्मस्थान:</label><input type="text" class="child-birthplace" value="${defaultPlace}" required></div>
                     <div class="input-group"><label>टोकन नम्बर:</label><input type="text" class="child-token" placeholder="टोकन नं." required></div>
                 </div>
                 <button type="button" class="btn-danger" onclick="removeChildBox(${childCount})">यो बच्चा हटाउनुहोस्</button>
@@ -371,6 +377,7 @@
 
         const record = {
             id: id,
+            ...globalAddress,
             today: document.getElementById('in_today').value.trim(),
             phone: document.getElementById('in_phone').value.trim(),
             applicantRole: document.getElementById('in_applicant_role').value,
@@ -458,6 +465,7 @@
 
     function loadAdminDashboard() {
         const tbody = document.getElementById('adminTableBody');
+        if(!tbody) return;
         tbody.innerHTML = '';
         const list = Object.values(allNivedansData);
 
@@ -472,7 +480,6 @@
                 <td>
                     <div style="display:flex; gap:5px; flex-wrap:wrap;">
                         <button onclick="verifyAndApprove('${item.id}')" style="background:var(--secondary); color:white; border:none; padding:5px 8px; border-radius:3px; cursor:pointer;">Approve</button>
-                        <button onclick="updateStatus('${item.id}', 'Rejected', false)" style="background:var(--danger); color:white; border:none; padding:5px 8px; border-radius:3px; cursor:pointer;">Reject</button>
                         <button onclick="openPrintModal('${item.id}')" style="padding:5px 8px; border-radius:3px; cursor:pointer;">View</button>
                     </div>
                 </td>
@@ -488,18 +495,7 @@
                 paymentType: 'PAID VERIFIED',
                 isVerified: true
             }).then(() => {
-                alert('सफलतापूर्वक Approve भयो! अब युजरले Download गर्न सक्नेछन्।');
-            });
-        }
-    }
-
-    function updateStatus(id, newStatus, isVerified = false) {
-        if(db) {
-            db.ref('rochini_nivedans/' + id).update({ 
-                status: newStatus,
-                isVerified: isVerified
-            }).then(() => {
-                alert('स्थिति अपडेट गरियो!');
+                alert('सफलतापूर्वक Approve भयो!');
             });
         }
     }
@@ -509,9 +505,10 @@
         if(!item) return;
 
         document.getElementById('p_today').innerText = item.today || "………………";
-        document.getElementById('p_subject').innerText = "विषय : जन्म दर्ता गरिपाऊँ।";
+        document.getElementById('p_palika_info').innerText = `${item.palikaName || 'गाउँपालिका'} ${item.localType || ''}, वडा नं. ${item.ward || '१'}`;
+        document.getElementById('p_district_info').innerText = `${item.district || 'जिल्ला'}, ${item.province || ''}, नेपाल`;
         
-        let con = `उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने <strong>${item.grandpa || "………………"}</strong> को ${item.grandpaRel}, तथा श्री <strong>${item.father || "………………"}</strong> को ${item.fatherRel} <strong>${item.name || "………………"}</strong> हूँ। मिति <strong>${item.marriageDate || "………………"}</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।`;
+        let con = `उपरोक्त सम्बन्धमा म निवेदक यस ${item.palikaName || ''} ${item.localType || ''} वडा नं. ${item.ward || ''} मा बसोबास गर्ने <strong>${item.grandpa || "………………"}</strong> को ${item.grandpaRel}, तथा श्री <strong>${item.father || "………………"}</strong> को ${item.fatherRel} <strong>${item.name || "………………"}</strong> हूँ। मिति <strong>${item.marriageDate || "………………"}</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।`;
         document.getElementById('p_content').innerHTML = con;
 
         let tableHtml = `<div style="overflow-x:auto;"><table class="child-table">
@@ -545,6 +542,7 @@
 
         document.getElementById('p_attachment').innerHTML = `<strong>संलग्न कागजातहरू:</strong><br>१. बाबु-आमाको नागरिकता प्रतिलिपि<br>२. अस्पतालको जन्म डिस्चार्ज पुर्जी वा जन्म दर्ता प्रमाणपत्रको प्रतिलिपि<br>३. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि`;
         document.getElementById('p_f_name').innerText = item.name || "………………";
+        document.getElementById('p_applicant_address').innerText = `${item.palikaName || ''}-${item.ward || ''}, ${item.district || ''}`;
         document.getElementById('p_phone').innerText = item.phone || "………………";
 
         const watermark = document.getElementById('watermarkOverlay');
@@ -568,9 +566,7 @@
 
     function triggerPrint() {
         const printBtn = document.getElementById('mainPrintBtn');
-        if(!printBtn.disabled) {
-            window.print();
-        }
+        if(!printBtn.disabled) window.print();
     }
 
     function closePrintView() {
