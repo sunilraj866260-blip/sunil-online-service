@@ -2,718 +2,459 @@
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>चारकिल्ला सिफारिस प्रणाली - रोहिणी वडा नं. १</title>
-    
-    <!-- Firebase App & Realtime Database SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>चारकिल्ला सिफारिस अनलाइन प्रणाली</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        *, *::before, *::after { box-sizing: border-box; }
-
-        body {
-            font-family: 'Kalimati', 'Mangal', 'Noto Sans Devanagari', sans-serif;
-            background-color: #eef2f5;
-            margin: 0;
-            padding: 0;
-            color: #111;
-        }
-
+        :root { --primary: #1e3799; --secondary: #27ae60; --danger: #c0392b; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 15px; margin: 0; }
+        .container { max-width: 950px; width: 100%; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 10px; font-size: 22px; }
+        
         /* Navigation Tabs */
-        .app-tabs {
-            display: flex;
-            background-color: #1a365d;
-            padding: 0 20px;
-            justify-content: center;
-            gap: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+        .nav-tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
+        .nav-tabs button { flex: 1; min-width: 120px; padding: 10px; border: none; background: #718093; color: white; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; text-align: center; }
+        .nav-tabs button.active-tab { background: var(--primary); }
 
-        .tab-btn {
-            background: none;
-            border: none;
-            color: #cbd5e1;
-            padding: 14px 24px;
-            font-size: 11pt;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        .tab-btn:hover { color: #ffffff; background-color: rgba(255,255,255,0.05); }
-        .tab-btn.active { color: #ffffff; background-color: #b30000; border-bottom: 4px solid #ffcc00; }
-
-        .tab-content { display: none; padding: 20px; }
+        .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* A4 Document Container */
-        .a4-container {
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 14px; color: #334155; }
+        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f8fafc; }
+        input:focus, select:focus { border-color: var(--primary); background: #fff; outline: none; }
+        .row { display: flex; gap: 15px; flex-wrap: wrap; }
+        .row .input-group { flex: 1; min-width: 240px; }
+        
+        .btn-submit { width: 100%; padding: 14px; background: var(--secondary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 15px; box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2); }
+        .btn-submit:hover { background: #219653; }
+        button:disabled { background: #95a5a6 !important; cursor: not-allowed !important; opacity: 0.6; }
+
+        .section-title { background: #e2e8f0; padding: 10px; margin: 20px 0 15px 0; font-weight: bold; border-left: 6px solid var(--primary); font-size: 15px; color: #1e293b; }
+        .address-card { background: #e0f2fe; border: 1px solid #bae6fd; padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #0369a1; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Admin Table */
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 600px; }
+        table, th, td { border: 1px solid #cbd5e1; padding: 10px; font-size: 13px; text-align: left; }
+        th { background-color: var(--primary); color: white; }
+
+        /* A4 Print Preview */
+        #printView { display: flex; flex-direction: column; align-items: center; background: #555555; padding: 20px 0; margin-top: 20px; border-radius: 8px; }
+        .print-container {
+            position: relative;
             width: 210mm;
             min-height: 297mm;
-            padding: 18mm 15mm 15mm 15mm;
+            padding: 25mm 20mm;
             margin: 0 auto;
             background: #ffffff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            position: relative;
+            border: 1px solid #d3d3d3;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+            line-height: 2.1;
+            font-size: 13pt;
+            color: black;
+            text-align: justify;
         }
 
-        /* Watermark */
-        .watermark-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-35deg);
-            font-size: 85pt;
-            font-weight: bold;
-            color: rgba(220, 53, 69, 0.12);
-            z-index: 10;
-            pointer-events: none;
-            white-space: nowrap;
-            letter-spacing: 5px;
-        }
-
-        input[type="text"], input[type="tel"], select {
-            font-family: inherit;
-            font-size: 10pt;
-            padding: 4px 6px;
-            border: 1px solid #999;
-            border-radius: 3px;
-            background-color: #fcfdff;
-        }
-
-        ::placeholder { color: #777 !important; opacity: 1 !important; font-weight: normal; }
-
-        input[type="text"]:focus, input[type="tel"]:focus, select:focus {
-            outline: none;
-            border-color: #b30000;
-            background-color: #fff;
-        }
-
-        .inline-input {
-            display: inline-block;
-            border: none;
-            border-bottom: 1px dashed #333;
-            border-radius: 0;
-            padding: 0 4px;
-            font-weight: bold;
-            min-width: 60px;
-            width: auto;
-        }
-
-        .top-meta { display: table; width: 100%; margin-bottom: 15px; }
-        .top-meta-left { display: table-cell; text-align: left; vertical-align: top; }
-        .top-meta-right { display: table-cell; text-align: right; vertical-align: top; font-weight: bold; }
-        .subject-box { text-align: center; margin: 12px 0; font-size: 12pt; font-weight: bold; text-decoration: underline; }
-        .salutation { font-weight: bold; margin-bottom: 8px; }
-        .letter-body { text-align: justify; margin-bottom: 12px; line-height: 2; }
-        .declaration-box { font-size: 9.5pt; background-color: #fafafa; border: 1px solid #ddd; padding: 8px 12px; margin: 10px 0; border-radius: 4px; }
-        
-        .section-header-flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #f0f4f8;
-            border-left: 4px solid #b30000;
-            padding: 4px 8px;
-            margin-top: 12px;
-            margin-bottom: 6px;
-        }
-        .section-title { font-size: 10.5pt; font-weight: bold; }
-
-        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-        .data-table th, .data-table td { padding: 4px 5px; border: 1px solid #ccc; font-size: 9.5pt; text-align: center; }
-        .data-table th { background-color: #f5f5f5; font-weight: bold; }
-        .table-input { width: 100% !important; text-align: center; }
-
-        .footer-signatures { display: table; width: 100%; margin-top: 20px; }
-        .sig-left { display: table-cell; width: 50%; vertical-align: top; font-size: 9.5pt; }
-        .sig-right { display: table-cell; width: 50%; vertical-align: top; font-size: 9.5pt; line-height: 1.8; }
-        .enclosure-list { margin: 5px 0 0 15px; padding: 0; font-size: 9pt; }
-
-        .controls-container {
-            width: 210mm;
-            margin: 0 auto 15px auto;
-            background: #fff;
-            padding: 12px 18px;
-            border-radius: 6px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .control-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 10.5pt;
-            font-weight: bold;
-        }
-
-        .btn-primary { background-color: #b30000; color: #ffffff; border: none; padding: 8px 18px; font-size: 11pt; font-weight: bold; border-radius: 4px; cursor: pointer; }
-        .btn-primary:hover { background-color: #800000; }
-        
-        .btn-action {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 2px 8px;
-            font-size: 9pt;
-            border-radius: 3px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-action.btn-danger { background-color: #dc3545; }
-        .btn-action:hover { opacity: 0.8; }
-
-        .panel-container {
-            max-width: 900px;
-            margin: 20px auto;
-            background: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .panel-title { font-size: 14pt; font-weight: bold; color: #1a365d; margin-bottom: 15px; border-bottom: 2px solid #b30000; padding-bottom: 8px; }
-        
-        .search-box-flex { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-box-flex input { flex: 1; padding: 8px 12px; font-size: 11pt; }
-
-        .status-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
+        .watermark {
+            position: absolute; 
+            top: 38%; 
+            left: 10%; 
+            width: 80%;
+            font-size: 55px;
+            color: rgba(231, 76, 60, 0.22); 
+            transform: rotate(-30deg);
+            font-weight: bold; 
+            text-align: center;
+            pointer-events: none; 
+            user-select: none;
+            border: 6px dashed rgba(231, 76, 60, 0.22);
             padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            box-sizing: border-box;
         }
 
-        .badge { padding: 4px 10px; border-radius: 12px; font-size: 9pt; font-weight: bold; }
-        .badge.pending { background-color: #fff3cd; color: #856404; }
-        .badge.approved { background-color: #d4edda; color: #155724; }
+        .charkilla-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
+        .charkilla-table th, .charkilla-table td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 11pt; }
+        .charkilla-table th { background-color: #f2f2f2; }
 
-        .admin-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .admin-table th, .admin-table td { border: 1px solid #cbd5e1; padding: 8px 10px; font-size: 10pt; text-align: center; }
-        .admin-table th { background-color: #f1f5f9; color: #1e293b; }
+        .date { text-align: right; margin-bottom: 20px; }
+        .recipient { line-height: 1.4; margin-bottom: 20px; }
+        .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 25px 0; font-size: 15pt; }
+        .content { text-indent: 40px; margin-bottom: 15px; }
+        .bottom-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 40px; border-top: 1px solid #000; padding-top: 15px; flex-wrap: wrap; gap: 20px; }
 
-        .dynamic-field { display: inline-block; }
-        .hidden { display: none !important; }
-
+        @page { size: A4 portrait; margin: 0; }
         @media print {
-            @page { size: A4; margin: 12mm 15mm 12mm 15mm; }
-            body { background: #ffffff; padding: 0; }
-            .app-tabs, .controls-container, .btn-action, .action-col, .panel-container { display: none !important; }
-            .a4-container { box-shadow: none; width: 100%; min-height: auto; padding: 0; margin: 0; }
-            input[type="text"], input[type="tel"] { border: none !important; background: transparent !important; padding: 0 !important; font-weight: bold; }
-            .inline-input { border-bottom: none !important; }
+            body { background: white; margin: 0; padding: 0; }
+            body * { visibility: hidden; }
+            .container, .print-container, .print-container * { visibility: visible; }
+            .container { box-shadow: none; padding: 0; background: transparent; }
+            .no-print { display: none !important; }
+            .print-container { 
+                position: absolute; left: 0; top: 0; width: 210mm; height: 297mm; border: none; box-shadow: none; margin: 0; padding: 25mm 20mm;
+            }
         }
     </style>
 </head>
-<body>
+<body onload="checkAddressAndLoad(); setInitialDate();">
 
-    <!-- Top Tabs Navigation -->
-    <div class="app-tabs">
-        <button class="tab-btn active" onclick="switchTab('formTab')">📝 निवेदन फारम (Form)</button>
-        <button class="tab-btn" onclick="switchTab('traceTab')">🔍 निवेदन खोज्नुहोस् (Trace)</button>
-        <button class="tab-btn" onclick="switchTab('adminTab')">🛡️ एड्मिन प्यानल (Admin Panel)</button>
+<div class="container">
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs no-print">
+        <button id="btn-form" class="active-tab" onclick="switchTab('forms-tab')">📝 चारकिल्ला फारम</button>
+        <button id="btn-trace" onclick="switchTab('trace-tab')">🔍 ट्रान्स / भुक्तानी</button>
+        <button id="btn-admin" onclick="switchTab('admin-tab')">⚙️ Admin Panel</button>
     </div>
 
-    <!-- TAB 1: FORM APPLICATION -->
-    <div id="formTab" class="tab-content active">
-        <div class="controls-container">
-            <div class="control-group">
-                <label for="purpose_select">सिफारिसको प्रयोजन:</label>
-                <select id="purpose_select" onchange="updatePurpose()">
-                    <option value="501">501 : धारा/विद्युत घरायासी प्रयोजन</option>
-                    <option value="502">502 : धारा/विद्युत कृषि प्रयोजन</option>
-                    <option value="503">503 : धारा/विद्युत व्यावसायिक र औद्योगिक प्रयोजन</option>
-                    <option value="504">504 : बैंकिङ प्रयोजनको लागि</option>
-                    <option value="505">505 : अन्य प्रयोजनको लागि</option>
-                    <option value="506">506 : दा.खा./बकसपत्र/लिलामी/बिक्री/अन्य सिफारिस</option>
-                </select>
+    <!-- 1. FORMS TAB -->
+    <div id="forms-tab" class="tab-content active">
+        <h2>चारकिल्ला प्रमाणित सिफारिस अनलाइन निवेदन</h2>
+
+        <!-- ठेगाना कार्ड र परिवर्तन गर्ने बटन -->
+        <div class="address-card" id="displayAddressBox">
+            <span>📍 <b>ठेगाना:</b> लोड हुँदैछ...</span>
+            <a href="address.html" style="background:var(--primary); color:white; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:12px; font-weight:bold;">ठेगाना फेर्नुहोस्</a>
+        </div>
+        
+        <form id="nivedanForm">
+            <div class="section-title">१. निवेदक तथा जग्गा धनीको विवरण</div>
+            <div class="row">
+                <div class="input-group"><label>मिति (वि.सं.):</label><input type="text" id="in_today"></div>
+                <div class="input-group"><label>फोन नं. (मोबाइल):</label><input type="text" id="in_phone" placeholder="98XXXXXXXX" required></div>
+            </div>
+
+            <div class="row">
+                <div class="input-group"><label>निवेदकको पूरा नाम:</label><input type="text" id="in_name" placeholder="पुरा नाम लेख्नुहोस्" required></div>
+                <div class="input-group"><label>जग्गा धनीको नाम (यदि फरक भए):</label><input type="text" id="in_owner_name" placeholder="जग्गा धनीको नाम"></div>
+            </div>
+
+            <div class="section-title">२. जग्गाको विवरण (कित्ता र क्षेत्रफल)</div>
+            <div class="row">
+                <div class="input-group"><label>कित्ता नम्बर:</label><input type="text" id="in_kitta" placeholder="उदा: १५४" required></div>
+                <div class="input-group"><label>क्षेत्रफल (बर्गमिटर / στ. / रोपनी):</label><input type="text" id="in_area" placeholder="उदा: ०-५-०-०" required></div>
+            </div>
+            <div class="row">
+                <div class="input-group"><label>साबिक गा.वि.स. / न.पा.:</label><input type="text" id="in_sabik" placeholder="साबिक ठेगाना" required></div>
+                <div class="input-group"><label>हालको वडा नं.:</label><input type="text" id="in_land_ward" placeholder="हालको वडा नं." required></div>
+            </div>
+
+            <div class="section-title">३. चारकिल्ला (पूर्व, पश्चिम, उत्तर, दक्षिण)</div>
+            <div class="row">
+                <div class="input-group"><label>पूर्व तर्फको सिमाना:</label><input type="text" id="in_east" placeholder="कसको जग्गा वा बाटो?" required></div>
+                <div class="input-group"><label>पश्चिम तर्फको सिमाना:</label><input type="text" id="in_west" placeholder="कसको जग्गा वा बाटो?" required></div>
+            </div>
+            <div class="row">
+                <div class="input-group"><label>उत्तर तर्फको सिमाना:</label><input type="text" id="in_north" placeholder="कसको जग्गा वा बाटो?" required></div>
+                <div class="input-group"><label>दक्षिण तर्फको सिमाना:</label><input type="text" id="in_south" placeholder="कसको जग्गा वा बाटो?" required></div>
             </div>
             
-            <div class="control-group">
-                <label><input type="checkbox" id="chk_grandpa" checked onchange="toggleField('field_grandpa', this.checked)"> बाजेको नाम</label>
-                <label><input type="checkbox" id="chk_father" checked onchange="toggleField('field_father', this.checked)"> बुवाको नाम</label>
-            </div>
+            <button type="submit" class="btn-submit">चारकिल्ला निवेदन सेभ गरी ट्रान्स पेजमा जानुहोस् ➔</button>
+        </form>
+    </div>
 
-            <button class="btn-primary" onclick="submitApplication()">🚀 निवेदन दर्ता गर्नुहोस् (Submit)</button>
+    <!-- 2. TRACE & PAYMENT TAB -->
+    <div id="trace-tab" class="tab-content">
+        <h3>मोबाइल नम्बर वा ID बाट निवेदन खोज्नुहोस्</h3>
+        <div class="row" style="margin-bottom: 15px;">
+            <div class="input-group" style="margin-bottom:0;"><input type="text" id="traceSearchInput" placeholder="मोबाइल नम्बर वा ID हाल्नुहोस्"></div>
+            <button onclick="traceApplication()" style="padding:12px 20px; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; width:100%;">खोज्नुहोस्</button>
+        </div>
+        <div id="traceResult"></div>
+    </div>
+
+    <!-- 3. ADMIN DASHBOARD -->
+    <div id="admin-tab" class="tab-content">
+        <h3>Admin Control Panel</h3>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>नाम</th>
+                        <th>फोन</th>
+                        <th>eSewa Code</th>
+                        <th>स्थिति</th>
+                        <th>कार्य</th>
+                    </tr>
+                </thead>
+                <tbody id="adminTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. A4 PRINT PREVIEW MODAL -->
+    <div id="printView" style="display:none;">
+        <div class="no-print" style="margin-bottom: 15px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button id="mainPrintBtn" onclick="triggerPrint()" disabled style="padding: 12px 24px; font-weight:bold; background:var(--secondary); color:white; border:none; border-radius:6px; cursor:pointer;">Download / Print A4 PDF</button>
+            <button onclick="closePrintView()" style="padding: 12px 24px; background:var(--danger); color:white; border:none; cursor:pointer; border-radius:6px; font-weight:bold;">बन्द गर्नुहोस्</button>
         </div>
 
-        <div class="a4-container" id="printable_area">
-            <div id="watermark_el" class="watermark-overlay">FREE COPY</div>
+        <div class="print-container" id="printableArea">
+            <div id="watermarkOverlay" class="watermark">FREE COPY - UNVERIFIED</div>
 
-            <div class="top-meta">
-                <div class="top-meta-left">
-                    <strong>श्रीमान् वडा अध्यक्षज्यू,</strong><br>
-                    रोहिणी गाउँपालिका, वडा नं. १ को कार्यालय,<br>
-                    रूपन्देही।
-                </div>
-                <div class="top-meta-right">
-                    मिति: <input type="text" class="auto-resize" id="app_date" style="width: 100px;" value="२०८३/०५/१६">
-                </div>
-            </div>
+            <div class="date">मिति: <span id="p_today"></span></div>
+            <div class="recipient">श्रीमान् वडा अध्यक्ष ज्यू,<br><span id="p_palika_info">रोहिणी गाउँपालिका, वडा नं. १</span>,<br><span id="p_district_info">रुपन्देही, नेपाल।</span></div>
+            <div id="p_subject" class="subject">विषय : चारकिल्ला प्रमाणित गरिपाऊँ।</div>
+            <p>महोदय,</p>
+            <div id="p_content" class="content"></div>
+            
+            <div id="p_charkilla_table_wrapper"></div>
 
-            <div class="subject-box" id="display_subject">
-                विषय: चारकिल्ला सिफारिस/प्रमाणित (धारा/विद्युत घरायासी प्रयोजन) पाउँ।
-            </div>
-
-            <div class="salutation">महोदय,</div>
-
-            <div class="letter-body">
-                उपरोक्त सम्बन्धमा म यसै रोहिणी गाउँपालिका वडा नं. १, रुपन्देही निवासी
-                
-                <span id="field_grandpa" class="dynamic-field">
-                    श्री <input type="text" class="inline-input auto-resize" id="grandpa_name" placeholder="बाजेको नाम"> को नाति/नातिना
-                </span>
-                
-                <span id="field_father" class="dynamic-field">
-                    तथा श्री <input type="text" class="inline-input auto-resize" id="father_name" placeholder="बुवाको नाम"> को छोरा/छोरी
-                </span>
-
-                श्री <input type="text" class="inline-input auto-resize" id="body_applicant_name" placeholder="निवेदकको नाम"> हुँ। मेरो/हाम्रो नाममा दर्ता श्रेष्ठ/हकभोगमा रहेको तल उल्लेखित कित्ता नम्बरको जग्गामा <span id="purpose_text_body">धारा/विद्युत घरायासी प्रयोजनको लागि</span> चारकिल्ला प्रमाणित तथा सिफारिस आवश्यक परेको हुँदा सम्बन्धित निकायमा पेश गर्नका लागि नियमअनुसार सिफारिस पत्र उपलब्ध गराइदिनुहुन विनम्र अनुरोध गर्दछु।
-            </div>
-
-            <div class="declaration-box">
-                निवेदनमा उल्लेख गरिएका सम्पूर्ण विवरण तथा संलग्न कागजातहरू साँचो हुन्। झुठ्ठा ठहरे कानून बमोजिम सहुँला बुझाउँला।
-            </div>
-
-            <!-- तालिका १: जग्गाको विवरण -->
-            <div class="section-header-flex">
-                <div class="section-title">१. जग्गाको विवरण (Land Details)</div>
-                <button type="button" class="btn-action" onclick="addLandRow()">+ थप्नुहोस्</button>
-            </div>
-            <table class="data-table" id="land_table">
-                <thead>
-                    <tr>
-                        <th style="width: 8%;">क्र.सं.</th>
-                        <th style="width: 25%;">कित्ता नम्बर</th>
-                        <th style="width: 30%;">क्षेत्रफल</th>
-                        <th style="width: 27%;">कैफियत</th>
-                        <th class="action-col" style="width: 10%;">कार्य</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="row-index">१.</td>
-                        <td><input type="text" class="table-input land-kitta" placeholder="................"></td>
-                        <td><input type="text" class="table-input land-area" placeholder="................"></td>
-                        <td><input type="text" class="table-input land-remark" placeholder="घरायासी प्रयोजन"></td>
-                        <td class="action-col"><button type="button" class="btn-action btn-danger" onclick="removeRow(this, 'land_table')">-</button></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <!-- तालिका २: चारकिल्ला विवरण -->
-            <div class="section-header-flex">
-                <div class="section-title">२. जग्गाको चारकिल्ला विवरण (Four Boundaries)</div>
-                <button type="button" class="btn-action" onclick="addBoundaryRow()">+ थप्नुहोस्</button>
-            </div>
-            <table class="data-table" id="boundary_table">
-                <thead>
-                    <tr>
-                        <th style="width: 6%;">क्र.सं.</th>
-                        <th style="width: 14%;">कित्ता नं.</th>
-                        <th style="width: 18%;">पूर्व</th>
-                        <th style="width: 18%;">पश्चिम</th>
-                        <th style="width: 18%;">उत्तर</th>
-                        <th style="width: 18%;">दक्षिण</th>
-                        <th class="action-col" style="width: 8%;">कार्य</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="row-index">१.</td>
-                        <td><input type="text" class="table-input bnd-kitta" placeholder="कित्ता नं."></td>
-                        <td><input type="text" class="table-input bnd-east" placeholder="पूर्वको विवरण"></td>
-                        <td><input type="text" class="table-input bnd-west" placeholder="पश्चिमको विवरण"></td>
-                        <td><input type="text" class="table-input bnd-north" placeholder="उत्तरको विवरण"></td>
-                        <td><input type="text" class="table-input bnd-south" placeholder="दक्षिणको विवरण"></td>
-                        <td class="action-col"><button type="button" class="btn-action btn-danger" onclick="removeRow(this, 'boundary_table')">-</button></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="footer-signatures">
-                <div class="sig-left">
-                    <strong>संलग्न कागजातहरू:</strong>
-                    <ol class="enclosure-list">
-                        <li>नागरिकता प्रमाणपत्रको प्रतिलिपि</li>
-                        <li>जग्गाधनी प्रमाण पुर्जा (लालपूर्जा) को प्रतिलिपि</li>
-                        <li>चालु आर्थिक वर्षको मालपोत रसिद</li>
-                        <li>अन्य सम्बन्धित कागजातहरू</li>
-                    </ol>
-                </div>
-                <div class="sig-right">
-                    <strong>निवेदक:</strong><br>
+            <div class="bottom-container">
+                <div class="attachment-part" id="p_attachment"><strong>संलग्न कागजातहरू:</strong><br>१. जग्गाधनी प्रमाण पूर्जाको प्रतिलिपि<br>२. नागरिकता प्रतिलिपि<br>३. चालू आव सम्मको मालपोत तिरेको रसिद</div>
+                <div class="applicant-part">
+                    <strong>निवेदक:</strong><br><br>
                     सही: ...........................<br>
-                    नाम थर: <input type="text" class="inline-input auto-resize" id="sig_applicant_name" placeholder="................................"><br>
-                    नागरिकता नं.: <input type="text" class="inline-input auto-resize" id="applicant_citizenship" placeholder="................................"><br>
-                    ठेगाना: रोहिणी-१, रुपन्देही<br>
-                    फोन नं. (मोबाइल): <input type="tel" id="applicant_phone" class="inline-input" placeholder="98XXXXXXXX" style="width: 120px;">
+                    नाम: <strong id="p_f_name">………………</strong><br>
+                    ठेगाना: <span id="p_applicant_address">………………</span><br>
+                    फोन: <span id="p_phone">………………</span>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- TAB 2: TRACE TAB -->
-    <div id="traceTab" class="tab-content">
-        <div class="panel-container">
-            <div class="panel-title">🔍 निवेदन खोज्नुहोस् र प्रिन्ट गर्नुहोस् (Trace & Download)</div>
-            <p style="font-size: 10.5pt; color: #555;">तपाईंले निवेदनमा दर्ता गर्नुभएको मोबाइल नम्बर राखेर आफ्नो स्थितिको जाँच गर्नुहोस्:</p>
-            
-            <div class="search-box-flex">
-                <input type="tel" id="search_phone_input" placeholder="मोबाइल नम्बर राख्नुहोस् (उदा. 98XXXXXXXX)">
-                <button class="btn-primary" onclick="traceApplication()">खोजी गर्नुहोस् (Search)</button>
-            </div>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+        authDomain: "sunil-online-service.firebaseapp.com",
+        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
+        projectId: "sunil-online-service",
+        storageBucket: "sunil-online-service.appspot.com"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-            <div id="trace_result_container"></div>
-        </div>
-    </div>
+    let globalAddress = {};
+    let allNivedansData = {};
 
-    <!-- TAB 3: ADMIN PANEL -->
-    <div id="adminTab" class="tab-content">
-        <div class="panel-container" style="max-width: 1050px;">
-            <div class="panel-title">🛡️ वडा कार्यालय एड्मिन प्यानल (Admin Verification Panel)</div>
-            <p style="font-size: 10.5pt; color: #555;">सबमिट गरिएका निवेदनहरूको सूची तथा eSewa भुक्तानी प्रमाणित गरी स्वीकृति (Approve) दिनुहोस्:</p>
-            
-            <div style="overflow-x: auto;">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>मिति / आईडी</th>
-                            <th>निवेदकको नाम</th>
-                            <th>मोबाइल नं.</th>
-                            <th>प्रयोजन</th>
-                            <th>eSewa कोड / भुक्तानी</th>
-                            <th>स्थिति (Status)</th>
-                            <th>कार्यहरू (Action)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin_table_body">
-                        <tr><td colspan="7" style="color: #777;">डेटा लोड हुँदैछ...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    db.ref('universal_charkilla_nivedans').on('value', (snapshot) => {
+        allNivedansData = snapshot.val() || {};
+        loadAdminDashboard();
+    });
 
-    <script>
-        // --- Firebase Configuration (Public Test Database) ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyDummyKeyForRohiniWada1SystemXYZ",
-            authDomain: "rochini-wada1-nivedan.firebaseapp.com",
-            databaseURL: "https://rochini-nivedan-default-rtdb.firebaseio.com/",
-            projectId: "rochini-wada1-nivedan",
-            storageBucket: "rochini-wada1-nivedan.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef1234567890"
+    function checkAddressAndLoad() {
+        const saved = localStorage.getItem('savedAddress');
+        if(!saved) {
+            alert('पहिले ठेगाना छान्नुहोस्!');
+            window.location.href = 'address.html';
+            return;
+        }
+        globalAddress = JSON.parse(saved);
+        document.getElementById('displayAddressBox').querySelector('span').innerHTML = `
+            📍 <b>ठेगाना:</b> ${globalAddress.province}, ${globalAddress.district}, ${globalAddress.palikaName} ${globalAddress.localType}-${globalAddress.ward}, ${globalAddress.tole}
+        `;
+    }
+
+    function setInitialDate() {
+        try {
+            const options = { year: 'numeric', month: 'numeric', day: 'numeric', calendar: 'nepali' };
+            document.getElementById('in_today').value = new Intl.DateTimeFormat('ne-NP-u-ca-nepali', options).format(new Date());
+        } catch (e) { document.getElementById('in_today').value = "२०८३/०३/२७"; }
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-tabs button').forEach(el => el.classList.remove('active-tab'));
+        
+        document.getElementById(tabId).classList.add('active');
+        if(tabId === 'forms-tab') document.getElementById('btn-form').classList.add('active-tab');
+        if(tabId === 'trace-tab') document.getElementById('btn-trace').classList.add('active-tab');
+        if(tabId === 'admin-tab') {
+            document.getElementById('btn-admin').classList.add('active-tab');
+            loadAdminDashboard();
+        }
+    }
+
+    document.getElementById('nivedanForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const id = 'CHAR-' + Date.now();
+
+        const record = {
+            id: id,
+            type: 'चारकिल्ला सिफारिस',
+            ...globalAddress,
+            today: document.getElementById('in_today').value.trim(),
+            phone: document.getElementById('in_phone').value.trim(),
+            name: document.getElementById('in_name').value.trim(),
+            ownerName: document.getElementById('in_owner_name').value.trim() || document.getElementById('in_name').value.trim(),
+            kitta: document.getElementById('in_kitta').value.trim(),
+            area: document.getElementById('in_area').value.trim(),
+            sabik: document.getElementById('in_sabik').value.trim(),
+            landWard: document.getElementById('in_land_ward').value.trim(),
+            east: document.getElementById('in_east').value.trim(),
+            west: document.getElementById('in_west').value.trim(),
+            north: document.getElementById('in_north').value.trim(),
+            south: document.getElementById('in_south').value.trim(),
+            status: 'Pending Verification',
+            isVerified: false,
+            esewaCode: ''
         };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.database();
-
-        const purposeMap = {
-            "501": { subject: "विषय: चारकिल्ला सिफारिस/प्रमाणित (धारा/विद्युत घरायासी प्रयोजन) पाउँ।", bodyText: "धारा/विद्युत घरायासी प्रयोजनको लागि", remark: "घरायासी प्रयोजन" },
-            "502": { subject: "विषय: चारकिल्ला सिफारिस/प्रमाणित (धारा/विद्युत कृषि प्रयोजन) पाउँ।", bodyText: "धारा/विद्युत कृषि प्रयोजनको लागि", remark: "कृषि प्रयोजन" },
-            "503": { subject: "विषय: चारकिल्ला सिफारिस/प्रमाणित (धारा/विद्युत व्यावसायिक र औद्योगिक प्रयोजन) पाउँ।", bodyText: "धारा/विद्युत व्यावसायिक तथा औद्योगिक प्रयोजनको लागि", remark: "व्यावसायिक/औद्योगिक" },
-            "504": { subject: "विषय: चारकिल्ला सिफारिस/प्रमाणित (बैंकिङ प्रयोजन) पाउँ।", bodyText: "बैंक/वित्तीय संस्थाबाट ऋण/बैंक सम्बन्धी कार्य (बैंकिङ प्रयोजन) को लागि", remark: "बैंकिङ प्रयोजन" },
-            "505": { subject: "विषय: चारकिल्ला सिफारिस/प्रमाणित (अन्य प्रयोजन) पाउँ।", bodyText: "आवश्यक अन्य प्रयोजनको लागि", remark: "अन्य प्रयोजन" },
-            "506": { subject: "विषय: चारकिल्ला सिफारिस (दा.खा./बकसपत्र/लिलामी/बिक्री/अन्य) पाउँ।", bodyText: "दाखिला खारेज/बकसपत्र/लिलामी/बिक्री वा अन्य हकहस्तान्तरण कार्यको लागि", remark: "दा.खा./बकसपत्र/बिक्री" }
-        };
-
-        const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
-        function getNepaliNum(num) {
-            return num.toString().split('').map(digit => nepaliDigits[digit] || digit).join('') + '.';
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
-            
-            if (tabId === 'formTab') document.querySelectorAll('.tab-btn')[0].classList.add('active');
-            if (tabId === 'traceTab') document.querySelectorAll('.tab-btn')[1].classList.add('active');
-            if (tabId === 'adminTab') {
-                document.querySelectorAll('.tab-btn')[2].classList.add('active');
-                loadAdminPanelData();
+        db.ref('universal_charkilla_nivedans/' + id).set(record, (error) => {
+            if(error) {
+                alert("डाटा सेभ गर्न समस्या भयो!");
+            } else {
+                alert('चारकिल्ला निवेदन सफलतापुर्वक सेभ भयो! अब ट्रान्स पेजमा देखिनेछ।');
+                document.getElementById('nivedanForm').reset();
+                switchTab('trace-tab');
+                document.getElementById('traceSearchInput').value = record.phone;
+                traceApplication();
             }
+        });
+    });
+
+    function traceApplication() {
+        const query = document.getElementById('traceSearchInput').value.trim();
+        const container = document.getElementById('traceResult');
+        container.innerHTML = '';
+
+        const results = Object.values(allNivedansData).filter(item => 
+            item.phone === query || item.esewaCode === query || item.id === query
+        );
+
+        if(results.length === 0) {
+            container.innerHTML = '<p style="color:red; margin-top:10px;">कुनै पनि निवेदन भेटिएन।</p>';
+            return;
         }
 
-        function updatePurpose() {
-            const selectedVal = document.getElementById('purpose_select').value;
-            const data = purposeMap[selectedVal];
-            document.getElementById('display_subject').textContent = data.subject;
-            document.getElementById('purpose_text_body').textContent = data.bodyText;
-            document.querySelectorAll('.land-remark').forEach(input => { input.value = data.remark; });
-        }
+        results.forEach(item => {
+            const card = document.createElement('div');
+            card.style.cssText = "border:1px solid #cbd5e1; padding:15px; margin-top:15px; border-radius:8px; background:#fff;";
+            card.innerHTML = `
+                <h4>निवेदन ID: ${item.id}</h4>
+                <p><strong>निवेदक:</strong> ${item.name} | <strong>फोन:</strong> ${item.phone}</p>
+                <p><strong>स्थिति:</strong> <span style="color:${item.isVerified ? 'green' : 'orange'}; font-weight:bold;">${item.status}</span></p>
+                
+                ${!item.isVerified ? `
+                    <div style="background:#fef3c7; padding:12px; margin:12px 0; border:1px solid #fde68a; border-radius:6px;">
+                        <p style="margin:0 0 6px 0; font-size:13px; color:#92400e;"><strong>eSewa भुक्तानी कोड हाल्नुहोस् (Rs. 50):</strong></p>
+                        <input type="text" id="esewa_in_${item.id}" placeholder="eSewa Txn Code" value="${item.esewaCode || ''}" style="margin-bottom:8px;">
+                        <button onclick="submitPayment('${item.id}')" style="padding:10px; background:var(--secondary); color:white; border:none; border-radius:6px; cursor:pointer; width:100%; font-weight:bold;">भुक्तानी कोड बुझाउनुहोस्</button>
+                    </div>
+                ` : `<p style="color:green;"><b>✓ भुक्तानी प्रमाणित भयो</b> | eSewa Code: ${item.esewaCode}</p>`}
 
-        function toggleField(fieldId, isVisible) {
-            const field = document.getElementById(fieldId);
-            if (isVisible) { field.classList.remove('hidden'); } else { field.classList.add('hidden'); }
-        }
+                <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white; padding:12px; border:none; border-radius:6px; cursor:pointer; width:100%; margin-top:5px; font-weight:bold;">
+                    👁️ A4 Preview हेर्नुहोस् (प्रिन्ट / वाटरमार्क)
+                </button>
+            `;
+            container.appendChild(card);
+        });
+    }
 
-        function adjustWidth(input) {
-            const tempSpan = document.createElement('span');
-            tempSpan.style.visibility = 'hidden'; tempSpan.style.position = 'absolute'; tempSpan.style.whiteSpace = 'pre';
-            tempSpan.style.font = window.getComputedStyle(input).font;
-            tempSpan.textContent = input.value || input.placeholder || '................';
-            document.body.appendChild(tempSpan);
-            input.style.width = (tempSpan.offsetWidth + 10) + 'px';
-            document.body.removeChild(tempSpan);
-        }
+    function submitPayment(id) {
+        const code = document.getElementById(`esewa_in_${id}`).value.trim();
+        if(!code) return alert('कृपया eSewa Code हाल्नुहोस्');
 
-        function updateIndexes(tableId) {
-            const rows = document.querySelectorAll(`#${tableId} tbody tr`);
-            rows.forEach((row, index) => {
-                row.querySelector('.row-index').textContent = getNepaliNum(index + 1);
-            });
-        }
+        db.ref('universal_charkilla_nivedans/' + id).update({
+            esewaCode: code,
+            status: 'Payment Pending Admin Verification'
+        }).then(() => {
+            alert('भुक्तानी कोड सफलतापूर्वक पठाइयो!');
+            traceApplication();
+        });
+    }
 
-        function addLandRow() {
-            const tbody = document.querySelector('#land_table tbody');
-            const selectedVal = document.getElementById('purpose_select').value;
-            const currentRemark = purposeMap[selectedVal].remark;
-            
+    function loadAdminDashboard() {
+        const tbody = document.getElementById('adminTableBody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        const list = Object.values(allNivedansData);
+
+        list.forEach(item => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td class="row-index"></td>
-                <td><input type="text" class="table-input land-kitta" placeholder="................"></td>
-                <td><input type="text" class="table-input land-area" placeholder="................"></td>
-                <td><input type="text" class="table-input land-remark" value="${currentRemark}"></td>
-                <td class="action-col"><button type="button" class="btn-action btn-danger" onclick="removeRow(this, 'land_table')">-</button></td>
+                <td>${item.id}</td>
+                <td>${item.name}</td>
+                <td>${item.phone}</td>
+                <td>${item.esewaCode || 'N/A'}</td>
+                <td><b>${item.status}</b></td>
+                <td>
+                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                        <button onclick="verifyAndApprove('${item.id}')" style="background:var(--secondary); color:white; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">Approve</button>
+                        <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">View</button>
+                    </div>
+                </td>
             `;
             tbody.appendChild(tr);
-            updateIndexes('land_table');
-        }
-
-        function addBoundaryRow() {
-            const tbody = document.querySelector('#boundary_table tbody');
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="row-index"></td>
-                <td><input type="text" class="table-input bnd-kitta" placeholder="कित्ता नं."></td>
-                <td><input type="text" class="table-input bnd-east" placeholder="पूर्वको विवरण"></td>
-                <td><input type="text" class="table-input bnd-west" placeholder="पश्चिमको विवरण"></td>
-                <td><input type="text" class="table-input bnd-north" placeholder="उत्तरको विवरण"></td>
-                <td><input type="text" class="table-input bnd-south" placeholder="दक्षिणको विवरण"></td>
-                <td class="action-col"><button type="button" class="btn-action btn-danger" onclick="removeRow(this, 'boundary_table')">-</button></td>
-            `;
-            tbody.appendChild(tr);
-            updateIndexes('boundary_table');
-        }
-
-        function removeRow(btn, tableId) {
-            const tbody = document.querySelectorAll(`#${tableId} tbody tr`);
-            if (tbody.length > 1) {
-                btn.closest('tr').remove();
-                updateIndexes(tableId);
-            }
-        }
-
-        document.querySelectorAll('.auto-resize').forEach(input => {
-            adjustWidth(input);
-            input.addEventListener('input', () => adjustWidth(input));
         });
+    }
 
-        document.getElementById('sig_applicant_name').addEventListener('input', function() {
-            const bodyName = document.getElementById('body_applicant_name');
-            bodyName.value = this.value;
-            adjustWidth(bodyName);
+    function verifyAndApprove(id) {
+        db.ref('universal_charkilla_nivedans/' + id).update({ 
+            status: 'Verified & Approved',
+            isVerified: true
+        }).then(() => {
+            alert('सफलतापूर्वक Approve भयो! अब युजरले वाटरमार्क बिना प्रिन्ट गर्न पाउनेछन्।');
         });
-        document.getElementById('body_applicant_name').addEventListener('input', function() {
-            const sigName = document.getElementById('sig_applicant_name');
-            sigName.value = this.value;
-            adjustWidth(sigName);
-        });
+    }
 
-        // --- Submit Application ---
-        function submitApplication() {
-            const applicantName = document.getElementById('sig_applicant_name').value.trim();
-            const phone = document.getElementById('applicant_phone').value.trim();
+    function openPrintModal(id) {
+        const item = allNivedansData[id];
+        if(!item) return;
 
-            if (!applicantName || !phone) {
-                alert('कृपया निवेदकको नाम र मोबाइल नम्बर अनिवार्य रूपमा भर्नुहोस्!');
-                return;
-            }
+        document.getElementById('p_today').innerText = item.today || "………………";
+        document.getElementById('p_palika_info').innerText = `${item.palikaName} ${item.localType}, वडा नं. ${item.ward}`;
+        document.getElementById('p_district_info').innerText = `${item.district}, ${item.province}, नेपाल`;
+        
+        let con = `उपरोक्त सम्बन्धमा मेरो/हाम्रो नाममा साबिक ${item.sabik} हाल ${item.palikaName} ${item.localType} वडा नं. ${item.landWard} स्थित कित्ता नं. <strong>${item.kitta}</strong> को क्षेत्रफल <strong>${item.area}</strong> भएको जग्गाको चारकिल्ला प्रमाणित गरिपाऊँ भनी यस वडा कार्यालयमा दिएको निवेदन अनुसार उक्त जग्गाको चारकिल्ला तपसिल बमोजिम रहेको व्यहोरा सिफारिस गरिन्छ।`;
+        document.getElementById('p_content').innerHTML = con;
 
-            const formData = {
-                purposeCode: document.getElementById('purpose_select').value,
-                date: document.getElementById('app_date').value,
-                grandpaName: document.getElementById('grandpa_name').value,
-                fatherName: document.getElementById('father_name').value,
-                applicantName: applicantName,
-                citizenshipNo: document.getElementById('applicant_citizenship').value,
-                phone: phone,
-                esewaCode: '',
-                status: 'Pending',
-                timestamp: Date.now()
-            };
+        let tableHtml = `<div style="overflow-x:auto;"><table class="charkilla-table">
+            <thead>
+                <tr>
+                    <th>क्र.सं.</th>
+                    <th>दिशा</th>
+                    <th>सिमाना / जोडिएको जग्गा वा बाटोको विवरण</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>१</td><td><b>पूर्व</b></td><td>${item.east}</td></tr>
+                <tr><td>२</td><td><b>पश्चिम</b></td><td>${item.west}</td></tr>
+                <tr><td>३</td><td><b>उत्तर</b></td><td>${item.north}</td></tr>
+                <tr><td>४</td><td><b>दक्षिण</b></td><td>${item.south}</td></tr>
+            </tbody></table></div>`;
+        
+        document.getElementById('p_charkilla_table_wrapper').innerHTML = tableHtml;
+        document.getElementById('p_f_name').innerText = item.name;
+        document.getElementById('p_applicant_address').innerText = `${item.palikaName}-${item.ward}, ${item.district}`;
+        document.getElementById('p_phone').innerText = item.phone;
 
-            const newRef = db.ref('rochini_nivedans').push();
-            newRef.set(formData)
-                .then(() => {
-                    alert('तपाईंको निवेदन सफलताપूर्वक दर्ता भयो!');
-                    document.getElementById('search_phone_input').value = phone;
-                    switchTab('traceTab');
-                })
-                .catch((error) => {
-                    alert('डेटा सेभ गर्न समस्या आयो: ' + error.message);
-                });
+        const watermark = document.getElementById('watermarkOverlay');
+        const printBtn = document.getElementById('mainPrintBtn');
+
+        // यदि भेरिफाइड (Paid) छ भने वाटरमार्क हटाउने र प्रिन्ट बटन खोल्ने
+        if(item.isVerified === true) {
+            watermark.style.display = 'none';
+            printBtn.disabled = false;
+            printBtn.innerText = "Download / Print A4 PDF (Verified Clean)";
+            printBtn.style.background = "var(--secondary)";
+        } else {
+            // फ्री वा अनभेरिफाइड छ भने वाटरमार्क देखाउने र प्रिन्ट बटन बन्द (Disabled) राख्ने
+            watermark.style.display = 'block';
+            printBtn.disabled = true;
+            printBtn.innerText = "Print Disabled (Payment Verification Required)";
+            printBtn.style.background = "#95a5a6";
         }
 
-        // --- Trace Application ---
-        function traceApplication() {
-            const phone = document.getElementById('search_phone_input').value.trim();
-            const container = document.getElementById('trace_result_container');
-            
-            if (!phone) {
-                alert('कृपया मोबाइल नम्बर प्रविष्ट गर्नुहोस्!');
-                return;
-            }
+        document.getElementById('printView').style.display = 'flex';
+        window.scrollTo(0, document.getElementById('printView').offsetTop);
+    }
 
-            container.innerHTML = '<p>खोजी गरिंदैछ...</p>';
-
-            db.ref('rochini_nivedans').orderByChild('phone').equalTo(phone).once('value', (snapshot) => {
-                container.innerHTML = '';
-                if (!snapshot.exists()) {
-                    container.innerHTML = '<p style="color: red; font-weight: bold;">यस मोबाइल नम्बरबाट कुनै पनि निवेदन फेला परेन।</p>';
-                    return;
-                }
-
-                snapshot.forEach((childSnapshot) => {
-                    const key = childSnapshot.key;
-                    const val = childSnapshot.val();
-                    const isApproved = val.status === 'Approved';
-
-                    let card = document.createElement('div');
-                    card.className = 'status-card';
-                    card.innerHTML = `
-                        <div>
-                            <strong>निवेदक:</strong> ${val.applicantName}<br>
-                            <strong>प्रयोजन कोड:</strong> ${val.purposeCode} | <strong>मिति:</strong> ${val.date}<br>
-                            <strong>स्थिति:</strong> <span class="badge ${isApproved ? 'approved' : 'pending'}">${isApproved ? 'Approved (स्वीकृत)' : 'Pending (पेन्डिङ)'}</span>
-                        </div>
-                        <div>
-                            ${isApproved ? 
-                                `<button class="btn-primary" onclick="openPrintableModal('${key}')">🖨️ प्रिन्ट / डाउनलोड (Download)</button>` : 
-                                `<div>
-                                    <input type="text" id="esewa_${key}" placeholder="eSewa भौचर कोड" value="${val.esewaCode || ''}" style="width: 110px; margin-right: 5px;">
-                                    <button class="btn-action" onclick="saveEsewaCode('${key}')">eSewa कोड सेभ गर्नुहोस्</button>
-                                 </div>`
-                            }
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
-            });
+    function triggerPrint() {
+        const printBtn = document.getElementById('mainPrintBtn');
+        if(!printBtn.disabled) {
+            window.print();
         }
+    }
 
-        function saveEsewaCode(key) {
-            const codeInput = document.getElementById(`esewa_${key}`).value.trim();
-            if (!codeInput) {
-                alert('कृपया eSewa ट्रान्जेक्सन/भौचर कोड लेख्नुहोस्!');
-                return;
-            }
-
-            db.ref(`rochini_nivedans/${key}`).update({ esewaCode: codeInput })
-                .then(() => {
-                    alert('eSewa कोड सफलतापूर्वक सेभ भयो।');
-                    traceApplication();
-                });
-        }
-
-        // --- Admin Panel ---
-        function loadAdminPanelData() {
-            const tbody = document.getElementById('admin_table_body');
-            tbody.innerHTML = '<tr><td colspan="7">डेटा लोड हुँदैछ...</td></tr>';
-
-            db.ref('rochini_nivedans').once('value', (snapshot) => {
-                tbody.innerHTML = '';
-                if (!snapshot.exists()) {
-                    tbody.innerHTML = '<tr><td colspan="7">कुनै पनि रेकर्ड फेला परेन।</td></tr>';
-                    return;
-                }
-
-                snapshot.forEach((childSnapshot) => {
-                    const key = childSnapshot.key;
-                    const val = childSnapshot.val();
-                    const isApproved = val.status === 'Approved';
-
-                    let tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${val.date}</td>
-                        <td><b>${val.applicantName}</b></td>
-                        <td>${val.phone}</td>
-                        <td>${val.purposeCode}</td>
-                        <td>${val.esewaCode ? '<span style="color:green; font-weight:bold;">' + val.esewaCode + '</span>' : '<span style="color:orange;">प्रश्ट नभएको</span>'}</td>
-                        <td><span class="badge ${isApproved ? 'approved' : 'pending'}">${val.status}</span></td>
-                        <td>
-                            ${isApproved ? 
-                                `<button class="btn-action btn-danger" onclick="updateStatus('${key}', 'Pending')">Pending मा राख्नुहोस्</button>` : 
-                                `<button class="btn-action" style="background-color: #28a745;" onclick="updateStatus('${key}', 'Approved')">Approve गर्नुहोस्</button>`
-                            }
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            });
-        }
-
-        function updateStatus(key, newStatus) {
-            db.ref(`rochini_nivedans/${key}`).update({ status: newStatus })
-                .then(() => {
-                    loadAdminPanelData();
-                });
-        }
-
-        // --- Print Preview with Watermark Control ---
-        function openPrintableModal(key) {
-            db.ref(`rochini_nivedans/${key}`).once('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const val = snapshot.val();
-                    if (val.status === 'Approved') {
-                        // Switch back to Form tab so user can see the document preview before printing
-                        switchTab('formTab');
-                        
-                        // Fill data into form elements temporarily for preview
-                        document.getElementById('sig_applicant_name').value = val.applicantName;
-                        document.getElementById('body_applicant_name').value = val.applicantName;
-                        if(val.phone) document.getElementById('applicant_phone').value = val.phone;
-                        if(val.citizenshipNo) document.getElementById('applicant_citizenship').value = val.citizenshipNo;
-                        if(val.grandpaName) document.getElementById('grandpa_name').value = val.grandpaName;
-                        if(val.fatherName) document.getElementById('father_name').value = val.fatherName;
-                        document.getElementById('purpose_select').value = val.purposeCode;
-                        updatePurpose();
-
-                        // Hide Watermark for Approved Print
-                        const wm = document.getElementById('watermark_el');
-                        if (wm) wm.style.display = 'none';
-
-                        setTimeout(() => {
-                            window.print();
-                            if(wm) wm.style.display = 'block';
-                        }, 300);
-                    } else {
-                        alert('यो निवेदन अझै एड्मिनबाट स्वीकृत (Approve) भएको छैन!');
-                    }
-                }
-            });
-        }
-    </script>
+    function closePrintView() {
+        document.getElementById('printView').style.display = 'none';
+    }
+</script>
 </body>
 </html>
