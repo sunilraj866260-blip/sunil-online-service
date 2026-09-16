@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ठेगाना छनोट - अनलाइन सिफारिस प्रणाली</title>
+    <style>
+        :root {
+            --primary-color: #2575fc;
+            --primary-dark: #1a5ab8;
+            --success-color: #27ae60;
+            --success-hover: #219653;
+            --bg-light: #f8fafc;
+            --border-color: #cbd5e1;
+            --text-color: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .address-container {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 650px;
+        }
+
+        .address-section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .address-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .address-input-group {
+            flex: 1;
+            min-width: 220px;
+            margin-bottom: 12px;
+        }
+
+        .address-input-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-color);
+            margin-bottom: 6px;
+        }
+
+        .address-input-group select, 
+        .address-input-group input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1e293b;
+            background-color: var(--bg-light);
+            transition: all 0.3s ease;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .address-input-group select:focus, 
+        .address-input-group input:focus {
+            border-color: var(--primary-color);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.15);
+        }
+
+        .btn-save-address {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2);
+        }
+
+        .btn-save-address:hover {
+            background-color: var(--success-hover);
+        }
+    </style>
+</head>
+<body>
+
+<div class="address-container">
+    <div class="address-section-title">
+        📍 ठेगाना विवरण छनोट गर्नुहोस्
+    </div>
+
+    <form id="addressForm" onsubmit="saveAndRedirect(event)">
+        <div class="address-row">
+            <div class="address-input-group">
+                <label for="in_province">प्रदेश छान्नुहोस्:</label>
+                <select id="in_province" onchange="updateDistricts()" required>
+                    <option value="">-- प्रदेश छान्नुहोस् --</option>
+                </select>
+            </div>
+            
+            <div class="address-input-group">
+                <label for="in_district">जिल्ला छान्नुहोस्:</label>
+                <select id="in_district" required>
+                    <option value="">-- पहिले प्रदेश छान्नुहोस् --</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="address-row">
+            <div class="address-input-group">
+                <label for="in_local_type">स्थानीय तहको किसिम:</label>
+                <select id="in_local_type">
+                    <option value="गाउँपालिका">गाउँपालिका</option>
+                    <option value="नगरपालिका">नगरपालिका</option>
+                    <option value="उपमहानगरपालिका">उपमहानगरपालिका</option>
+                    <option value="महानगरपालिका">महानगरपालिका</option>
+                </select>
+            </div>
+            
+            <div class="address-input-group">
+                <label for="in_palika_name">स्थानीय तहको नाम:</label>
+                <input type="text" id="in_palika_name" placeholder="उदा: शिवराज वा रोहिणी" required>
+            </div>
+            
+            <div class="address-input-group">
+                <label for="in_ward">वडा नं.:</label>
+                <select id="in_ward" required>
+                    <option value="">-- वडा छान्नुहोस् --</option>
+                    <script>
+                        for(let i=1; i<=32; i++) {
+                            document.write(`<option value="${i}">वडा नं. ${i}</option>`);
+                        }
+                    </script>
+                </select>
+            </div>
+        </div>
+
+        <div class="address-input-group">
+            <label for="in_tole">टोल / गाउँ / बस्तीको नाम:</label>
+            <input type="text" id="in_tole" placeholder="उदा: चन्द्रौटा / पोखरभिन्डी" required>
+        </div>
+
+        <button type="submit" class="btn-save-address">
+            💾 ठेगाना सेभ गरी निवेदनमा जानुहोस् →
+        </button>
+    </form>
+</div>
+
+<script>
+    const nepalData = {
+        "कोशी प्रदेश": ["ताप्लेजुङ", "संखुवासभा", "सोलुखुम्बु", "खोटाङ", "भोजपुर", "धनकुटा", "तेह्रथुम", "पाँचथर", "इलाम", "झापा", "मोरंग", "सुनसरी", "उदयपुर", "ओखलढुंगा"],
+        "मधेश प्रदेश": ["सप्तरी", "सिराहा", "धनुषा", "महत्तरी", "सर्लाही", "रौतहट", "बारा", "पर्सा"],
+        "बागमती प्रदेश": ["दोलखा", "रामेछाप", "सिन्धुली", "काभ्रेपलाञ्चोक", "सिन्धुपाल्चोक", "रसुवा", "नुवाकोट", "धादिङ", "काठमाडौं", "भक्तपुर", "ललितपुर", "मकवानपुर", "चितवन"],
+        "गण्डकी प्रदेश": ["गोरखा", "मनाङ", "मुस्ताङ", "म्याग्दी", "कास्की", "लमजुङ", "तनहुँ", "पर्वत", "स्याङ्जा", "बागलुङ", "नवलपुर"],
+        "लुम्बिनी प्रदेश": ["रुकुम पूर्व", "रोल्पा", "प्युठान", "अर्घाखाँची", "गुल्मी", "पाल्पा", "नवलपरासी पश्चिम", "रूपन्देही", "कपिलवस्तु", "दाङ", "बाँके", "बर्दिया"],
+        "कर्णाली प्रदेश": ["डोल्पा", "मुगु", "हुम्ला", "जुम्ला", "कालिकोट", "दैलेख", "जाजरकोट", "रुकुम पश्चिम", "सल्यान", "सुर्खेत"],
+        "सुदूरपश्चिम प्रदेश": ["बाजुरा", "बझाङ", "दार्चुला", "बैतडी", "डडेलधुरा", "कञ्चनपुर", "डोटी", "अछाम", "कैलाली"]
+    };
+
+    function loadLocationDropdowns() {
+        const provinceSel = document.getElementById('in_province');
+        if(!provinceSel) return;
+        provinceSel.innerHTML = '<option value="">-- प्रदेश छान्नुहोस् --</option>';
+        for(let prov in nepalData) {
+            provinceSel.innerHTML += `<option value="${prov}">${prov}</option>`;
+        }
+    }
+
+    function updateDistricts() {
+        const prov = document.getElementById('in_province').value;
+        const distSel = document.getElementById('in_district');
+        distSel.innerHTML = '<option value="">-- जिल्ला छान्नुहोस् --</option>';
+        if(nepalData[prov]) {
+            nepalData[prov].forEach(d => {
+                distSel.innerHTML += `<option value="${d}">${d}</option>`;
+            });
+        }
+    }
+
+    // ठेगाना सेभ गरेर मुख्य निवेदन पेजमा जाने (Redirect) फंक्सन
+    function saveAndRedirect(event) {
+        event.preventDefault();
+
+        const addressData = {
+            province: document.getElementById('in_province').value,
+            district: document.getElementById('in_district').value,
+            localType: document.getElementById('in_local_type').value,
+            palikaName: document.getElementById('in_palika_name').value.trim(),
+            ward: document.getElementById('in_ward').value,
+            tole: document.getElementById('in_tole').value.trim()
+        };
+
+        // ব্রাউजरको LocalStorage मा सेभ गर्ने
+        localStorage.setItem('savedAddress', JSON.stringify(addressData));
+
+        // अर्को निवेदन पेजमा पठाउने (तपाईंले आफ्नो मुख्य फाइलको नाम 'nivedan.html' वा 'index.html' राख्न सक्नुहुन्छ)
+        window.location.href = 'nivedan.html'; 
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        loadLocationDropdowns();
+    });
+</script>
+
+</body>
+</html>
