@@ -2,267 +2,245 @@
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
-    <meta name='viewport' content='width=device-width, initial-scale=1'/>
-    <title>नेपाली नागरिकता सिफारिस प्रणाली - रोहिणी वडा नं. १</title>
-    <!-- Firebase App & Realtime Database CDN -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>नेपाली नागरिकता सिफारिस प्रणाली - अनलाइन सिफारिस प्रणाली</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { font-family: 'Arial', sans-serif; background-color: #f1f2f6; padding: 20px; margin: 0; }
-        .master-card { max-width: 850px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        :root { --primary: #1e3799; --secondary: #27ae60; --danger: #c0392b; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; padding: 10px; margin: 0; }
+        .container { max-width: 950px; width: 100%; margin: auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 10px; font-size: 20px; }
         
-        /* Navigation Tabs */
-        .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
-        .tab-btn { padding: 10px 20px; font-size: 16px; font-weight: bold; background: #e0e0e0; border: none; border-radius: 6px; cursor: pointer; color: #333; width: auto; margin-top: 0; }
-        .tab-btn.active { background: #b71515; color: white; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        h2 { text-align: center; color: #b71515; border-bottom: 3px solid #b71515; padding-bottom: 10px; margin-top: 0; }
-        .section-title { background: #e9ecef; padding: 10px; margin: 20px 0 10px 0; font-weight: bold; border-left: 6px solid #b71515; color: #2d3436; }
         .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
-        .row { display: flex; gap: 15px; margin-bottom: 10px; }
-        .row div { flex: 1; }
-        button.action-btn { width: 100%; padding: 18px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 20px; font-weight: bold; margin-top: 20px; }
-        button.action-btn:hover { background: #218838; }
-        button.action-btn:disabled { background: #6c757d; cursor: not-allowed; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #333; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        .row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .row .input-group { flex: 1; min-width: 240px; }
+        
+        .btn-submit { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        .btn-danger { background: var(--danger); padding: 6px 12px; font-size: 13px; width: auto; margin-top: 5px; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        
+        button:disabled { background: #95a5a6 !important; cursor: not-allowed !important; opacity: 0.6; }
 
-        /* Address Banner */
-        .address-banner { background: #fff3cd; border: 1px solid #ffeeba; padding: 12px; border-radius: 6px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .section-title { background: #e8ecef; padding: 8px; margin: 15px 0 10px 0; font-weight: bold; border-left: 6px solid var(--primary); font-size: 15px; color: #2d3436; }
+        
+        /* Navigation Tabs / Top Menu */
+        .top-nav { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #ccc; padding-bottom: 10px; flex-wrap: wrap; }
+        .nav-btn { padding: 8px 15px; font-size: 14px; font-weight: bold; background: #e0e0e0; border: none; border-radius: 6px; cursor: pointer; color: #333; }
+        .nav-btn.active { background: var(--primary); color: white; }
 
-        /* Admin Table Style */
+        /* Admin Table */
         table.admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        table.admin-table th, table.admin-table td { border: 1px solid #999; padding: 10px; text-align: center; color: #000000; font-size: 14px; }
-        table.admin-table th { background-color: #e9ecef; color: #000000; }
+        table.admin-table th, table.admin-table td { border: 1px solid #999; padding: 8px; text-align: center; font-size: 13px; color: #000; }
+        table.admin-table th { background-color: #e9ecef; }
 
-        #print-area { display: none; } 
+        /* Printable A4 Container */
+        #printView { display: flex; flex-direction: column; align-items: center; background: #555555; padding: 10px 0; margin-top: 20px; border-radius: 6px; }
+        .print-container {
+            position: relative;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm 15mm;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #d3d3d3;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+            line-height: 1.8;
+            font-size: 12pt;
+            color: black;
+            text-align: justify;
+        }
 
+        .watermark {
+            position: absolute; 
+            top: 38%; 
+            left: 5%; 
+            width: 90%;
+            font-size: 60px;
+            color: rgba(231, 76, 60, 0.25); 
+            transform: rotate(-35deg);
+            font-weight: bold; 
+            text-align: center;
+            pointer-events: none; 
+            user-select: none;
+            border: 8px dashed rgba(231, 76, 60, 0.25);
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .date { text-align: right; margin-bottom: 15px; }
+        .recipient { line-height: 1.4; margin-bottom: 15px; float: left; }
+        .clear { clear: both; }
+        .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 20px 0; font-size: 14pt; }
+        .content { text-indent: 40px; margin-bottom: 15px; }
+        
+        .thumb-section { display: flex; justify-content: space-between; margin-top: 15px; margin-bottom: 15px; }
+        .thumb-box { border: 1px solid black; width: 70px; height: 70px; display: inline-block; text-align: center; line-height: 70px; font-size: 9pt; margin-right: 5px; }
+        
+        .documents-list { margin-top: 15px; line-height: 1.5; font-size: 11pt; }
+        .documents-list table { width: 100%; border-collapse: collapse; }
+        .documents-list td { width: 50%; padding: 3px 0; display: none; color: black; } 
+        .documents-list td.show-doc { display: table-cell; } 
+        
+        .sanaakhat-box { 
+            margin-top: 15px; border: 1px solid black; padding: 10px 12px; line-height: 1.6; font-size: 11pt; box-sizing: border-box; color: black;
+        }
+
+        @page { size: A4 portrait; margin: 0; }
         @media print {
-            .master-card { display: none !important; }
-            body { background: white !important; padding: 0 !important; margin: 0 !important; }
-            
-            @page { size: A4 portrait; margin: 0; }
-            
-            #print-area { 
-                display: block !important; 
-                visibility: visible !important;
-                width: 21cm; height: 29.7cm; box-sizing: border-box;
-                padding: 1.5cm 1.5cm; font-size: 12pt; line-height: 1.8;     
-                color: black !important; text-align: justify;
-                position: relative; overflow: hidden;
-            }
-
-            /* Watermark */
-            .watermark {
-                position: absolute; top: 40%; left: 15%;
-                font-size: 90px; color: rgba(255, 0, 0, 0.15);
-                transform: rotate(-30deg); font-weight: bold; z-index: 999;
-                pointer-events: none; display: none;
-            }
-            .watermark.show { display: block !important; }
-            
-            .p-top-section { margin-bottom: 8px; }
-            .recipient { line-height: 1.4; float: left; }
-            .date { text-align: right; margin-bottom: 8px; }
-            .clear { clear: both; }
-            .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 12px 0; font-size: 14pt; }
-            .content { text-indent: 50px; margin-bottom: 8px; }
-            .thumb-section { display: flex; justify-content: space-between; margin-top: 8px; margin-bottom: 8px; }
-            .thumb-box { border: 1px solid black; width: 80px; height: 80px; display: inline-block; text-align: center; line-height: 50px; font-size: 9.5pt; margin-right: 5px; }
-            
-            .documents-list { margin-top: 8px; line-height: 1.4; font-size: 11pt; }
-            .documents-list table { width: 100%; border-collapse: collapse; }
-            .documents-list td { width: 50%; padding: 3px 0; display: none !important; color: black !important; } 
-            .documents-list td.show-doc { display: table-cell !important; } 
-            
-            .sanaakhat-box { 
-                margin-top: 10px; border: 1px solid black; padding: 8px 12px; line-height: 1.6; font-size: 11pt; box-sizing: border-box; color: black !important;
+            body { background: white; margin: 0; padding: 0; }
+            body * { visibility: hidden; }
+            .container, .print-container, .print-container * { visibility: visible; }
+            .container { box-shadow: none; padding: 0; background: transparent; }
+            .no-print { display: none !important; }
+            .print-container { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 210mm;
+                height: 297mm;
+                border: none; 
+                box-shadow: none;
+                margin: 0;
+                padding: 20mm 15mm;
             }
         }
     </style>
 </head>
-<body onload="initSystem()">
+<body onload="initPage()">
 
-<div class="master-card">
-    <!-- Navigation Tabs -->
-    <div class="tab-buttons">
-        <button class="tab-btn active" onclick="switchTab('formTab', event)">१. नागरिकता फारम</button>
-        <button class="tab-btn" onclick="switchTab('trackTab', event)">२. ट्र्याकिङ / भुक्तानी</button>
-        <button class="tab-btn" onclick="switchTab('adminTab', event)">३. Admin Panel</button>
+<div class="container">
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;" class="no-print">
+        <a href="address.html" style="text-decoration:none; background:var(--primary); color:white; padding:6px 12px; border-radius:4px; font-size:13px; display:inline-block;">← ठेगाना परिवर्तन गर्नुहोस्</a>
     </div>
 
-    <!-- Address Banner -->
-    <div class="address-banner">
-        <div><strong>ठेगाना:</strong> <span id="display_address">लोड हुँदैछ...</span></div>
-        <button onclick="backToForm()" style="width: auto; padding: 6px 12px; font-size: 14px; margin: 0; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">ठेगाना फेर्नुहोस्</button>
-    </div>
 
-    <!-- TAB 1: FORM -->
-    <div id="formTab" class="tab-content active">
+
+    <!-- 1. FORMS TAB -->
+    <div id="form-tab" class="tab-content active no-print">
         <h2>नेपाली नागरिकता सिफारिस निवेदन फारम</h2>
-        
-        <div class="row">
-            <div class="input-group">
-                <label>आजको मिति (वि.सं.):</label>
-                <input type="text" id="in_today">
+        <form id="nivedanForm">
+            <div class="row">
+                <div class="input-group"><label>आजको मिति (वि.सं.):</label><input type="text" id="in_today"></div>
+                <div class="input-group"><label>मोबाइल नम्बर (ट्र्याकिङको लागि):</label><input type="text" id="in_phone" placeholder="98XXXXXXXX" required></div>
             </div>
-            <div class="input-group">
-                <label>निवेदकको नाम थर (नागरिकता लिने व्यक्ति):</label>
-                <input type="text" id="cz_app_name" placeholder="नागरिकता लिनेको नाम">
-            </div>
-        </div>
 
-        <div class="section-title">१. ठेगाना र पारिवारिक विवरण</div>
-        <div class="row">
-            <div>
-                <label>जिल्ला :</label>
-                <input type="text" id="cz_district" value="रुपन्देही">
+            <div class="section-title">१. व्यक्तिगत तथा ठेगाना विवरण</div>
+            <div class="row">
+                <div class="input-group"><label>निवेदकको नाम थर (नागरिकता लिने व्यक्ति):</label><input type="text" id="cz_app_name" required></div>
+                <div class="input-group"><label>जिल्ला:</label><input type="text" id="cz_district" value="रुपन्देही"></div>
             </div>
-            <div>
-                <label>गाउँपालिका / नगरपालिका :</label>
-                <input type="text" id="cz_local_body" value="रोहिणी गाउँपालिका">
+            <div class="row">
+                <div class="input-group"><label>गाउँपालिका / नगरपालिका:</label><input type="text" id="cz_local_body" value="रोहिणी गाउँपालिका"></div>
+                <div class="input-group"><label>वडा नं.:</label><input type="text" id="cz_ward_no" value="१"></div>
             </div>
-        </div>
-        <div class="row">
-            <div>
-                <label>वडा नं. :</label>
-                <input type="text" id="cz_ward_no" value="१">
+            <div class="row">
+                <div class="input-group"><label>टोलको नाम:</label><input type="text" id="default_birthplace" placeholder="उदा: पिप्रहवा" required></div>
+                <div class="input-group"><label>जन्म मिति (वि.सं.):</label><input type="text" id="cz_dob" placeholder="२०५५/०५/१५" required></div>
             </div>
-            <div>
-                <label>टोलको नाम :</label>
-                <input type="text" id="default_birthplace" placeholder="उदा: पिप्रहवा">
-            </div>
-        </div>
-        
-        <div class="row">
-            <div>
-                <label>बाजेको नाम थर :</label>
-                <input type="text" id="cz_grand_name" placeholder="बाजेको नाम">
-            </div>
-            <div>
-                <label>नाता छान्नुहोस् (बाजे तर्फको) :</label>
-                <select id="cz_grand_relation">
-                    <option value="नाति">नाति</option>
-                    <option value="नातिनी">नातिनी</option>
-                    <option value="बुहारी">बुहारी</option>
-                </select>
-            </div>
-        </div>
-        <div class="row">
-            <div>
-                <label>बाबुको नाम थर :</label>
-                <input type="text" id="cz_father_name" placeholder="बाबुको नाम">
-            </div>
-            <div>
-                <label>नाता छान्नुहोस् (बाबु तर्फको) :</label>
-                <select id="cz_parent_relation">
-                    <option value="छोरा">छोरा</option>
-                    <option value="छोरी">छोरी</option>
-                    <option value="पत्नी">पत्नी</option>
-                </select>
-            </div>
-        </div>
-        <div class="row">
-            <div>
-                <label>पति वा पत्नीको नाम थर (विवाहितको हकमा) :</label>
-                <input type="text" id="cz_spouse_name" placeholder="नभए खाली छोड्नुहोस्">
-            </div>
-            <div>
-                <label>नाता (पति/पत्नी छान्नुहोस्) :</label>
-                <select id="cz_spouse_relation">
-                    <option value="">-- छान्नुहोस् --</option>
-                    <option value="पति">पति</option>
-                    <option value="पत्नी">पत्नी</option>
-                </select>
-            </div>
-        </div>
-        <div class="row">
-            <div>
-                <label>जन्म मिति (वि.सं.) :</label>
-                <input type="text" id="cz_dob" placeholder="२०--/--/--">
-            </div>
-            <div>
-                <label>मोवाइल नं. (ट्र्याकिङको लागि):</label>
-                <input type="text" id="cz_phone" placeholder="98XXXXXXXX">
-            </div>
-        </div>
 
-        <div class="section-title">२. संलग्न कागजातहरू</div>
-        <div class="row">
-            <div><label>१. बाबु आमाको ना.प्र.प. प्रतिलिपि (थान) :</label><input type="text" id="doc_1" value="१"></div>
-            <div><label>२. जन्म दर्ता प्रमाण-पत्रको प्रतिलिपि (थान) :</label><input type="text" id="doc_2" value="१"></div>
-        </div>
-        <div class="row">
-            <div><label>३. शैक्षिक प्रमाण-पत्रको प्रतिलिपि (थान) :</label><input type="text" id="doc_3" placeholder="०"></div>
-            <div><label>४. सनाखत व्यक्तिको ना.प्र.प. प्रतिलिपि :</label><input type="text" id="doc_4" value="१"></div>
-        </div>
-        <div class="row">
-            <div><label>५. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि (थान) :</label><input type="text" id="doc_5" placeholder="०"></div>
-            <div><label>६. अन्य कागजात (थान) :</label><input type="text" id="doc_6" placeholder="०"></div>
-        </div>
-
-        <div class="section-title">३. सनाखत गर्ने व्यक्तिको विवरण</div>
-        <div class="row">
-            <div><label>सनाखत बस्नेको नाम थर :</label><input type="text" id="s_name" placeholder="उदा: राम बहादुर भर"></div>
-            <div>
-                <label>नाता (निवेदकका) :</label>
-                <select id="s_rel">
-                    <option value="पिता">पिता</option>
-                    <option value="काका">काका</option>
-                    <option value="दाजु">दाजु</option>
-                    <option value="आमा">आमा</option>
-                    <option value="दिदी">दिदी</option>
-                    <option value="बहिनी">बहिनी</option>
-                    <option value="संरक्षक">संरक्षक</option>
-                </select>
+            <div class="section-title">२. पारिवारिक विवरण</div>
+            <div class="row">
+                <div class="input-group"><label>बाजेको नाम थर:</label><input type="text" id="cz_grand_name" required></div>
+                <div class="input-group">
+                    <label>नाता (बाजेतर्फको):</label>
+                    <select id="cz_grand_relation">
+                        <option value="नाति">नाति</option>
+                        <option value="नातिनी">नातिनी</option>
+                        <option value="बुहारी">बुहारी</option>
+                    </select>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div><label>सनाखत बस्नेको ठेगाना वडा नं. :</label><input type="text" id="s_ward" value="१"></div>
-            <div><label>नागरिकता प्रमाणपत्र नं. :</label><input type="text" id="s_cit_no"></div>
-        </div>
-        <div class="row">
-            <div><label>नागरिकता जारी जिल्ला :</label><input type="text" id="s_cit_dist" value="रुपन्देही"></div>
-            <div><label>उमेर (वर्ष) :</label><input type="text" id="s_age" placeholder="उदा: ४५"></div>
-        </div>
-
-        <button class="action-btn" onclick="saveAndSubmitData()">फारम सेभ गर्नुहोस् र ट्र्याकिङमा जानुहोस्</button>
-    </div>
-
-    <!-- TAB 2: TRACKING / PAYMENT -->
-    <div id="trackTab" class="tab-content">
-        <h2>आवेदन ट्र्याकिङ र भुक्तानी स्थिति</h2>
-        <div class="input-group">
-            <label>तपाईको मोबाइल नम्बर हाल्नुहोस्:</label>
-            <input type="text" id="track_input" placeholder="मोवाइल नं. लेख्नुहोस्">
-        </div>
-        <button class="action-btn" onclick="checkApplicationStatus()">स्थिति हेर्नुहोस्</button>
-        
-        <div id="track_result" style="margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 6px; display: none;">
-            <p><strong>निवेदकको नाम:</strong> <span id="tr_name"></span></p>
-            <p><strong>स्थिति (Status):</strong> <span id="tr_status" style="font-weight: bold;"></span></p>
-            
-            <div id="payment_box" style="margin-top: 15px;">
-                <p>भुक्तानी स्थिति: <span id="tr_pay_status" style="color: red; font-weight: bold;">अप्रमाणित (Pending)</span></p>
-                <div id="esewa_payment_section">
-                    <input type="text" id="esewa_in_dynamic" placeholder="eSewa Transaction Code हाल्नुहोस्" style="margin-bottom: 10px;">
-                    <button class="action-btn" id="esewa_pay_btn" style="background: #ffc107; color: black; margin-top: 0;" onclick="submitPaymentViaEsewa()">eSewa कोड बुझाउनुहोस्</button>
+            <div class="row">
+                <div class="input-group"><label>बाबुको नाम थर:</label><input type="text" id="cz_father_name" required></div>
+                <div class="input-group">
+                    <label>नाता (बाबु तर्फको):</label>
+                    <select id="cz_parent_relation">
+                        <option value="छोरा">छोरा</option>
+                        <option value="छोरी">छोरी</option>
+                        <option value="पत्नी">पत्नी</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-group"><label>पति वा पत्नीको नाम (विवाहितको हकमा):</label><input type="text" id="cz_spouse_name" placeholder="नभए खाली छोड्नुहोस्"></div>
+                <div class="input-group">
+                    <label>नाता (पति/पत्नी):</label>
+                    <select id="cz_spouse_relation">
+                        <option value="">-- छान्नुहोस् --</option>
+                        <option value="पति">पति</option>
+                        <option value="पत्नी">पत्नी</option>
+                    </select>
                 </div>
             </div>
 
-            <div id="print_action_box" style="margin-top: 20px; display: none;">
-                <button class="action-btn" id="mainPrintBtn" onclick="triggerPrint()">सिफारिस प्रिन्ट गर्नुहोस्</button>
+            <div class="section-title">३. संलग्न कागजातहरू (थान)</div>
+            <div class="row">
+                <div class="input-group"><label>१. बाबु आमाको ना.प्र.प. प्रतिलिपि:</label><input type="text" id="doc_1" value="१"></div>
+                <div class="input-group"><label>२. जन्म दर्ता प्रमाणपत्र प्रतिलिपि:</label><input type="text" id="doc_2" value="१"></div>
             </div>
-        </div>
+            <div class="row">
+                <div class="input-group"><label>३. शैक्षिक प्रमाणपत्र प्रतिलिपि:</label><input type="text" id="doc_3" placeholder="०"></div>
+                <div class="input-group"><label>४. सनाखत व्यक्तिको नागरिकता प्रतिलिपि:</label><input type="text" id="doc_4" value="१"></div>
+            </div>
+            <div class="row">
+                <div class="input-group"><label>५. विवाह दर्ता प्रमाणपत्र प्रतिलिपि:</label><input type="text" id="doc_5" placeholder="०"></div>
+                <div class="input-group"><label>६. अन्य कागजात:</label><input type="text" id="doc_6" placeholder="०"></div>
+            </div>
+
+            <div class="section-title">४. सनाखत गर्ने व्यक्तिको विवरण</div>
+            <div class="row">
+                <div class="input-group"><label>सनाखत बस्नेको नाम थर:</label><input type="text" id="s_name" placeholder="नाम लेख्नुहोस्" required></div>
+                <div class="input-group">
+                    <label>नाता (निवेदकको):</label>
+                    <select id="s_rel">
+                        <option value="पिता">पिता</option>
+                        <option value="काका">काका</option>
+                        <option value="दाजु">दाजु</option>
+                        <option value="आमा">आमा</option>
+                        <option value="दिदी">दिदी</option>
+                        <option value="बहिनी">बहिनी</option>
+                        <option value="संरक्षक">संरक्षक</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-group"><label>सनाखत वडा नं.:</label><input type="text" id="s_ward" value="१"></div>
+                <div class="input-group"><label>नागरिकता प्रमाणपत्र नं.:</label><input type="text" id="s_cit_no" required></div>
+            </div>
+            <div class="row">
+                <div class="input-group"><label>नागरिकता जारी जिल्ला:</label><input type="text" id="s_cit_dist" value="रुपन्देही"></div>
+                <div class="input-group"><label>उमेर (वर्ष):</label><input type="text" id="s_age" placeholder="उदा: ४५" required></div>
+            </div>
+
+            <button type="submit" class="btn-submit">फारम सेभ गर्नुहोस् र ट्र्याकिङमा जानुहोस्</button>
+        </form>
     </div>
 
-    <!-- TAB 3: ADMIN PANEL -->
-    <div id="adminTab" class="tab-content">
+    <!-- 2. TRACE & PAYMENT TAB -->
+    <div id="track-tab" class="tab-content no-print">
+        <h2>आवेदन ट्र्याकिङ तथा प्रिन्ट प्रिभ्यु</h2>
+        <div class="input-group" style="margin-top: 15px;">
+            <label>तपाईको मोबाइल नम्बर हाल्नुहोस्:</label>
+            <div class="row">
+                <input type="text" id="track_input" placeholder="98XXXXXXXX">
+                <button type="button" onclick="trackApplication()" style="padding: 10px 20px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">खोज्नुहोस्</button>
+            </div>
+        </div>
+        <div id="traceResult" style="margin-top: 20px;"></div>
+    </div>
+
+    <!-- 3. ADMIN PANEL TAB -->
+    <div id="admin-tab" class="tab-content no-print">
         <h2>प्रशासनिक प्यानल (Admin Panel)</h2>
-        <p>सबै नागरिकता सिफारिस आवेदनहरूको सूची (भुक्तानी तथा प्रमाणीकरण नियन्त्रण):</p>
+        <p>सबै नागरिकता सिफारिस आवेदनहरूको सूची तथा प्रमाणीकरण:</p>
         <div style="overflow-x: auto;">
             <table class="admin-table">
                 <thead>
@@ -271,7 +249,7 @@
                         <th>नाम</th>
                         <th>मोबाइल</th>
                         <th>भुक्तानी कोड</th>
-                        <th>प्रमाणीकरण (Status)</th>
+                        <th>स्थिति (Status)</th>
                         <th>कार्य (Action)</th>
                     </tr>
                 </thead>
@@ -281,77 +259,83 @@
             </table>
         </div>
     </div>
-</div>
 
-<!-- PRINT AREA (A4 format) -->
-<div id="print-area">
-    <div class="watermark" id="watermark_div">FREE COPY</div>
-    <div class="date">मिति :- <span id="p_date"></span></div>
-
-    <div class="p-top-section">
-        <div class="recipient">
-            <strong>श्रीमान् अध्यक्ष ज्यु,</strong><br>
-            <strong>रोहिणी गाउँपालिका</strong><br>
-            <strong>नं. १ वडा कार्यालय</strong><br>
-            <strong>रुपन्देही, लुम्बिनी प्रदेश, नेपाल।</strong><br>
+    <!-- A4 PRINT PREVIEW SECTION -->
+    <div id="printView" style="display:none;">
+        <div class="no-print" style="margin-bottom: 15px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button id="mainPrintBtn" onclick="triggerPrint()" disabled style="padding: 10px 20px; font-weight:bold; background:var(--secondary); color:white; border:none; border-radius:4px; cursor:pointer;">Download / Print A4 PDF</button>
+            <button onclick="switchTab('form-tab')" style="padding: 10px 20px; background:var(--danger); color:white; border:none; cursor:pointer; border-radius:4px;">अर्को निवेदन भर्नुहोस्</button>
         </div>
-        <div class="clear"></div>
-    </div>
 
-    <div class="subject">विषय :- नेपाली नागरिकताको लागि सिफारिस पाउँ ।</div>
-    
-    <p>महोदय,</p>
-    
-    <div class="content">
-        सविनय नम्र निवेदन यस प्रकार छ की जिल्ला <strong><span id="p_district">रुपन्देही</span></strong>, <strong><span id="p_local_body">रोहिणी गाउँपालिका</span></strong> वडा नं. <strong><span id="p_ward_no">१</span></strong> को <strong><span id="p_toll">........................................</span> (टोल)</strong> मा स्थायी बसोबास गरिआएको श्री <strong><span id="p_grand_name">....................................................................</span></strong> को <strong><span id="p_grand_rel">नाति/नातिनी/बुहारी</span></strong>, श्री <strong><span id="p_father_name">....................................................................</span></strong> को <strong><span id="p_parent_rel">छोरा/छोरी/पत्नी</span></strong>, <span id="p_spouse_block">श्री <strong><span id="p_spouse_name">....................................................................</span></strong> को <strong><span id="p_spouse_rel">पति/पत्नी</span></strong></span> जन्म मिति <strong><span id="p_dob">........................................</span></strong> मा भएको श्री <strong><span id="p_app_name">....................................................................</span></strong> हूँ। मैले हालसम्म नेपाली नागरिकताको प्रमाणपत्र नलिएको र हाल मलाई आवश्यक परेको हुँदा वंशजको नाताले नेपाली नागरिकताको प्रमाणपत्रको लागि सिफारिस गरी पाउँ भनी तपसिलका कागजात थान संलग्न राखी यो निवेदन पेश गरेको छु । <br>
-        उल्लेखित व्यहोरा फरक छैन, ठिक साँचो हो । फरक परी झुट्ठा ठहरे प्रचलित कानून बमोजिम सजाय भोग्न मन्जुर छु । श्रीमानको जो आदेश ।
-    </div>
+        <div class="print-container" id="printableArea">
+            <div id="watermarkOverlay" class="watermark">FREE COPY</div>
 
-    <div class="thumb-section">
-        <div>
-            <strong>औंठा छाप:</strong><br>
-            <div class="thumb-box"></div>
-            <div class="thumb-box"></div>
-        </div>
-        <div style="text-align: left; padding-top: 15px; width: 300px;">
-            निवेदकको हस्ताक्षर: .......................................
-        </div>
-    </div>
+            <div class="date">मिति :- <span id="p_today"></span></div>
 
-    <div class="documents-list">
-        <strong><u>संलग्न कागजातहरु:</u></strong>
-        <table>
-            <tr>
-                <td id="p_d1_row">१. बाबु आमाको ना.प्र.प. प्रतिलिपि थान: <strong id="p_doc_1"></strong></td>
-                <td id="p_d2_row">२. जन्म दर्ता प्रमाण-पत्र को प्रतिलिपि थान: <strong id="p_doc_2"></strong></td>
-            </tr>
-            <tr>
-                <td id="p_d3_row">३. शैक्षिक प्रमाण-पत्रको प्रतिलिपि थान: <strong id="p_doc_3"></strong></td>
-                <td id="p_d4_row">४. सनाखत बस्ने व्यक्तिको ना.प्र.प.को प्रतिलिपि थान: <strong id="p_doc_4"></strong></td>
-            </tr>
-            <tr>
-                <td id="p_d5_row">५. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि थान: <strong id="p_doc_5"></strong></td>
-                <td id="p_d6_row">६. अन्य कागजात थान: <strong id="p_doc_6"></strong></td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="sanaakhat-box">
-        <strong><u>सनाखत गर्ने व्यक्तिको विवरण:</u></strong> <br>
-        यसमा लेखिएको विवरण भएको निवेदक <span id="p_s_app_name">.......................</span> मेरो  <strong><span id="p_s_rel"></span></strong>नाता हो । निजले यस अघि नागरिकताको प्रमाण-पत्र लिएको छैन । लेखिएको विवरण ठिक साँचो हो, झुठ्ठा ठहरे कानून बमोजिम सहूँला बुझाउँला भनी सहीछाप गर्ने निवेदकका पिता/काका/दाजु वा संरक्षक: <br>
-        
-        नाम, थर: <strong><span id="p_s_name"></span></strong> &nbsp;&nbsp;&nbsp;&nbsp; उमेर: <strong><span id="p_s_age"></span></strong> वर्ष <br>
-        ठेगाना: <span id="p_s_local">रोहिणी गाउँपालिका</span> वडा नं. <strong><span id="p_s_ward">१</span></strong>, <span id="p_s_district_fixed">रुपन्देही</span> <br>
-        नागरिकता प्रमाणपत्र नं.: <strong><span id="p_s_cit_no"></span></strong>, जारी जिल्ला: <strong><span id="p_s_cit_dist"></span></strong> <br>
-        
-        <div style="display: flex; justify-content: space-between; margin-top: 4px; align-items: flex-end;">
-            <div>
-                <strong>औंठा छाप:</strong> &nbsp;
-                <div class="thumb-box" style="height: 80px; line-height: 80px;"></div>
-                <div class="thumb-box" style="height: 80px; line-height: 80px;"></div>
+            <div class="recipient">
+                <strong>श्रीमान् अध्यक्ष ज्यु,</strong><br>
+                <span id="p_palika_target">रोहिणी गाउँपालिका</span>
+                <strong>नं. १ वडा कार्यालय</strong><br>
+                <span id="p_district_target">रुपन्देही</span>, नेपाल।<br>
             </div>
-            <div>
-               सनाखत हस्ताक्षर: .....................................................
+            <div class="clear"></div>
+
+            <div class="subject">विषय :- नेपाली नागरिकताको लागि सिफारिस पाउँ ।</div>
+            
+            <p>महोदय,</p>
+            
+            <div class="content">
+                सविनय नम्र निवेदन यस प्रकार छ की जिल्ला <strong><span id="p_district">रुपन्देही</span></strong>, <strong><span id="p_local_body">रोहिणी गाउँपालिका</span></strong> वडा नं. <strong><span id="p_ward_no">१</span></strong> को <strong><span id="p_toll">........................................</span> (टोल)</strong> मा स्थायी बसोबास गरिआएको श्री <strong><span id="p_grand_name">....................................................................</span></strong> को <strong><span id="p_grand_rel">नाति/नातिनी/बुहारी</span></strong>, श्री <strong><span id="p_father_name">....................................................................</span></strong> को <strong><span id="p_parent_rel">छोरा/छोरी/पत्नी</span></strong>, <span id="p_spouse_block">श्री <strong><span id="p_spouse_name">....................................................................</span></strong> को <strong><span id="p_spouse_rel">पति/पत्नी</span></strong></span> जन्म मिति <strong><span id="p_dob">........................................</span></strong> मा भएको श्री <strong><span id="p_app_name">....................................................................</span></strong> हूँ। मैले हालसम्म नेपाली नागरिकताको प्रमाणपत्र नलिएको र हाल मलाई आवश्यक परेको हुँदा वंशजको नाताले नेपाली नागरिकताको प्रमाणपत्रको लागि सिफारिस गरी पाउँ भनी तपसिलका कागजात थान संलग्न राखी यो निवेदन पेश गरेको छु । <br>
+                उल्लेखित व्यहोरा फरक छैन, ठिक साँचो हो । फरक परी झुट्ठा ठहरे प्रचलित कानून बमोजिम सजाय भोग्न मन्जुर छु । श्रीमानको जो आदेश ।
+            </div>
+
+            <div class="thumb-section">
+                <div>
+                    <strong>औंठा छाप:</strong><br>
+                    <div class="thumb-box"></div>
+                    <div class="thumb-box"></div>
+                </div>
+                <div style="text-align: left; padding-top: 15px; width: 300px;">
+                    निवेदकको हस्ताक्षर: .......................................
+                </div>
+            </div>
+
+            <div class="documents-list">
+                <strong><u>संलग्न कागजातहरु:</u></strong>
+                <table>
+                    <tr>
+                        <td id="p_d1_row">१. बाबु आमाको ना.प्र.प. प्रतिलिपि थान: <strong id="p_doc_1"></strong></td>
+                        <td id="p_d2_row">२. जन्म दर्ता प्रमाण-पत्र को प्रतिलिपि थान: <strong id="p_doc_2"></strong></td>
+                    </tr>
+                    <tr>
+                        <td id="p_d3_row">३. शैक्षिक प्रमाण-पत्रको प्रतिलिपि थान: <strong id="p_doc_3"></strong></td>
+                        <td id="p_d4_row">४. सनाखत बस्ने व्यक्तिको ना.प्र.प.को प्रतिलिपि थान: <strong id="p_doc_4"></strong></td>
+                    </tr>
+                    <tr>
+                        <td id="p_d5_row">५. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि थान: <strong id="p_doc_5"></strong></td>
+                        <td id="p_d6_row">६. अन्य कागजात थान: <strong id="p_doc_6"></strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="sanaakhat-box">
+                <strong><u>सनाखत गर्ने व्यक्तिको विवरण:</u></strong> <br>
+                यसमा लेखिएको विवरण भएको निवेदक <span id="p_s_app_name">.......................</span> मेरो  <strong><span id="p_s_rel"></span></strong>नाता हो । निजले यस अघि नागरिकताको प्रमाण-पत्र लिएको छैन । लेखिएको विवरण ठिक साँचो हो, झुठ्ठा ठहरे कानून बमोजिम सहूँला बुझाउँला भनी सहीछाप गर्ने निवेदकका पिता/काका/दाजु वा संरक्षक: <br>
+                
+                नाम, थर: <strong><span id="p_s_name"></span></strong> &nbsp;&nbsp;&nbsp;&nbsp; उमेर: <strong><span id="p_s_age"></span></strong> वर्ष <br>
+                ठेगाना: <span id="p_s_local">रोहिणी गाउँपालिका</span> वडा नं. <strong><span id="p_s_ward">१</span></strong>, <span id="p_s_district_fixed">रुपन्देही</span> <br>
+                नागरिकता प्रमाणपत्र नं.: <strong><span id="p_s_cit_no"></span></strong>, जारी जिल्ला: <strong><span id="p_s_cit_dist"></span></strong> <br>
+                
+                <div style="display: flex; justify-content: space-between; margin-top: 4px; align-items: flex-end;">
+                    <div>
+                        <strong>औंठा छाप:</strong> &nbsp;
+                        <div class="thumb-box" style="height: 70px; line-height: 70px;"></div>
+                        <div class="thumb-box" style="height: 70px; line-height: 70px;"></div>
+                    </div>
+                    <div>
+                       सनाखत हस्ताक्षर: .....................................................
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -363,41 +347,42 @@
         authDomain: "sunil-online-service.firebaseapp.com",
         databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
         projectId: "sunil-online-service",
-        storageBucket: "sunil-online-service.appspot.com"
+        storageBucket: "sunil-online-service.appspot.com",
+        messagingSenderId: "",
+        appId: ""
     };
 
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.database();
-
-    let currentRecordKey = null;
+    let db = null;
     let allNivedansData = {};
     let currentAddress = {};
+    let currentRecordKey = null;
 
-    function initSystem() {
-        setInitialDate();
-        loadSavedAddress();
-        loadAdminData();
+    try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+        
+        db.ref('citizenship_requests').on('value', (snapshot) => {
+            allNivedansData = snapshot.val() || {};
+            loadAdminTable();
+        });
+    } catch(e) {
+        console.error("Firebase init error:", e);
     }
 
-    // ३. मिति सेट गर्ने फंक्सन
+    function initPage() {
+        setInitialDate();
+        loadSavedAddress();
+    }
+
     function setInitialDate() {
         try {
             const options = { year: 'numeric', month: 'numeric', day: 'numeric', calendar: 'nepali' };
-            const todayInput = document.getElementById('in_today');
-            if(todayInput) {
-                todayInput.value = new Intl.DateTimeFormat('ne-NP-u-ca-nepali', options).format(new Date());
-            }
-        } catch (e) { 
-            const todayInput = document.getElementById('in_today');
-            if(todayInput) todayInput.value = "२०८३/०३/२७"; 
-        }
+            document.getElementById('in_today').value = new Intl.DateTimeFormat('ne-NP-u-ca-nepali', options).format(new Date());
+        } catch (e) { document.getElementById('in_today').value = "२०८३/०३/२७"; }
     }
 
-    // २. ठेगाना लोड गर्ने फंक्सन
     function loadSavedAddress() {
-        const saved = localStorage.getItem('savedAddress') || localStorage.getItem('user_address');
+        const saved = localStorage.getItem('savedAddress');
         if(saved) {
             currentAddress = JSON.parse(saved);
             const district = currentAddress.district || "रुपन्देही";
@@ -406,9 +391,6 @@
             const ward = currentAddress.ward || "१";
             const tole = currentAddress.tole || "";
 
-            const fullStr = `${palikaName} ${localType}-${ward}, ${district}`;
-            document.getElementById('display_address').innerText = fullStr;
-            
             document.getElementById('cz_district').value = district;
             document.getElementById('cz_local_body').value = `${palikaName} ${localType}`;
             document.getElementById('cz_ward_no').value = ward;
@@ -420,29 +402,39 @@
         }
     }
 
-    function switchTab(tabId, event) {
+    function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        
         document.getElementById(tabId).classList.add('active');
-        if(event) event.currentTarget.classList.add('active');
-        if(tabId === 'adminTab') {
-            loadAdminData();
+        
+        // Active button highlight
+        if(tabId === 'form-tab') document.querySelectorAll('.nav-btn')[0].classList.add('active');
+        if(tabId === 'track-tab') document.querySelectorAll('.nav-btn')[1].classList.add('active');
+        if(tabId === 'admin-tab') {
+            document.querySelectorAll('.nav-btn')[2].classList.add('active');
+            loadAdminTable();
         }
     }
 
-    function saveAndSubmitData() {
-        const phone = document.getElementById('cz_phone').value.trim();
+    // Form Submit to Firebase
+    document.getElementById('nivedanForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const phone = document.getElementById('in_phone').value.trim();
         const appName = document.getElementById('cz_app_name').value.trim();
         
         if(!phone || !appName) {
-            alert("कृपया निवेदकको नाम र मोबाइल नम्बर अनिवार्य भर्नुहोस्!");
+            alert("कृपया नाम र मोबाइल नम्बर अनिवार्य भर्नुहोस्!");
             return;
         }
 
-        const formData = {
-            date: document.getElementById('in_today').value,
-            appName: appName,
+        const recordId = 'CIT-' + Date.now();
+        const record = {
+            id: recordId,
+            date: document.getElementById('in_today').value.trim(),
             phone: phone,
+            appName: appName,
             district: document.getElementById('cz_district').value,
             localBody: document.getElementById('cz_local_body').value,
             wardNo: document.getElementById('cz_ward_no').value,
@@ -470,192 +462,210 @@
                 citDist: document.getElementById('s_cit_dist').value,
                 age: document.getElementById('s_age').value
             },
-            paymentType: 'PENDING',
-            esewaCode: '',
+            status: 'Pending Verification',
+            paymentType: 'FREE',
             adminApproved: false,
-            timestamp: Date.now()
+            esewaCode: ''
         };
 
-        const newRef = db.ref('citizenship_requests').push();
-        newRef.set(formData).then(() => {
-            currentRecordKey = newRef.key;
-            alert("फारम सफलतापूर्वक सेभ भयो!");
-            document.getElementById('track_input').value = phone;
-            switchTab('trackTab');
-            checkApplicationStatus();
-        }).catch(err => {
-            alert("डाटा सेभ गर्न समस्या भयो: " + err.message);
-        });
-    }
+        if(db) {
+            db.ref('citizenship_requests/' + recordId).set(record, (error) => {
+                if(error) {
+                    alert("डाटा सेभ गर्न समस्या भयो: " + error.message);
+                } else {
+                    alert('फारम सफलतापुर्वक सेभ भयो!');
+                    allNivedansData[recordId] = record;
+                    currentRecordKey = recordId;
+                    document.getElementById('track_input').value = phone;
+                    switchTab('track-tab');
+                    renderPreview(recordId);
+                }
+            });
+        }
+    });
 
-    function checkApplicationStatus() {
+    function trackApplication() {
         const query = document.getElementById('track_input').value.trim();
         if(!query) {
             alert("कृपया मोबाइल नम्बर लेख्नुहोस्।");
             return;
         }
 
-        db.ref('citizenship_requests').orderByChild('phone').equalTo(query).once('value', snapshot => {
-            const data = snapshot.val();
-            if(data) {
-                const keys = Object.keys(data);
-                currentRecordKey = keys[keys.length - 1];
-                const record = data[currentRecordKey];
-                
-                document.getElementById('tr_name').innerText = record.appName;
-                let statusText = record.adminApproved ? "स्वीकृत (Approved)" : "पेन्डिङ (Pending)";
-                document.getElementById('tr_status').innerText = statusText;
-                document.getElementById('tr_status').style.color = record.adminApproved ? "green" : "orange";
-
-                if(record.esewaCode) {
-                    document.getElementById('tr_pay_status').innerText = "भुक्तानी कोड प्राप्त: " + record.esewaCode;
-                    document.getElementById('tr_pay_status').style.color = "green";
-                } else {
-                    document.getElementById('tr_pay_status').innerText = "अप्रमाणित / बाँकी (Pending)";
-                    document.getElementById('tr_pay_status').style.color = "red";
-                }
-
-                if(record.adminApproved) {
-                    document.getElementById('print_action_box').style.display = "block";
-                } else {
-                    document.getElementById('print_action_box').style.display = "none";
-                }
-
-                document.getElementById('track_result').style.display = "block";
-                window.fetchedRecord = record; 
-                setupPrintData(record);
-            } else {
-                alert("कुनै रेकर्ड फेला परेन!");
-                document.getElementById('track_result').style.display = 'none';
+        let foundKey = null;
+        Object.keys(allNivedansData).forEach(key => {
+            if(allNivedansData[key].phone === query) {
+                foundKey = key;
             }
         });
+
+        if(foundKey) {
+            currentRecordKey = foundKey;
+            renderPreview(foundKey);
+        } else {
+            alert("यो मोबाइल नम्बरबाट कुनै निवेदन फेला परेन!");
+            document.getElementById('traceResult').innerHTML = "";
+            document.getElementById('printView').style.display = 'none';
+        }
     }
 
-    // ४. eSewa भुक्तानी कोड बुझाउने फंक्सन
-    function submitPaymentViaEsewa() {
-        if(!currentRecordKey) {
-            alert("पहिले ट्र्याकिङ गरेर रेकर्ड छान्नुहोस्!");
-            return;
-        }
-        const codeInput = document.getElementById('esewa_in_dynamic');
+    function submitPayment(id) {
+        const codeInput = document.getElementById(`esewa_in_${id}`);
         if(!codeInput) return;
         const code = codeInput.value.trim();
-        
         if(!code) return alert('कृपया eSewa Transaction Code हाल्नुहोस्');
 
-        db.ref('citizenship_requests/' + currentRecordKey).update({
-            paymentType: 'PAID',
-            esewaCode: code,
-            status: 'Payment Pending Admin Verification'
-        }).then(() => {
-            alert('भुक्तानी कोड सफलतापूर्वक पठाइयो!');
-            checkApplicationStatus();
-        });
-    }
-
-    function loadAdminData() {
-        const tbody = document.getElementById('admin_table_body');
-        db.ref('citizenship_requests').on('value', snapshot => {
-            tbody.innerHTML = "";
-            const data = snapshot.val();
-            if(!data) {
-                tbody.innerHTML = `<tr><td colspan="6">कुनै डाटा छैन।</td></tr>`;
-                return;
-            }
-
-            Object.keys(data).forEach(key => {
-                const rec = data[key];
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${rec.date}</td>
-                    <td>${rec.appName}</td>
-                    <td>${rec.phone}</td>
-                    <td>${rec.esewaCode || 'N/A'}</td>
-                    <td><span style="color: ${rec.adminApproved ? 'green' : 'red'};">${rec.adminApproved ? 'Approved' : 'Pending'}</span></td>
-                    <td>
-                        <button onclick="toggleApproval('${key}', ${!rec.adminApproved})" style="padding: 5px 10px; font-size: 12px; background: ${rec.adminApproved ? '#dc3545' : '#28a745'}; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                            ${rec.adminApproved ? 'Unapprove' : 'Approve'}
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+        if(db) {
+            db.ref('citizenship_requests/' + id).update({
+                paymentType: 'PAID',
+                esewaCode: code,
+                status: 'Payment Pending Admin Verification'
+            }).then(() => {
+                allNivedansData[id].esewaCode = code;
+                allNivedansData[id].status = 'Payment Pending Admin Verification';
+                alert('भुक्तानी कोड सफलतापूर्वक पठाइयो!');
+                renderPreview(id);
             });
-        });
+        }
     }
 
-    function toggleApproval(key, status) {
-        db.ref('citizenship_requests/' + key).update({ adminApproved: status }).then(() => {
-            loadAdminData();
-        });
-    }
+    function renderPreview(id) {
+        const item = allNivedansData[id];
+        if(!item) return;
 
-    function setupPrintData(record) {
-        document.getElementById('p_date').innerText = record.date;
-        document.getElementById('p_app_name').innerText = record.appName;
-        document.getElementById('p_s_app_name').innerText = record.appName;
-        document.getElementById('p_local_body').innerText = record.localBody;
-        document.getElementById('p_s_local').innerText = record.localBody;
-        document.getElementById('p_ward_no').innerText = record.wardNo;
-        document.getElementById('p_district').innerText = record.district;
-        document.getElementById('p_toll').innerText = record.toll || "........................................";
+        // Trace / Payment interface box
+        const container = document.getElementById('traceResult');
+        container.innerHTML = `
+            <div style="border:1px solid #ccc; padding:15px; margin-bottom:15px; border-radius:5px; background:#fff; word-break:break-all;">
+                <h4>निवेदन ID: ${item.id || id}</h4>
+                <p><strong>निवेदक:</strong> ${item.appName} | <strong>फोन:</strong> ${item.phone}</p>
+                <p><strong>स्थिति:</strong> <span style="color:${item.adminApproved ? 'green' : 'orange'}; font-weight:bold;">${item.status}</span></p>
+                
+                ${!item.adminApproved ? `
+                    <div style="background:#fff3cd; padding:10px; margin:10px 0; border:1px solid #ffeeba; border-radius:4px;">
+                        <p style="margin:0 0 5px 0;"><strong>eSewa भुक्तानी कोड:</strong></p>
+                        <input type="text" id="esewa_in_${id}" placeholder="eSewa Txn Code" value="${item.esewaCode || ''}" style="margin-bottom:8px;">
+                        <button onclick="submitPayment('${id}')" style="padding:6px 12px; background:var(--secondary); color:white; border:none; border-radius:4px; cursor:pointer; width:100%;">भुक्तानी कोड बुझाउनुहोस्</button>
+                    </div>
+                ` : `<p style="color:green;"><b>✓ निवेदन स्वीकृत भयो</b> | eSewa Code: ${item.esewaCode || 'N/A'}</p>`}
+            </div>
+        `;
+
+        // Fill Print Container Data
+        document.getElementById('p_today').innerText = item.date || "………………";
+        document.getElementById('p_palika_target').innerText = item.localBody || "रोहिणी गाउँपालिका";
+        document.getElementById('p_district_target').innerText = item.district || "रुपन्देही";
         
-        document.getElementById('p_grand_name').innerText = record.grandName || "....................................................................";
-        document.getElementById('p_grand_rel').innerText = record.grandRel;
-        document.getElementById('p_father_name').innerText = record.fatherName || "....................................................................";
-        document.getElementById('p_parent_rel').innerText = record.parentRel;
+        document.getElementById('p_district').innerText = item.district || "रुपन्देही";
+        document.getElementById('p_local_body').innerText = item.localBody || "रोहिणी गाउँपालिका";
+        document.getElementById('p_ward_no').innerText = item.wardNo || "१";
+        document.getElementById('p_toll').innerText = item.toll || "........................................";
         
-        if(record.spouseName) {
+        document.getElementById('p_grand_name').innerText = item.grandName || "....................................................................";
+        document.getElementById('p_grand_rel').innerText = item.grandRel || "नाति";
+        document.getElementById('p_father_name').innerText = item.fatherName || "....................................................................";
+        document.getElementById('p_parent_rel').innerText = item.parentRel || "छोरा";
+        
+        if(item.spouseName) {
             document.getElementById('p_spouse_block').style.display = "inline";
-            document.getElementById('p_spouse_name').innerText = record.spouseName;
+            document.getElementById('p_spouse_name').innerText = item.spouseName;
+            document.getElementById('p_spouse_rel').innerText = item.spouseRel || "पति";
         } else {
             document.getElementById('p_spouse_block').style.display = "none";
         }
 
-        document.getElementById('p_dob').innerText = record.dob || "........................................";
+        document.getElementById('p_dob').innerText = item.dob || "........................................";
+        document.getElementById('p_app_name').innerText = item.appName || "....................................................................";
+        document.getElementById('p_s_app_name').innerText = item.appName || ".......................";
 
-        for (let i = 1; i <= 6; i++) {
-            let val = record.docs['d' + i];
-            let row = document.getElementById('p_d' + i + '_row');
-            if (!val || val === "०" || val === "0") {
-                row.classList.remove('show-doc'); 
-            } else {
-                document.getElementById('p_doc_' + i).innerText = val;
-                row.classList.add('show-doc'); 
+        // Documents list mapping
+        if(item.docs) {
+            for (let i = 1; i <= 6; i++) {
+                let val = item.docs['d' + i];
+                let row = document.getElementById('p_d' + i + '_row');
+                if (!val || val === "०" || val === "0") {
+                    row.classList.remove('show-doc'); 
+                } else {
+                    document.getElementById('p_doc_' + i).innerText = val;
+                    row.classList.add('show-doc'); 
+                }
             }
         }
 
-        document.getElementById('p_s_name').innerText = record.sanaakhat.name || "……………";
-        document.getElementById('p_s_rel').innerText = record.sanaakhat.rel; 
-        document.getElementById('p_s_ward').innerText = record.sanaakhat.ward || "१";
-        document.getElementById('p_s_cit_no').innerText = record.sanaakhat.citNo || "……………";
-        document.getElementById('p_s_cit_dist').innerText = record.sanaakhat.citDist || "रुपन्देही";
-        document.getElementById('p_s_age').innerText = record.sanaakhat.age || "……";
-
-        const wm = document.getElementById('watermark_div');
-        if(!record.adminApproved) {
-            wm.classList.add('show');
-        } else {
-            wm.classList.remove('show');
+        // Sanaakhat mapping
+        if(item.sanaakhat) {
+            document.getElementById('p_s_name').innerText = item.sanaakhat.name || "……………";
+            document.getElementById('p_s_rel').innerText = item.sanaakhat.rel || "पिता"; 
+            document.getElementById('p_s_ward').innerText = item.sanaakhat.ward || "१";
+            document.getElementById('p_s_cit_no').innerText = item.sanaakhat.citNo || "……………";
+            document.getElementById('p_s_cit_dist').innerText = item.sanaakhat.citDist || "रुपन्देही";
+            document.getElementById('p_s_age').innerText = item.sanaakhat.age || "……";
         }
+
+        const watermark = document.getElementById('watermarkOverlay');
+        const printBtn = document.getElementById('mainPrintBtn');
+
+        if(item.adminApproved === true) {
+            watermark.style.display = 'none';
+            printBtn.disabled = false;
+            printBtn.innerText = "Download / Print A4 PDF (Verified)";
+            printBtn.style.background = "var(--secondary)";
+        } else {
+            watermark.style.display = 'block';
+            printBtn.disabled = true;
+            printBtn.innerText = "Download Disabled (Admin Approval Needed)";
+            printBtn.style.background = "#95a5a6";
+        }
+
+        document.getElementById('printView').style.display = 'flex';
+        window.scrollTo(0, document.getElementById('printView').offsetTop);
     }
 
-    // ५. प्रिन्ट र ब्याक बटन फंक्सन्स
-    function triggerPrint() {
-        const record = window.fetchedRecord;
-        if(!record || !record.adminApproved) {
-            alert("यो निवेदन एडमिनबाट स्वीकृत (Approve) भएको छैन। वाटरमार्क हट्ने छैन।");
+    // Admin Panel Table Management
+    function loadAdminTable() {
+        const tbody = document.getElementById('admin_table_body');
+        if(!tbody) return;
+        
+        tbody.innerHTML = "";
+        if(Object.keys(allNivedansData).length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6">कुनै डाटा उपलब्ध छैन।</td></tr>`;
             return;
         }
+
+        Object.keys(allNivedansData).forEach(key => {
+            const rec = allNivedansData[key];
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${rec.date || ''}</td>
+                <td>${rec.appName || ''}</td>
+                <td>${rec.phone || ''}</td>
+                <td>${rec.esewaCode || 'N/A'}</td>
+                <td><span style="color: ${rec.adminApproved ? 'green' : 'orange'}; font-weight:bold;">${rec.adminApproved ? 'Approved' : 'Pending'}</span></td>
+                <td>
+                    <button onclick="toggleApproval('${key}', ${!rec.adminApproved})" style="padding: 5px 10px; font-size: 12px; background: ${rec.adminApproved ? '#c0392b' : '#27ae60'}; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        ${rec.adminApproved ? 'Unapprove' : 'Approve'}
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function toggleApproval(key, status) {
+        db.ref('citizenship_requests/' + key).update({ 
+            adminApproved: status,
+            status: status ? 'Approved by Admin' : 'Pending Verification'
+        }).then(() => {
+            alert('स्थिति सफलतापूर्वक अपडेट भयो!');
+            loadAdminTable();
+        });
+    }
+
+    function triggerPrint() {
         const printBtn = document.getElementById('mainPrintBtn');
-        if(printBtn && !printBtn.disabled) {
+        if(!printBtn.disabled) {
             window.print();
         }
     }
-
-    function backToForm() {
-        window.location.href = 'address.html';
-    }
 </script>
-
 </body>
 </html>
