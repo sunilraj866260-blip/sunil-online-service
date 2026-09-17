@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ne">
 <head>
@@ -10,7 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <style>
-        :root { --primary: #1e3799; --secondary: #27ae60; --danger: #c0392b; }
+        :root { --primary: #1e3799; --secondary: #27ae60; --danger: #c0392b; --warning: #d35400; }
         * { box-sizing: border-box; }
         body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; padding: 15px; margin: 0; }
         .container { max-width: 1000px; width: 100%; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -35,8 +34,9 @@
 
         button { cursor: pointer; padding: 6px 12px; border-radius: 4px; border: none; font-weight: bold; color: white; font-size: 13px; }
         .btn-approve { background: var(--secondary); }
-        .btn-reject { background: var(--danger); }
+        .btn-reject { background: var(--warning); }
         .btn-view { background: #2980b9; }
+        .btn-delete { background: var(--danger); }
 
         /* Modal Preview Styling */
         #printView { display: none; flex-direction: column; align-items: center; background: #555555; padding: 15px 0; margin-top: 20px; border-radius: 6px; }
@@ -134,7 +134,7 @@
     <!-- 2. Main Dashboard (Hidden until login) -->
     <div id="dashboardSection" style="display: none;">
         <h2>वडा एड्मिन कन्ट्रोल प्यानल (रोहिणी-१)</h2>
-        <p class="no-print" style="text-align: center; color: #666;">प्रयोगकर्ताहरूले पेश गरेका निवेदनहरूको सूची, प्रमाणीकरण र अस्वीकार:</p>
+        <p class="no-print" style="text-align: center; color: #666;">ईसेवा कोड (eSewa Code) प्राप्त भएका भुक्तानी सहितका निवेदनहरूको सूची:</p>
 
         <!-- Admin Dashboard Table -->
         <div class="table-responsive no-print">
@@ -255,10 +255,14 @@
     function loadAdminDashboard() {
         const tbody = document.getElementById('adminTableBody');
         tbody.innerHTML = '';
-        const list = Object.values(allNivedansData);
+        
+        const rawList = Object.values(allNivedansData);
+
+        // केवल ती निवेदनहरू मात्र फिल्टर गर्ने जसमा 'esewaCode' लेखिएको/भरेको छ
+        const list = rawList.filter(item => item.esewaCode && item.esewaCode.trim() !== "");
 
         if (list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">कुनै पनि निवेदन फेला परेन।</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">ईसेवा कोड हालिएको कुनै पनि नयाँ निवेदन फेला परेन।</td></tr>`;
             return;
         }
 
@@ -268,13 +272,14 @@
                 <td>${item.id}</td>
                 <td><strong>${item.name}</strong></td>
                 <td>${item.phone}</td>
-                <td>${item.esewaCode ? `<span style="color:blue; font-weight:bold;">${item.esewaCode}</span>` : '<span style="color:gray;">छैन</span>'}</td>
-                <td><b style="color:${item.isVerified ? 'green' : 'orange'}">${item.status}</b></td>
+                <td><span style="color:blue; font-weight:bold;">${item.esewaCode}</span></td>
+                <td><b style="color:${item.isVerified ? 'green' : (item.status === 'Rejected' ? 'red' : 'orange')}">${item.status || 'Pending'}</b></td>
                 <td>
                     <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                        <button onclick="verifyAndApprove('${item.id}')" class="btn-approve">Approve</button>
+                        <button onclick="verifyAndApprove('${item.id}')" class="btn-approve">Verify</button>
                         <button onclick="rejectNivedan('${item.id}')" class="btn-reject">Reject</button>
                         <button onclick="openPrintModal('${item.id}')" class="btn-view">View</button>
+                        <button onclick="deleteNivedan('${item.id}')" class="btn-delete">Delete</button>
                     </div>
                 </td>
             `;
@@ -290,7 +295,7 @@
                 paymentType: 'PAID VERIFIED',
                 isVerified: true
             }).then(() => {
-                alert('सफलतापूर्वक Approve गरियो!');
+                alert('सफलतापूर्वक Verify गरियो!');
             });
         }
     }
@@ -298,7 +303,7 @@
     // 2. Reject Function
     function rejectNivedan(id) {
         if(db) {
-            db.ref('rochini_nivedans/' + id).update({ 
+            db.ref('rochini_nivedans/' + id).0({ 
                 status: 'Rejected',
                 isVerified: false
             }).then(() => {
@@ -307,7 +312,21 @@
         }
     }
 
-    // 3. View / Print Modal Function
+    // 3. Delete Function
+    function deleteNivedan(id) {
+        if(confirm("के तपाईँ यो निवेदन स्थायी रूपमा हटाउन (Delete) चाहनुहुन्छ?")) {
+            if(db) {
+                db.ref('rochini_nivedans/' + id).remove().then(() => {
+                    alert('निवेदन सफलतापूर्वक हटाइयो (Deleted)!');
+                    closePrintView();
+                }).catch((error) => {
+                    alert("हटाउन असफल भयो: " + error.message);
+                });
+            }
+        }
+    }
+
+    // 4. View / Print Modal Function
     function openPrintModal(id) {
         const item = allNivedansData[id];
         if(!item) return;
@@ -339,7 +358,7 @@
                         <td><strong>${c.name}</strong></td>
                         <td>${c.gender}</td>
                         <td>${c.dob}</td>
-                        <td>${c.birthplace}</td>
+                        (c.birthplace)
                         <td><strong>${c.token}</strong></td>
                     </tr>`;
             });
@@ -362,6 +381,7 @@
             printBtn.style.display = 'inline-block';
         }
 
+        document.getElementById('printView').data = id; // Track current viewing item if needed
         document.getElementById('printView').style.display = 'flex';
         window.scrollTo(0, document.getElementById('printView').offsetTop);
     }
