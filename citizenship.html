@@ -35,6 +35,12 @@
         /* Address Banner */
         .address-banner { background: #fff3cd; border: 1px solid #ffeeba; padding: 12px; border-radius: 6px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 14px; }
 
+        /* eSewa Box Styling (Birth-style) */
+        .esewa-card { background: #f8f9fa; border: 2px dashed #27ae60; padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .payment-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        .pay-tab-btn { flex: 1; padding: 10px; background: #e0e0e0; border: none; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        .pay-tab-btn.active { background: #27ae60; color: white; }
+
         /* Admin Table Style */
         table.admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         table.admin-table th, table.admin-table td { border: 1px solid #999; padding: 8px; text-align: center; color: #000000; font-size: 13px; }
@@ -56,7 +62,6 @@
                 position: relative; overflow: hidden;
             }
 
-            /* Watermark */
             .watermark {
                 position: absolute; top: 40%; left: 20%;
                 font-size: 80px; color: rgba(255, 0, 0, 0.18);
@@ -247,13 +252,30 @@
             <p><strong>निवेदकको नाम:</strong> <span id="tr_name"></span></p>
             <p><strong>स्थिति (Status):</strong> <span id="tr_status" style="font-weight: bold;"></span></p>
             
-            <div id="payment_box" style="margin-top: 15px; background: #f8f9fa; padding: 12px; border-radius: 6px;">
-                <p>भुक्तानी स्थिति: <span id="tr_pay_status" style="color: red; font-weight: bold;">अप्रमाणित (Pending)</span></p>
-                <div class="input-group" style="margin-top: 10px;">
-                    <label>eSewa Transaction Code राख्नुहोस् (रु. ५०):</label>
-                    <input type="text" id="esewa_txn_input" placeholder="उदा: 000ABC123">
+            <!-- eSewa Payment Section (Birth Style) -->
+            <div id="payment_box" class="esewa-card">
+                <p><strong>सिफारिस शुल्क: रु. ५०</strong></p>
+                <div class="payment-tabs">
+                    <button class="pay-tab-btn active" onclick="switchPayMethod('esewa_qr')">eSewa QR स्क्यान</button>
+                    <button class="pay-tab-btn" onclick="switchPayMethod('esewa_code')">Txn Code हाल्ने</button>
                 </div>
-                <button class="action-btn" style="background: #ffc107; color: black; margin-top: 5px; padding: 12px; font-size: 16px;" onclick="submitEsewaPayment()">eSewa भुक्तानी पेश गर्नुहोस्</button>
+
+                <div id="pay_qr_sec" style="text-align: center;">
+                    <p style="font-size:13px; color:#555;">eSewa एप खोलेर यो QR मा रु. ५० भुक्तानी गर्नुहोस्:</p>
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=esewa-rohini-ward1-citizenship" alt="eSewa QR" style="margin: 10px 0; border: 1px solid #ccc; padding: 5px; background:#fff;">
+                    <p style="font-size: 12px; color: #666;">भुक्तानी गरेपछि तलको बटन थिच्नुहोस्:</p>
+                    <button class="action-btn" style="background:#27ae60; padding: 10px; font-size: 14px;" onclick="markQRPayed()">मैले QR बाट भुक्तानी गरेँ</button>
+                </div>
+
+                <div id="pay_code_sec" style="display: none;">
+                    <div class="input-group">
+                        <label>eSewa Transaction Code राख्नुहोस्:</label>
+                        <input type="text" id="esewa_txn_input" placeholder="उदा: 000ABC123">
+                    </div>
+                    <button class="action-btn" style="background: #ffc107; color: black; padding: 10px; font-size: 14px;" onclick="submitEsewaPayment()">Txn Code पेश गर्नुहोस्</button>
+                </div>
+                
+                <p style="margin-top:10px;">भुक्तानी स्थिति: <span id="tr_pay_status" style="color: red; font-weight: bold;">अप्रमाणित (Pending)</span></p>
             </div>
 
             <div id="print_action_box" style="margin-top: 20px; display: none; text-align: center;">
@@ -361,7 +383,6 @@
 </div>
 
 <script>
-    // यहाँ आफ्नो सहि Firebase कन्फिगरेसन राख्नुहोला
     const firebaseConfig = {
         apiKey: "YOUR_API_KEY",
         authDomain: "YOUR_AUTH_DOMAIN",
@@ -394,7 +415,6 @@
         }
     }
 
-    // १. LocalStorage बाट ठेगाना अटो-लोड गर्ने
     function loadAddressFromLocalStorage() {
         const savedAddr = localStorage.getItem('savedAddress');
         if (savedAddr) {
@@ -430,7 +450,19 @@
         }
     }
 
-    // २. Firebase मा डाटा सेभ गर्ने र युनिक ID (NIV-...) बनाउने
+    function switchPayMethod(method) {
+        document.querySelectorAll('.pay-tab-btn').forEach(btn => btn.classList.remove('active'));
+        if(method === 'esewa_qr') {
+            document.getElementById('pay_qr_sec').style.display = 'block';
+            document.getElementById('pay_code_sec').style.display = 'none';
+            event.currentTarget.classList.add('active');
+        } else {
+            document.getElementById('pay_qr_sec').style.display = 'none';
+            document.getElementById('pay_code_sec').style.display = 'block';
+            event.currentTarget.classList.add('active');
+        }
+    }
+
     function saveAndSubmitData() {
         const phone = document.getElementById('cz_phone').value.trim();
         const appName = document.getElementById('cz_app_name').value.trim();
@@ -514,7 +546,7 @@
                 document.getElementById('tr_status').style.color = record.adminApproved ? "green" : "orange";
 
                 if(record.paymentPaid) {
-                    document.getElementById('tr_pay_status').innerText = "भुक्तानी भइसकेको (Paid - Txn: " + (record.esewaTxn || '') + ")";
+                    document.getElementById('tr_pay_status').innerText = "भुक्तानी भइसकेको (Paid - Txn: " + (record.esewaTxn || 'QR Verified') + ")";
                     document.getElementById('tr_pay_status').style.color = "green";
                 } else {
                     document.getElementById('tr_pay_status').innerText = "अप्रमाणित / बाँकी (Pending)";
@@ -536,7 +568,17 @@
         });
     }
 
-    // ३. eSewa भुक्तानी कोड पेश गर्ने
+    function markQRPayed() {
+        if(!currentRecordKey) return;
+        db.ref('citizenship_requests/' + currentRecordKey).update({ 
+            paymentPaid: true, 
+            esewaTxn: "QR-SCAN-PAID" 
+        }).then(() => {
+            alert("QR भुक्तानी रेकर्ड भयो! अब एडमिनले प्रमाणित गरेपछि प्रिन्ट गर्न सक्नुहुनेछ।");
+            checkApplicationStatus();
+        });
+    }
+
     function submitEsewaPayment() {
         const txnCode = document.getElementById('esewa_txn_input').value.trim();
         if(!txnCode) {
@@ -549,7 +591,7 @@
             paymentPaid: true, 
             esewaTxn: txnCode 
         }).then(() => {
-            alert("eSewa भुक्तानी विवरण सफलतापूर्वक पेश भयो! अब एडमिनले प्रमाणित गरेपछि प्रिन्ट गर्न सक्नुहुनेछ।");
+            alert("eSewa भुक्तानी विवरण सफलतापूर्वक पेश भयो!");
             checkApplicationStatus();
         });
     }
@@ -589,7 +631,6 @@
         });
     }
 
-    // ४. प्रिन्ट र वाटरमार्क नियन्त्रण
     function generatePrint() {
         const record = window.fetchedRecord;
         if(!record) {
