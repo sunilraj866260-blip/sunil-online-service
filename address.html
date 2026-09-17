@@ -117,6 +117,10 @@
 <body>
 
 <div class="address-container">
+    <div style="margin-bottom: 10px;">
+        <a href="index.html" style="text-decoration:none; background:#1e3799; color:white; padding:6px 12px; border-radius:4px; font-size:13px; display:inline-block;">← गृह पृष्ठ (Home) मा जानुहोस्</a>
+    </div>
+
     <div class="address-section-title">
         📍 ठेगाना विवरण छनोट गर्नुहोस्
     </div>
@@ -209,7 +213,7 @@
         }
     }
 
-    // ठेगाना सेभ गरेर सिधै जन्म दर्ता (birth.html) पेजमा जाने फंक्सन
+    // ठेगाना सेभ गरेर युजरले क्लिक गरेको सही फारममा (जस्तै birth.html, marriage.html) पठाउने फंक्सन
     function saveAndRedirect(event) {
         event.preventDefault();
 
@@ -222,11 +226,20 @@
             tole: document.getElementById('in_tole').value.trim()
         };
 
-        // ব্রাউजरको LocalStorage मा सेभ गर्ने
+        // ब्राउजरको LocalStorage मा ठेगाना सेभ गर्ने[span_2](start_span)[span_2](end_span)
         localStorage.setItem('savedAddress', JSON.stringify(addressData));
 
-        // यहाँ फाइलको नाम ठ्याक्कै मिलाइएको छ (birth.html)
-        window.location.href = 'birth.html'; 
+        // URL (Query Parameter) बाट कुन फर्म हो पत्ता लगाउने
+        const urlParams = new URLSearchParams(window.location.search);
+        const formType = urlParams.get('form'); // birth, marriage, death आदि
+
+        if (formType) {
+            // यदि कुन फर्म हो खुलाएको छ भने त्यही फाइल खोल्ने (उदा: birth.html)
+            window.location.href = formType + '.html';
+        } else {
+            // यदि केही नभेटिएमा बाइफल्ट birth.html मा पठाउने
+            window.location.href = 'birth.html'; 
+        }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
