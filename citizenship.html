@@ -2,69 +2,63 @@
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
-    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'/>
     <title>नेपाली नागरिकता सिफारिस प्रणाली - रोहिणी वडा नं. १</title>
     <!-- Firebase App & Realtime Database CDN -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
-        :root { --primary: #b71515; --secondary: #28a745; --bg-light: #f1f2f6; }
-        * { box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; background-color: var(--bg-light); padding: 15px; margin: 0; }
-        .master-card { max-width: 850px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        body { font-family: 'Arial', sans-serif; background-color: #f1f2f6; padding: 20px; margin: 0; }
+        .master-card { max-width: 850px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 30px; }
         
         /* Navigation Tabs */
-        .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ccc; padding-bottom: 10px; flex-wrap: wrap; }
-        .tab-btn { padding: 10px 15px; font-size: 15px; font-weight: bold; background: #e0e0e0; border: none; border-radius: 6px; cursor: pointer; color: #333; flex: 1; min-width: 120px; text-align: center; }
-        .tab-btn.active { background: var(--primary); color: white; }
+        .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+        .tab-btn { padding: 10px 20px; font-size: 16px; font-weight: bold; background: #e0e0e0; border: none; border-radius: 6px; cursor: pointer; color: #333; width: auto; margin-top: 0; }
+        .tab-btn.active { background: #b71515; color: white; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        h2 { text-align: center; color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-top: 0; font-size: 20px; }
-        .section-title { background: #e9ecef; padding: 10px; margin: 20px 0 10px 0; font-weight: bold; border-left: 6px solid var(--primary); color: #2d3436; font-size: 15px; }
+        h2 { text-align: center; color: #b71515; border-bottom: 3px solid #b71515; padding-bottom: 10px; margin-top: 0; }
+        .section-title { background: #e9ecef; padding: 10px; margin: 20px 0 10px 0; font-weight: bold; border-left: 6px solid #b71515; color: #2d3436; }
         .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; font-size: 14px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
-        .row { display: flex; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; }
-        .row div { flex: 1; min-width: 240px; }
-        button.action-btn { width: 100%; padding: 16px; background: var(--secondary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; margin-top: 20px; transition: 0.2s; }
-        button.action-btn:hover { opacity: 0.9; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        .row { display: flex; gap: 15px; margin-bottom: 10px; }
+        .row div { flex: 1; }
+        button.action-btn { width: 100%; padding: 18px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 20px; font-weight: bold; margin-top: 20px; }
+        button.action-btn:hover { background: #218838; }
         button.action-btn:disabled { background: #6c757d; cursor: not-allowed; }
 
         /* Address Banner */
-        .address-banner { background: #fff3cd; border: 1px solid #ffeeba; padding: 12px; border-radius: 6px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 14px; }
+        .address-banner { background: #fff3cd; border: 1px solid #ffeeba; padding: 12px; border-radius: 6px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* eSewa Box Styling (Birth-style) */
-        .esewa-card { background: #f8f9fa; border: 2px dashed #27ae60; padding: 15px; border-radius: 8px; margin-top: 15px; }
-        .payment-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
-        .pay-tab-btn { flex: 1; padding: 10px; background: #e0e0e0; border: none; font-weight: bold; border-radius: 5px; cursor: pointer; }
-        .pay-tab-btn.active { background: #27ae60; color: white; }
-
-        /* Admin Table Style */
+        /* Admin Table Style (Black Font) */
         table.admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        table.admin-table th, table.admin-table td { border: 1px solid #999; padding: 8px; text-align: center; color: #000000; font-size: 13px; }
-        table.admin-table th { background-color: #e9ecef; }
+        table.admin-table th, table.admin-table td { border: 1px solid #999; padding: 10px; text-align: center; color: #000000; font-size: 14px; }
+        table.admin-table th { background-color: #e9ecef; color: #000000; }
 
         #print-area { display: none; } 
 
         @media print {
             .master-card { display: none !important; }
             body { background: white !important; padding: 0 !important; margin: 0 !important; }
-            @page { size: A4 portrait; margin: 1cm; }
+            
+            @page { size: A4 portrait; margin: 0; }
             
             #print-area { 
                 display: block !important; 
                 visibility: visible !important;
-                width: 100%; box-sizing: border-box;
-                font-size: 12pt; line-height: 1.6;     
+                width: 21cm; height: 29.7cm; box-sizing: border-box;
+                padding: 1.5cm 1.5cm; font-size: 12pt; line-height: 1.8;     
                 color: black !important; text-align: justify;
                 position: relative; overflow: hidden;
             }
 
+            /* Watermark */
             .watermark {
-                position: absolute; top: 40%; left: 20%;
-                font-size: 80px; color: rgba(255, 0, 0, 0.18);
+                position: absolute; top: 40%; left: 15%;
+                font-size: 90px; color: rgba(255, 0, 0, 0.15);
                 transform: rotate(-30deg); font-weight: bold; z-index: 999;
                 pointer-events: none; display: none;
             }
@@ -77,7 +71,7 @@
             .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 12px 0; font-size: 14pt; }
             .content { text-indent: 50px; margin-bottom: 8px; }
             .thumb-section { display: flex; justify-content: space-between; margin-top: 8px; margin-bottom: 8px; }
-            .thumb-box { border: 1px solid black; width: 70px; height: 70px; display: inline-block; text-align: center; margin-right: 5px; }
+            .thumb-box { border: 1px solid black; width: 80px; height: 80px; display: inline-block; text-align: center; line-height: 50px; font-size: 9.5pt; margin-right: 5px; }
             
             .documents-list { margin-top: 8px; line-height: 1.4; font-size: 11pt; }
             .documents-list table { width: 100%; border-collapse: collapse; }
@@ -85,7 +79,7 @@
             .documents-list td.show-doc { display: table-cell !important; } 
             
             .sanaakhat-box { 
-                margin-top: 10px; border: 1px solid black; padding: 8px 12px; line-height: 1.5; font-size: 10.5pt; box-sizing: border-box; color: black !important;
+                margin-top: 10px; border: 1px solid black; padding: 8px 12px; line-height: 1.6; font-size: 11pt; box-sizing: border-box; color: black !important;
             }
         }
     </style>
@@ -103,7 +97,7 @@
     <!-- Address Banner -->
     <div class="address-banner">
         <div><strong>ठेगाना:</strong> <span id="display_address">लोड हुँदैछ...</span></div>
-        <button onclick="changeAddress()" style="padding: 6px 12px; font-size: 13px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">ठेगाना फेर्नुहोस्</button>
+        <button onclick="changeAddress()" style="width: auto; padding: 6px 12px; font-size: 14px; margin: 0; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">ठेगाना फेर्नुहोस्</button>
     </div>
 
     <!-- TAB 1: FORM -->
@@ -242,45 +236,20 @@
     <div id="trackTab" class="tab-content">
         <h2>आवेदन ट्र्याकिङ र भुक्तानी स्थिति</h2>
         <div class="input-group">
-            <label>तपाईको मोबाइल नम्बर हाल्नुहोस्:</label>
-            <input type="text" id="track_input" placeholder="मोवाइल नं. लेख्नुहोस्">
+            <label>तपाईको मोबाइल नम्बर वा ट्र्याकिङ आईडी हाल्नुहोस्:</label>
+            <input type="text" id="track_input" placeholder="मोवाइल नं. वा ID लेख्नुहोस्">
         </div>
         <button class="action-btn" onclick="checkApplicationStatus()">स्थिति हेर्नुहोस्</button>
         
         <div id="track_result" style="margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 6px; display: none;">
-            <p><strong>सिफारिस आईडी:</strong> <span id="tr_id" style="color: #b71515; font-weight: bold;"></span></p>
             <p><strong>निवेदकको नाम:</strong> <span id="tr_name"></span></p>
             <p><strong>स्थिति (Status):</strong> <span id="tr_status" style="font-weight: bold;"></span></p>
-            
-            <!-- eSewa Payment Section (Birth Style) -->
-            <div id="payment_box" class="esewa-card">
-                <p><strong>सिफारिस शुल्क: रु. ५०</strong></p>
-                <div class="payment-tabs">
-                    <button class="pay-tab-btn active" onclick="switchPayMethod('esewa_qr')">eSewa QR स्क्यान</button>
-                    <button class="pay-tab-btn" onclick="switchPayMethod('esewa_code')">Txn Code हाल्ने</button>
-                </div>
-
-                <div id="pay_qr_sec" style="text-align: center;">
-                    <p style="font-size:13px; color:#555;">eSewa एप खोलेर यो QR मा रु. ५० भुक्तानी गर्नुहोस्:</p>
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=esewa-rohini-ward1-citizenship" alt="eSewa QR" style="margin: 10px 0; border: 1px solid #ccc; padding: 5px; background:#fff;">
-                    <p style="font-size: 12px; color: #666;">भुक्तानी गरेपछि तलको बटन थिच्नुहोस्:</p>
-                    <button class="action-btn" style="background:#27ae60; padding: 10px; font-size: 14px;" onclick="markQRPayed()">मैले QR बाट भुक्तानी गरेँ</button>
-                </div>
-
-                <div id="pay_code_sec" style="display: none;">
-                    <div class="input-group">
-                        <label>eSewa Transaction Code राख्नुहोस्:</label>
-                        <input type="text" id="esewa_txn_input" placeholder="उदा: 000ABC123">
-                    </div>
-                    <button class="action-btn" style="background: #ffc107; color: black; padding: 10px; font-size: 14px;" onclick="submitEsewaPayment()">Txn Code पेश गर्नुहोस्</button>
-                </div>
-                
-                <p style="margin-top:10px;">भुक्तानी स्थिति: <span id="tr_pay_status" style="color: red; font-weight: bold;">अप्रमाणित (Pending)</span></p>
+            <div id="payment_box" style="margin-top: 15px;">
+                <p>भुक्तानी स्थिति: <span id="tr_pay_status" style="color: red; font-weight: bold;">अप्रमाणित (Pending)</span></p>
+                <button class="action-btn" style="background: #ffc107; color: black;" onclick="simulatePayment()">eSewa बाट रु. ५०० भुक्तानी गर्नुहोस्</button>
             </div>
-
-            <div id="print_action_box" style="margin-top: 20px; display: none; text-align: center;">
-                <p style="color: green; font-weight: bold;">✓ तपाईंको भुक्तानी र सिफारिस एडमिनबाट प्रमाणित भइसकेको छ।</p>
-                <button class="action-btn" id="final_print_btn" onclick="generatePrint()">सिफारिस प्रिन्ट गर्नुहोस् / डाउनलोड गर्नुहोस्</button>
+            <div id="print_action_box" style="margin-top: 20px; display: none;">
+                <button class="action-btn" id="final_print_btn" onclick="generatePrint()">सिफारिस प्रिन्ट गर्नुहोस्</button>
             </div>
         </div>
     </div>
@@ -293,15 +262,16 @@
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>ID / मिति</th>
-                        <th>नाम & मोबाइल</th>
-                        <th>भुक्तानी (eSewa Code)</th>
+                        <th>मिति</th>
+                        <th>नाम</th>
+                        <th>मोबाइल</th>
+                        <th>भुक्तानी</th>
                         <th>प्रमाणीकरण (Status)</th>
                         <th>कार्य (Action)</th>
                     </tr>
                 </thead>
                 <tbody id="admin_table_body">
-                    <tr><td colspan="5">डाटा लोड हुँदैछ...</td></tr>
+                    <tr><td colspan="6">डाटा लोड हुँदैछ...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -316,9 +286,9 @@
     <div class="p-top-section">
         <div class="recipient">
             <strong>श्रीमान् अध्यक्ष ज्यु,</strong><br>
-            <strong><span id="p_local_body_header">रोहिणी गाउँपालिका</span></strong><br>
-            <strong>नं. <span id="p_ward_no_header">१</span> वडा कार्यालय</strong><br>
-            <strong><span id="p_district_header">रुपन्देही</span>, लुम्बिनी प्रदेश, नेपाल।</strong><br>
+            <strong>रोहिणी गाउँपालिका</strong><br>
+            <strong>नं. १ वडा कार्यालय</strong><br>
+            <strong>रुपन्देही, लुम्बिनी प्रदेश, नेपाल।</strong><br>
         </div>
         <div class="clear"></div>
     </div>
@@ -372,8 +342,8 @@
         <div style="display: flex; justify-content: space-between; margin-top: 4px; align-items: flex-end;">
             <div>
                 <strong>औंठा छाप:</strong> &nbsp;
-                <div class="thumb-box" style="height: 60px; width: 60px;"></div>
-                <div class="thumb-box" style="height: 60px; width: 60px;"></div>
+                <div class="thumb-box" style="height: 80px; line-height: 80px;"></div>
+                <div class="thumb-box" style="height: 80px; line-height: 80px;"></div>
             </div>
             <div>
                सनाखत हस्ताक्षर: .....................................................
@@ -384,13 +354,13 @@
 
 <script>
     const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_AUTH_DOMAIN",
-        databaseURL: "YOUR_DATABASE_URL",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_STORAGE_BUCKET",
-        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-        appId: "YOUR_APP_ID"
+        apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
+        authDomain: "sunil-online-service.firebaseapp.com",
+        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
+        projectId: "sunil-online-service",
+        storageBucket: "sunil-online-service.appspot.com",
+        messagingSenderId: "",
+        appId: ""
     };
 
     if (!firebase.apps.length) {
@@ -411,12 +381,12 @@
             const options = { year: 'numeric', month: 'numeric', day: 'numeric', calendar: 'nepali' };
             document.getElementById('in_date').value = new Intl.DateTimeFormat('ne-NP-u-ca-nepali', options).format(new Date());
         } catch (e) {
-            document.getElementById('in_date').value = "२०८३/--/--";
+            document.getElementById('in_date').value = "२०८३/०३/२७";
         }
     }
 
     function loadAddressFromLocalStorage() {
-        const savedAddr = localStorage.getItem('savedAddress');
+        const savedAddr = localStorage.getItem('savedAddress') || localStorage.getItem('user_address');
         if (savedAddr) {
             const addr = JSON.parse(savedAddr);
             const district = addr.district || "रुपन्देही";
@@ -432,12 +402,12 @@
                 document.getElementById('cz_toll').value = addr.tole;
             }
         } else {
-            document.getElementById('display_address').innerText = "कुनै ठेगाना सेभ गरिएको छैन। कृपया ठेगाना फेर्नुहोस् बटन थिच्नुहोस्।";
+            document.getElementById('display_address').innerText = "रोहिणी गाउँपालिका, वडा नं. १, रुपन्देही (डिफल्ट)";
         }
     }
 
     function changeAddress() {
-        window.location.href = 'address.html?form=citizenship';
+        window.location.href = 'address.html';
     }
 
     function switchTab(tabId) {
@@ -450,19 +420,6 @@
         }
     }
 
-    function switchPayMethod(method) {
-        document.querySelectorAll('.pay-tab-btn').forEach(btn => btn.classList.remove('active'));
-        if(method === 'esewa_qr') {
-            document.getElementById('pay_qr_sec').style.display = 'block';
-            document.getElementById('pay_code_sec').style.display = 'none';
-            event.currentTarget.classList.add('active');
-        } else {
-            document.getElementById('pay_qr_sec').style.display = 'none';
-            document.getElementById('pay_code_sec').style.display = 'block';
-            event.currentTarget.classList.add('active');
-        }
-    }
-
     function saveAndSubmitData() {
         const phone = document.getElementById('cz_phone').value.trim();
         const appName = document.getElementById('cz_app_name').value.trim();
@@ -472,10 +429,7 @@
             return;
         }
 
-        const uniqueId = 'NIV-' + Math.floor(100000 + Math.random() * 900000);
-
         const formData = {
-            formId: uniqueId,
             date: document.getElementById('in_date').value,
             appName: appName,
             phone: phone,
@@ -506,7 +460,6 @@
                 citDist: document.getElementById('s_cit_dist').value,
                 age: document.getElementById('s_age').value
             },
-            esewaTxn: "",
             paymentPaid: false,
             adminApproved: false,
             timestamp: Date.now()
@@ -515,7 +468,7 @@
         const newRef = db.ref('citizenship_requests').push();
         newRef.set(formData).then(() => {
             currentRecordKey = newRef.key;
-            alert("फारम सफलतापूर्वक सेभ भयो! तपाईंको ट्र्याकिङ आईडी: " + uniqueId);
+            alert("फारम सफलतापूर्वक सेभ भयो!");
             document.getElementById('track_input').value = phone;
             switchTab('trackTab');
             checkApplicationStatus();
@@ -527,7 +480,7 @@
     function checkApplicationStatus() {
         const query = document.getElementById('track_input').value.trim();
         if(!query) {
-            alert("कृपया मोबाइल नम्बर लेख्नुहोस्।");
+            alert("कृपया मोबाइल नम्बर वा ट्र्याकिङ आईडी लेख्नुहोस्।");
             return;
         }
 
@@ -538,22 +491,20 @@
                 currentRecordKey = keys[0];
                 const record = data[currentRecordKey];
                 
-                document.getElementById('tr_id').innerText = record.formId || "N/A";
                 document.getElementById('tr_name').innerText = record.appName;
-                
                 let statusText = record.adminApproved ? "प्रमाणित (Approved)" : "पेन्डिङ (Pending)";
                 document.getElementById('tr_status').innerText = statusText;
                 document.getElementById('tr_status').style.color = record.adminApproved ? "green" : "orange";
 
                 if(record.paymentPaid) {
-                    document.getElementById('tr_pay_status').innerText = "भुक्तानी भइसकेको (Paid - Txn: " + (record.esewaTxn || 'QR Verified') + ")";
+                    document.getElementById('tr_pay_status').innerText = "भुक्तानी भइसकेको (Paid)";
                     document.getElementById('tr_pay_status').style.color = "green";
                 } else {
                     document.getElementById('tr_pay_status').innerText = "अप्रमाणित / बाँकी (Pending)";
                     document.getElementById('tr_pay_status').style.color = "red";
                 }
 
-                if(record.adminApproved && record.paymentPaid) {
+                if(record.adminApproved) {
                     document.getElementById('print_action_box').style.display = "block";
                 } else {
                     document.getElementById('print_action_box').style.display = "none";
@@ -568,30 +519,10 @@
         });
     }
 
-    function markQRPayed() {
+    function simulatePayment() {
         if(!currentRecordKey) return;
-        db.ref('citizenship_requests/' + currentRecordKey).update({ 
-            paymentPaid: true, 
-            esewaTxn: "QR-SCAN-PAID" 
-        }).then(() => {
-            alert("QR भुक्तानी रेकर्ड भयो! अब एडमिनले प्रमाणित गरेपछि प्रिन्ट गर्न सक्नुहुनेछ।");
-            checkApplicationStatus();
-        });
-    }
-
-    function submitEsewaPayment() {
-        const txnCode = document.getElementById('esewa_txn_input').value.trim();
-        if(!txnCode) {
-            alert("कृपया eSewa Transaction Code राख्नुहोस्!");
-            return;
-        }
-        if(!currentRecordKey) return;
-
-        db.ref('citizenship_requests/' + currentRecordKey).update({ 
-            paymentPaid: true, 
-            esewaTxn: txnCode 
-        }).then(() => {
-            alert("eSewa भुक्तानी विवरण सफलतापूर्वक पेश भयो!");
+        db.ref('citizenship_requests/' + currentRecordKey).update({ paymentPaid: true }).then(() => {
+            alert("भुक्तानी सफल भयो! अब एडमिनले स्वीकृत गरेपछि प्रिन्ट गर्न सक्नुहुनेछ।");
             checkApplicationStatus();
         });
     }
@@ -602,7 +533,7 @@
             tbody.innerHTML = "";
             const data = snapshot.val();
             if(!data) {
-                tbody.innerHTML = `<tr><td colspan="5">कुनै डाटा छैन।</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6">कुनै डाटा छैन।</td></tr>`;
                 return;
             }
 
@@ -610,12 +541,13 @@
                 const rec = data[key];
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><b>${rec.formId || 'N/A'}</b><br><span style="font-size:11px; color:#666;">${rec.date}</span></td>
-                    <td><b>${rec.appName}</b><br>${rec.phone}</td>
-                    <td>${rec.paymentPaid ? '<span style="color:green;">Paid</span><br><small>(' + (rec.esewaTxn || 'N/A') + ')</small>' : '<span style="color:red;">Unpaid</span>'}</td>
-                    <td><span style="color: ${rec.adminApproved ? 'green' : 'red'}; font-weight:bold;">${rec.adminApproved ? 'Approved' : 'Pending'}</span></td>
+                    <td>${rec.date}</td>
+                    <td>${rec.appName}</td>
+                    <td>${rec.phone}</td>
+                    <td>${rec.paymentPaid ? 'Paid' : 'Unpaid'}</td>
+                    <td><span style="color: ${rec.adminApproved ? 'green' : 'red'};">${rec.adminApproved ? 'Approved' : 'Pending'}</span></td>
                     <td>
-                        <button onclick="toggleApproval('${key}', ${!rec.adminApproved})" style="padding: 6px 12px; font-size: 12px; background: ${rec.adminApproved ? '#dc3545' : '#28a745'}; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        <button onclick="toggleApproval('${key}', ${!rec.adminApproved})" style="padding: 5px 10px; font-size: 12px; background: ${rec.adminApproved ? '#dc3545' : '#28a745'}; color: white; border: none; border-radius: 4px; cursor: pointer;">
                             ${rec.adminApproved ? 'Unapprove' : 'Approve'}
                         </button>
                     </td>
@@ -642,12 +574,9 @@
         document.getElementById('p_app_name').innerText = record.appName;
         document.getElementById('p_s_app_name').innerText = record.appName;
         document.getElementById('p_local_body').innerText = record.localBody;
-        document.getElementById('p_local_body_header').innerText = record.localBody;
         document.getElementById('p_s_local').innerText = record.localBody;
         document.getElementById('p_ward_no').innerText = record.wardNo;
-        document.getElementById('p_ward_no_header').innerText = record.wardNo;
         document.getElementById('p_district').innerText = record.district;
-        document.getElementById('p_district_header').innerText = record.district;
         document.getElementById('p_toll').innerText = record.toll || "........................................";
         
         document.getElementById('p_grand_name').innerText = record.grandName || "....................................................................";
@@ -683,7 +612,7 @@
         document.getElementById('p_s_age').innerText = record.sanaakhat.age || "……";
 
         const wm = document.getElementById('watermark_div');
-        if(!record.adminApproved || !record.paymentPaid) {
+        if(!record.adminApproved) {
             wm.classList.add('show');
         } else {
             wm.classList.remove('show');
