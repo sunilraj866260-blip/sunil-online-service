@@ -33,7 +33,7 @@
         /* Address Banner */
         .address-banner { background: #fff3cd; border: 1px solid #ffeeba; padding: 12px; border-radius: 6px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* Admin Table Style (Black Font) */
+        /* Admin Table Style */
         table.admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         table.admin-table th, table.admin-table td { border: 1px solid #999; padding: 10px; text-align: center; color: #000000; font-size: 14px; }
         table.admin-table th { background-color: #e9ecef; color: #000000; }
@@ -89,15 +89,15 @@
 <div class="master-card">
     <!-- Navigation Tabs -->
     <div class="tab-buttons">
-        <button class="tab-btn active" onclick="switchTab('formTab')">१. नागरिकता फारम</button>
-        <button class="tab-btn" onclick="switchTab('trackTab')">२. ट्र्याकिङ / भुक्तानी</button>
-        <button class="tab-btn" onclick="switchTab('adminTab')">३. Admin Panel</button>
+        <button class="tab-btn active" onclick="switchTab('formTab', event)">१. नागरिकता फारम</button>
+        <button class="tab-btn" onclick="switchTab('trackTab', event)">२. ट्र्याकिङ / भुक्तानी</button>
+        <button class="tab-btn" onclick="switchTab('adminTab', event)">३. Admin Panel</button>
     </div>
 
     <!-- Address Banner -->
     <div class="address-banner">
         <div><strong>ठेगाना:</strong> <span id="display_address">लोड हुँदैछ...</span></div>
-        <button onclick="changeAddress()" style="width: auto; padding: 6px 12px; font-size: 14px; margin: 0; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">ठेगाना फेर्नुहोस्</button>
+        <button onclick="backToForm()" style="width: auto; padding: 6px 12px; font-size: 14px; margin: 0; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">ठेगाना फेर्नुहोस्</button>
     </div>
 
     <!-- TAB 1: FORM -->
@@ -107,7 +107,7 @@
         <div class="row">
             <div class="input-group">
                 <label>आजको मिति (वि.सं.):</label>
-                <input type="text" id="in_date">
+                <input type="text" id="in_today">
             </div>
             <div class="input-group">
                 <label>निवेदकको नाम थर (नागरिकता लिने व्यक्ति):</label>
@@ -133,7 +133,7 @@
             </div>
             <div>
                 <label>टोलको नाम :</label>
-                <input type="text" id="cz_toll" placeholder="उदा: पिप्रहवा">
+                <input type="text" id="default_birthplace" placeholder="उदा: पिप्रहवा">
             </div>
         </div>
         
@@ -236,20 +236,25 @@
     <div id="trackTab" class="tab-content">
         <h2>आवेदन ट्र्याकिङ र भुक्तानी स्थिति</h2>
         <div class="input-group">
-            <label>तपाईको मोबाइल नम्बर वा ट्र्याकिङ आईडी हाल्नुहोस्:</label>
-            <input type="text" id="track_input" placeholder="मोवाइल नं. वा ID लेख्नुहोस्">
+            <label>तपाईको मोबाइल नम्बर हाल्नुहोस्:</label>
+            <input type="text" id="track_input" placeholder="मोवाइल नं. लेख्नुहोस्">
         </div>
         <button class="action-btn" onclick="checkApplicationStatus()">स्थिति हेर्नुहोस्</button>
         
         <div id="track_result" style="margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 6px; display: none;">
             <p><strong>निवेदकको नाम:</strong> <span id="tr_name"></span></p>
             <p><strong>स्थिति (Status):</strong> <span id="tr_status" style="font-weight: bold;"></span></p>
+            
             <div id="payment_box" style="margin-top: 15px;">
                 <p>भुक्तानी स्थिति: <span id="tr_pay_status" style="color: red; font-weight: bold;">अप्रमाणित (Pending)</span></p>
-                <button class="action-btn" style="background: #ffc107; color: black;" onclick="simulatePayment()">eSewa बाट रु. ५०० भुक्तानी गर्नुहोस्</button>
+                <div id="esewa_payment_section">
+                    <input type="text" id="esewa_in_dynamic" placeholder="eSewa Transaction Code हाल्नुहोस्" style="margin-bottom: 10px;">
+                    <button class="action-btn" id="esewa_pay_btn" style="background: #ffc107; color: black; margin-top: 0;" onclick="submitPaymentViaEsewa()">eSewa कोड बुझाउनुहोस्</button>
+                </div>
             </div>
+
             <div id="print_action_box" style="margin-top: 20px; display: none;">
-                <button class="action-btn" id="final_print_btn" onclick="generatePrint()">सिफारिस प्रिन्ट गर्नुहोस्</button>
+                <button class="action-btn" id="mainPrintBtn" onclick="triggerPrint()">सिफारिस प्रिन्ट गर्नुहोस्</button>
             </div>
         </div>
     </div>
@@ -265,7 +270,7 @@
                         <th>मिति</th>
                         <th>नाम</th>
                         <th>मोबाइल</th>
-                        <th>भुक्तानी</th>
+                        <th>भुक्तानी कोड</th>
                         <th>प्रमाणीकरण (Status)</th>
                         <th>कार्य (Action)</th>
                     </tr>
@@ -358,9 +363,7 @@
         authDomain: "sunil-online-service.firebaseapp.com",
         databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
         projectId: "sunil-online-service",
-        storageBucket: "sunil-online-service.appspot.com",
-        messagingSenderId: "",
-        appId: ""
+        storageBucket: "sunil-online-service.appspot.com"
     };
 
     if (!firebase.apps.length) {
@@ -369,52 +372,59 @@
     const db = firebase.database();
 
     let currentRecordKey = null;
+    let allNivedansData = {};
+    let currentAddress = {};
 
     function initSystem() {
-        initDate();
-        loadAddressFromLocalStorage();
+        setInitialDate();
+        loadSavedAddress();
         loadAdminData();
     }
 
-    function initDate() {
+    // ३. मिति सेट गर्ने फंक्सन
+    function setInitialDate() {
         try {
             const options = { year: 'numeric', month: 'numeric', day: 'numeric', calendar: 'nepali' };
-            document.getElementById('in_date').value = new Intl.DateTimeFormat('ne-NP-u-ca-nepali', options).format(new Date());
-        } catch (e) {
-            document.getElementById('in_date').value = "२०८३/०३/२७";
+            const todayInput = document.getElementById('in_today');
+            if(todayInput) {
+                todayInput.value = new Intl.DateTimeFormat('ne-NP-u-ca-nepali', options).format(new Date());
+            }
+        } catch (e) { 
+            const todayInput = document.getElementById('in_today');
+            if(todayInput) todayInput.value = "२०८३/०३/२७"; 
         }
     }
 
-    function loadAddressFromLocalStorage() {
-        const savedAddr = localStorage.getItem('savedAddress') || localStorage.getItem('user_address');
-        if (savedAddr) {
-            const addr = JSON.parse(savedAddr);
-            const district = addr.district || "रुपन्देही";
-            const localBody = (addr.palikaName ? addr.palikaName + " " : "") + (addr.localType || "गाउँपालिका");
-            const ward = addr.ward || "१";
+    // २. ठेगाना लोड गर्ने फंक्सन
+    function loadSavedAddress() {
+        const saved = localStorage.getItem('savedAddress') || localStorage.getItem('user_address');
+        if(saved) {
+            currentAddress = JSON.parse(saved);
+            const district = currentAddress.district || "रुपन्देही";
+            const palikaName = currentAddress.palikaName || "रोहिणी";
+            const localType = currentAddress.localType || "गाउँपालिका";
+            const ward = currentAddress.ward || "१";
+            const tole = currentAddress.tole || "";
 
-            document.getElementById('display_address').innerText = `${district}, ${localBody}, वडा नं. ${ward}`;
+            const fullStr = `${palikaName} ${localType}-${ward}, ${district}`;
+            document.getElementById('display_address').innerText = fullStr;
             
             document.getElementById('cz_district').value = district;
-            document.getElementById('cz_local_body').value = localBody;
+            document.getElementById('cz_local_body').value = `${palikaName} ${localType}`;
             document.getElementById('cz_ward_no').value = ward;
-            if(addr.tole) {
-                document.getElementById('cz_toll').value = addr.tole;
+            if(tole) {
+                document.getElementById('default_birthplace').value = tole;
             }
         } else {
-            document.getElementById('display_address').innerText = "रोहिणी गाउँपालिका, वडा नं. १, रुपन्देही (डिफल्ट)";
+            window.location.href = 'address.html';
         }
     }
 
-    function changeAddress() {
-        window.location.href = 'address.html';
-    }
-
-    function switchTab(tabId) {
+    function switchTab(tabId, event) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+        if(event) event.currentTarget.classList.add('active');
         if(tabId === 'adminTab') {
             loadAdminData();
         }
@@ -430,13 +440,13 @@
         }
 
         const formData = {
-            date: document.getElementById('in_date').value,
+            date: document.getElementById('in_today').value,
             appName: appName,
             phone: phone,
             district: document.getElementById('cz_district').value,
             localBody: document.getElementById('cz_local_body').value,
             wardNo: document.getElementById('cz_ward_no').value,
-            toll: document.getElementById('cz_toll').value,
+            toll: document.getElementById('default_birthplace').value,
             grandName: document.getElementById('cz_grand_name').value,
             grandRel: document.getElementById('cz_grand_relation').value,
             fatherName: document.getElementById('cz_father_name').value,
@@ -460,7 +470,8 @@
                 citDist: document.getElementById('s_cit_dist').value,
                 age: document.getElementById('s_age').value
             },
-            paymentPaid: false,
+            paymentType: 'PENDING',
+            esewaCode: '',
             adminApproved: false,
             timestamp: Date.now()
         };
@@ -480,7 +491,7 @@
     function checkApplicationStatus() {
         const query = document.getElementById('track_input').value.trim();
         if(!query) {
-            alert("कृपया मोबाइल नम्बर वा ट्र्याकिङ आईडी लेख्नुहोस्।");
+            alert("कृपया मोबाइल नम्बर लेख्नुहोस्।");
             return;
         }
 
@@ -488,16 +499,16 @@
             const data = snapshot.val();
             if(data) {
                 const keys = Object.keys(data);
-                currentRecordKey = keys[0];
+                currentRecordKey = keys[keys.length - 1];
                 const record = data[currentRecordKey];
                 
                 document.getElementById('tr_name').innerText = record.appName;
-                let statusText = record.adminApproved ? "प्रमाणित (Approved)" : "पेन्डिङ (Pending)";
+                let statusText = record.adminApproved ? "स्वीकृत (Approved)" : "पेन्डिङ (Pending)";
                 document.getElementById('tr_status').innerText = statusText;
                 document.getElementById('tr_status').style.color = record.adminApproved ? "green" : "orange";
 
-                if(record.paymentPaid) {
-                    document.getElementById('tr_pay_status').innerText = "भुक्तानी भइसकेको (Paid)";
+                if(record.esewaCode) {
+                    document.getElementById('tr_pay_status').innerText = "भुक्तानी कोड प्राप्त: " + record.esewaCode;
                     document.getElementById('tr_pay_status').style.color = "green";
                 } else {
                     document.getElementById('tr_pay_status').innerText = "अप्रमाणित / बाँकी (Pending)";
@@ -512,6 +523,7 @@
 
                 document.getElementById('track_result').style.display = "block";
                 window.fetchedRecord = record; 
+                setupPrintData(record);
             } else {
                 alert("कुनै रेकर्ड फेला परेन!");
                 document.getElementById('track_result').style.display = 'none';
@@ -519,10 +531,24 @@
         });
     }
 
-    function simulatePayment() {
-        if(!currentRecordKey) return;
-        db.ref('citizenship_requests/' + currentRecordKey).update({ paymentPaid: true }).then(() => {
-            alert("भुक्तानी सफल भयो! अब एडमिनले स्वीकृत गरेपछि प्रिन्ट गर्न सक्नुहुनेछ।");
+    // ४. eSewa भुक्तानी कोड बुझाउने फंक्सन
+    function submitPaymentViaEsewa() {
+        if(!currentRecordKey) {
+            alert("पहिले ट्र्याकिङ गरेर रेकर्ड छान्नुहोस्!");
+            return;
+        }
+        const codeInput = document.getElementById('esewa_in_dynamic');
+        if(!codeInput) return;
+        const code = codeInput.value.trim();
+        
+        if(!code) return alert('कृपया eSewa Transaction Code हाल्नुहोस्');
+
+        db.ref('citizenship_requests/' + currentRecordKey).update({
+            paymentType: 'PAID',
+            esewaCode: code,
+            status: 'Payment Pending Admin Verification'
+        }).then(() => {
+            alert('भुक्तानी कोड सफलतापूर्वक पठाइयो!');
             checkApplicationStatus();
         });
     }
@@ -544,7 +570,7 @@
                     <td>${rec.date}</td>
                     <td>${rec.appName}</td>
                     <td>${rec.phone}</td>
-                    <td>${rec.paymentPaid ? 'Paid' : 'Unpaid'}</td>
+                    <td>${rec.esewaCode || 'N/A'}</td>
                     <td><span style="color: ${rec.adminApproved ? 'green' : 'red'};">${rec.adminApproved ? 'Approved' : 'Pending'}</span></td>
                     <td>
                         <button onclick="toggleApproval('${key}', ${!rec.adminApproved})" style="padding: 5px 10px; font-size: 12px; background: ${rec.adminApproved ? '#dc3545' : '#28a745'}; color: white; border: none; border-radius: 4px; cursor: pointer;">
@@ -563,13 +589,7 @@
         });
     }
 
-    function generatePrint() {
-        const record = window.fetchedRecord;
-        if(!record) {
-            alert("पहिले ट्र्याकिङ ट्याबबाट डाटा लोड गर्नुहोस्।");
-            return;
-        }
-
+    function setupPrintData(record) {
         document.getElementById('p_date').innerText = record.date;
         document.getElementById('p_app_name').innerText = record.appName;
         document.getElementById('p_s_app_name').innerText = record.appName;
@@ -617,8 +637,23 @@
         } else {
             wm.classList.remove('show');
         }
+    }
 
-        window.print();
+    // ५. प्रिन्ट र ब्याक बटन फंक्सन्स
+    function triggerPrint() {
+        const record = window.fetchedRecord;
+        if(!record || !record.adminApproved) {
+            alert("यो निवेदन एडमिनबाट स्वीकृत (Approve) भएको छैन। वाटरमार्क हट्ने छैन।");
+            return;
+        }
+        const printBtn = document.getElementById('mainPrintBtn');
+        if(printBtn && !printBtn.disabled) {
+            window.print();
+        }
+    }
+
+    function backToForm() {
+        window.location.href = 'address.html';
     }
 </script>
 
