@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>जन्म दर्ता सिफारिस प्रणाली</title>
+    <title>जन्म दर्ता सिफारिस फारम - अनलाइन सिफारिस प्रणाली</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -14,11 +14,6 @@
         .container { max-width: 950px; width: 100%; margin: auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 10px; font-size: 20px; }
         
-        /* Navigation Tabs */
-        .nav-tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
-        .nav-tabs button { flex: 1; min-width: 100px; padding: 10px; border: none; background: #718093; color: white; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; text-align: center; }
-        .nav-tabs button.active-tab { background: var(--primary); }
-
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
@@ -28,7 +23,6 @@
         .row { display: flex; gap: 10px; flex-wrap: wrap; }
         .row .input-group { flex: 1; min-width: 240px; }
         
-        /* Buttons */
         .btn-submit { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
         .btn-add { background: var(--primary); color: white; padding: 10px 15px; font-size: 14px; margin-bottom: 15px; width: 100%; border-radius: 5px; border: none; cursor: pointer; }
         .btn-danger { background: var(--danger); padding: 6px 12px; font-size: 13px; width: auto; margin-top: 5px; color: white; border: none; border-radius: 4px; cursor: pointer; }
@@ -37,15 +31,8 @@
 
         .section-title { background: #e8ecef; padding: 8px; margin: 15px 0 10px 0; font-weight: bold; border-left: 6px solid var(--primary); font-size: 15px; }
         .child-box { border: 1px dashed var(--primary); padding: 10px; margin-bottom: 15px; background: #f9fbfd; border-radius: 6px; }
-        .address-card { background: #e0f2fe; border: 1px solid #bae6fd; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; color: #0369a1; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
-        /* Admin Table - Font color set to black */
-        .table-responsive { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 500px; }
-        table, th, td { border: 1px solid #ddd; padding: 8px; font-size: 13px; text-align: left; color: #000000; }
-        th { background-color: var(--primary); color: white; }
-
-        /* Printable A4 Modal Container */
+        /* Printable A4 Container */
         #printView { display: flex; flex-direction: column; align-items: center; background: #555555; padding: 10px 0; margin-top: 20px; border-radius: 6px; }
         .print-container {
             position: relative;
@@ -81,18 +68,16 @@
         }
 
         .child-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
-        .child-table th, .child-table td { border: 1px solid #000; padding: 6px; text-align: left; font-size: 11pt; color: #000; }
+        .child-table th, .child-table td { border: 1px solid #000; padding: 6px; text-align: left; font-size: 11pt; }
         .child-table th { background-color: #f2f2f2; }
 
         .date { text-align: right; margin-bottom: 20px; }
         .recipient { line-height: 1.4; margin-bottom: 20px; }
         .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 25px 0; font-size: 15pt; }
         .content { text-indent: 40px; margin-bottom: 15px; }
-        
-        /* Bottom container layout for attachment and applicant side-by-side */
-        .bottom-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; border-top: 1px solid #000; padding-top: 15px; flex-wrap: nowrap; gap: 20px; }
-        .attachment-part { width: 55%; font-size: 11pt; line-height: 1.6; }
-        .applicant-part { width: 40%; line-height: 1.6; text-align: right; }
+        .bottom-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; border-top: 1px solid #000; padding-top: 15px; flex-wrap: wrap; gap: 20px; }
+        .attachment-part { width: 100%; font-size: 11pt; line-height: 1.6; }
+        .applicant-part { width: 100%; line-height: 1.6; }
 
         @page { size: A4 portrait; margin: 0; }
         @media print {
@@ -102,32 +87,37 @@
             .container { box-shadow: none; padding: 0; background: transparent; }
             .no-print { display: none !important; }
             .print-container { 
-                position: absolute; left: 0; top: 0; width: 210mm; height: 297mm; border: none; box-shadow: none; margin: 0; padding: 25mm 20mm;
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 210mm;
+                height: 297mm;
+                border: none; 
+                box-shadow: none;
+                margin: 0;
+                padding: 25mm 20mm;
             }
         }
     </style>
 </head>
-<body onload="checkAddressAndLoad(); setInitialDate();">
+<body onload="initPage()">
 
 <div class="container">
-    <!-- Navigation Tabs -->
-    <div class="nav-tabs no-print">
-        <button id="btn-form" class="active-tab" onclick="switchTab('forms-tab')">📝 जन्म दर्ता फारम</button>
-        <button id="btn-trace" onclick="switchTab('trace-tab')">🔍 ट्रान्स / भुक्तानी</button>
-        <button id="btn-admin" onclick="switchTab('admin-tab')">⚙️ Admin Panel</button>
+    <div style="margin-bottom: 10px;" class="no-print">
+        <a href="address.html" style="text-decoration:none; background:var(--primary); color:white; padding:6px 12px; border-radius:4px; font-size:13px; display:inline-block;">← ठेगाना परिवर्तन गर्नुहोस्</a>
     </div>
 
     <!-- 1. FORMS TAB -->
     <div id="forms-tab" class="tab-content active no-print">
-        <h2>जन्म दर्ता सिफारिस अनलाइन निवेदन</h2>
-
-        <!-- ठेगाना देखाउने कार्ड र परिवर्तन गर्ने लिंक -->
-        <div class="address-card" id="displayAddressBox">
-            <span>📍 <b>ठेगाना:</b> लोड हुँदैछ...</span>
-            <a href="address.html" style="background:var(--primary); color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:12px; font-weight:bold;">ठेगाना फेर्नुहोस्</a>
-        </div>
-
+        <h2>जन्म दर्ता सिफारिस फारम</h2>
         <form id="nivedanForm">
+            <div class="input-group">
+                <label>सिफारिसको प्रकार:</label>
+                <select id="n_type">
+                    <option value="जन्म दर्ता गरिपाऊँ।">जन्म दर्ता गरिपाऊँ।</option>
+                </select>
+            </div>
+
             <div class="row">
                 <div class="input-group"><label>मिति (वि.सं.):</label><input type="text" id="in_today"></div>
                 <div class="input-group"><label>फोन नं. (मोबाइल):</label><input type="text" id="in_phone" placeholder="98XXXXXXXX" required></div>
@@ -202,47 +192,23 @@
 
     <!-- 2. TRACE & PAYMENT TAB -->
     <div id="trace-tab" class="tab-content no-print">
-        <h3>मोबाइल नम्बर वा ID बाट निवेदन खोज्नुहोस्</h3>
-        <div class="row" style="margin-bottom: 15px;">
-            <div class="input-group" style="margin-bottom:0;"><input type="text" id="traceSearchInput" placeholder="मोबाइल नम्बर (उदा: 98xxxxxxxx)"></div>
-            <button onclick="traceApplication()" style="padding:10px 20px; background:var(--primary); color:white; border:none; border-radius:4px; cursor:pointer; width:100%;">खोज्नुहोस्</button>
-        </div>
+        <h3>निवेदन स्थिति तथा प्रिन्ट प्रिभ्यु</h3>
         <div id="traceResult"></div>
     </div>
 
-    <!-- 3. ADMIN DASHBOARD -->
-    <div id="admin-tab" class="tab-content no-print">
-        <h3>Admin Control Panel</h3>
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>नाम</th>
-                        <th>फोन</th>
-                        <th>eSewa Code</th>
-                        <th>स्थिति</th>
-                        <th>कार्य</th>
-                    </tr>
-                </thead>
-                <tbody id="adminTableBody"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- 4. A4 PRINT PREVIEW MODAL -->
+    <!-- 3. A4 PRINT PREVIEW SECTION -->
     <div id="printView" style="display:none;">
         <div class="no-print" style="margin-bottom: 15px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
             <button id="mainPrintBtn" onclick="triggerPrint()" disabled style="padding: 10px 20px; font-weight:bold; background:var(--secondary); color:white; border:none; border-radius:4px; cursor:pointer;">Download / Print A4 PDF</button>
-            <button onclick="closePrintView()" style="padding: 10px 20px; background:var(--danger); color:white; border:none; cursor:pointer; border-radius:4px;">बन्द गर्नुहोस् (Close)</button>
+            <button onclick="backToForm()" style="padding: 10px 20px; background:var(--danger); color:white; border:none; cursor:pointer; border-radius:4px;">अर्को निवेदन भर्नुहोस्</button>
         </div>
 
         <div class="print-container" id="printableArea">
             <div id="watermarkOverlay" class="watermark">FREE COPY</div>
 
             <div class="date">मिति: <span id="p_today"></span></div>
-            <div class="recipient">श्रीमान् वडा अध्यक्ष ज्यू,<br><span id="p_palika_info">गाउँपालिका, वडा नं. १</span>,<br><span id="p_district_info">जिल्ला, नेपाल।</span></div>
-            <div id="p_subject" class="subject">विषय : जन्म दर्ता गरिपाऊँ।</div>
+            <div class="recipient">श्रीमान् वडा अध्यक्ष ज्यू,<br><span id="p_palika_target">रोहिणी गाउँपालिका, वडा नं. १</span>,<br><span id="p_district_target">रुपन्देही</span>, नेपाल।</div>
+            <div id="p_subject" class="subject"></div>
             <p>महोदय,</p>
             <div id="p_content" class="content"></div>
             
@@ -254,8 +220,8 @@
                     <strong>निवेदक:</strong><br><br>
                     सही: ...........................<br>
                     नाम: <strong id="p_f_name">………………</strong><br>
-                    ठेगाना: <span id="p_applicant_address">………………</span><br>
-                    फोन: <span id="p_phone">………………</span>
+                    ठेगाना: <span id="p_applicant_address">रोहिणी-१, रुपन्देही</span><br>
+                    फोन: <span id="p_phone">98244</span>
                 </div>
             </div>
         </div>
@@ -268,41 +234,32 @@
         authDomain: "sunil-online-service.firebaseapp.com",
         databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
         projectId: "sunil-online-service",
-        storageBucket: "sunil-online-service.appspot.com"
+        storageBucket: "sunil-online-service.appspot.com",
+        messagingSenderId: "",
+        appId: ""
     };
 
     let db = null;
     let allNivedansData = {};
-    let globalAddress = {};
+    let currentAddress = {};
 
     try {
         firebase.initializeApp(firebaseConfig);
         db = firebase.database();
+        
         db.ref('rochini_nivedans').on('value', (snapshot) => {
             allNivedansData = snapshot.val() || {};
-            loadAdminDashboard();
         });
-    } catch(e) { console.error(e); }
-
-    function checkAddressAndLoad() {
-        const saved = localStorage.getItem('savedAddress');
-        if(!saved) {
-            alert('पहिले ठेगाना छान्नुहोस्!');
-            window.location.href = 'address.html';
-            return;
-        }
-        globalAddress = JSON.parse(saved);
-        
-        // डिस्प्ले कार्ड अपडेट गर्ने
-        document.getElementById('displayAddressBox').querySelector('span').innerHTML = `
-            📍 <b>ठेगाना:</b> ${globalAddress.province}, ${globalAddress.district}, ${globalAddress.palikaName} ${globalAddress.localType}-${globalAddress.ward}, ${globalAddress.tole}
-        `;
-        
-        // जन्मस्थानको पूर्वनिर्धारित बक्समा ठेगाना राख्ने
-        document.getElementById('default_birthplace').value = `${globalAddress.palikaName} ${globalAddress.localType}-${globalAddress.ward}, ${globalAddress.district}`;
+    } catch(e) {
+        console.error("Firebase init error:", e);
     }
 
     let childCount = 1;
+
+    function initPage() {
+        setInitialDate();
+        loadSavedAddress();
+    }
 
     function setInitialDate() {
         try {
@@ -311,32 +268,22 @@
         } catch (e) { document.getElementById('in_today').value = "२०८३/०३/२७"; }
     }
 
-    function switchTab(tabId) {
-        // यदि 'जन्म दर्ता फारम' (forms-tab) मा क्लिक गरियो भने सिधै address.html मा नभई पहिले सेभ भएको ठेगाना चेक गरी फारम देखाउने (र ठेगाना नभए मात्र address.html मा पठाउने)
-        if(tabId === 'forms-tab') {
-            const saved = localStorage.getItem('savedAddress');
-            if(!saved) {
-                window.location.href = 'address.html';
-                return;
-            }
-        }
-
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-tabs button').forEach(el => el.classList.remove('active-tab'));
-        
-        document.getElementById(tabId).classList.add('active');
-        if(tabId === 'forms-tab') document.getElementById('btn-form').classList.add('active-tab');
-        if(tabId === 'trace-tab') document.getElementById('btn-trace').classList.add('active-tab');
-        if(tabId === 'admin-tab') {
-            document.getElementById('btn-admin').classList.add('active-tab');
-            loadAdminDashboard();
+    function loadSavedAddress() {
+        const saved = localStorage.getItem('savedAddress');
+        if(saved) {
+            currentAddress = JSON.parse(saved);
+            const fullStr = `${currentAddress.palikaName}-${currentAddress.ward}, ${currentAddress.district}`;
+            document.getElementById('default_birthplace').value = fullStr;
+        } else {
+            // यदि ठेगाना सेभ नगरी सिधै आएमा address.html मा फर्काउने
+            window.location.href = 'address.html';
         }
     }
 
     function addChildBox() {
         childCount++;
         const container = document.getElementById('children_container');
-        const defaultPlace = `${globalAddress.palikaName || ''} ${globalAddress.localType || ''}-${globalAddress.ward || ''}, ${globalAddress.district || ''}`;
+        const defaultBP = document.getElementById('default_birthplace').value;
         const html = `
             <div class="child-box" id="child_block_${childCount}">
                 <div class="row">
@@ -351,7 +298,7 @@
                     <div class="input-group"><label>जन्म मिति:</label><input type="text" class="child-dob" required></div>
                 </div>
                 <div class="row">
-                    <div class="input-group"><label>जन्मस्थान:</label><input type="text" class="child-birthplace" value="${defaultPlace}" required></div>
+                    <div class="input-group"><label>जन्मस्थान:</label><input type="text" class="child-birthplace" value="${defaultBP}" required></div>
                     <div class="input-group"><label>टोकन नम्बर:</label><input type="text" class="child-token" placeholder="टोकन नं." required></div>
                 </div>
                 <button type="button" class="btn-danger" onclick="removeChildBox(${childCount})">यो बच्चा हटाउनुहोस्</button>
@@ -388,7 +335,6 @@
 
         const record = {
             id: id,
-            ...globalAddress,
             today: document.getElementById('in_today').value.trim(),
             phone: document.getElementById('in_phone').value.trim(),
             applicantRole: document.getElementById('in_applicant_role').value,
@@ -398,6 +344,7 @@
             grandpaRel: document.getElementById('in_grandpa_rel').value,
             fatherRel: document.getElementById('in_father_rel').value,
             marriageDate: document.getElementById('in_marriage_date').value.trim(),
+            address: currentAddress,
             children: childrenData,
             status: 'Pending Verification',
             paymentType: 'FREE',
@@ -411,52 +358,13 @@
                     alert("डाटा सेभ गर्न समस्या भयो!");
                 } else {
                     alert('निवेदन सफलतापुर्वक सेभ भयो!');
-                    document.getElementById('nivedanForm').reset();
-                    switchTab('trace-tab');
-                    document.getElementById('traceSearchInput').value = record.phone;
-                    traceApplication();
+                    allNivedansData[id] = record;
+                    document.getElementById('forms-tab').classList.remove('active');
+                    openPrintModal(id);
                 }
             });
         }
     });
-
-    function traceApplication() {
-        const query = document.getElementById('traceSearchInput').value.trim();
-        const container = document.getElementById('traceResult');
-        container.innerHTML = '';
-
-        const results = Object.values(allNivedansData).filter(item => 
-            item.phone === query || item.esewaCode === query || item.id === query
-        );
-
-        if(results.length === 0) {
-            container.innerHTML = '<p style="color:red;">कुनै पनि निवेदन भेटिएन।</p>';
-            return;
-        }
-
-        results.forEach(item => {
-            const card = document.createElement('div');
-            card.style.cssText = "border:1px solid #ccc; padding:15px; margin-top:10px; border-radius:5px; background:#fff; word-break:break-all;";
-            card.innerHTML = `
-                <h4>निवेदन ID: ${item.id}</h4>
-                <p><strong>निवेदक:</strong> ${item.name} | <strong>फोन:</strong> ${item.phone}</p>
-                <p><strong>स्थिति:</strong> <span style="color:${item.isVerified ? 'green' : 'orange'}">${item.status}</span></p>
-                
-                ${!item.isVerified ? `
-                    <div style="background:#fff3cd; padding:10px; margin:10px 0; border:1px solid #ffeeba; border-radius:4px;">
-                        <p style="margin:0 0 5px 0;"><strong>eSewa भुक्तानी कोड (Rs. 50):</strong></p>
-                        <input type="text" id="esewa_in_${item.id}" placeholder="eSewa Txn Code" value="${item.esewaCode || ''}">
-                        <button onclick="submitPayment('${item.id}')" style="margin-top:5px; padding:6px 12px; background:var(--secondary); color:white; border:none; border-radius:4px; cursor:pointer; width:100%;">भुक्तानी कोड बुझाउनुहोस्</button>
-                    </div>
-                ` : `<p style="color:green;"><b>✓ भुक्तानी प्रमाणित भयो</b> | eSewa Code: ${item.esewaCode}</p>`}
-
-                <button onclick="openPrintModal('${item.id}')" style="background:var(--primary); color:white; padding:10px; border:none; border-radius:4px; cursor:pointer; width:100%; margin-top:5px; font-weight:bold;">
-                    A4 Preview हेर्नुहोस् (Watermark सहित)
-                </button>
-            `;
-            container.appendChild(card);
-        });
-    }
 
     function submitPayment(id) {
         const code = document.getElementById(`esewa_in_${id}`).value.trim();
@@ -468,45 +376,10 @@
                 esewaCode: code,
                 status: 'Payment Pending Admin Verification'
             }).then(() => {
+                allNivedansData[id].esewaCode = code;
+                allN2 = allNivedansData[id].status = 'Payment Pending Admin Verification';
                 alert('भुक्तानी कोड सफलतापूर्वक पठाइयो!');
-                traceApplication();
-            });
-        }
-    }
-
-    function loadAdminDashboard() {
-        const tbody = document.getElementById('adminTableBody');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-        const list = Object.values(allNivedansData);
-
-        list.forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${item.id}</td>
-                <td>${item.name}</td>
-                <td>${item.phone}</td>
-                <td>${item.esewaCode || 'N/A'}</td>
-                <td><b>${item.status}</b></td>
-                <td>
-                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                        <button onclick="verifyAndApprove('${item.id}')" style="background:var(--secondary); color:white; border:none; padding:5px 8px; border-radius:3px; cursor:pointer;">Approve</button>
-                        <button onclick="openPrintModal('${item.id}')" style="padding:5px 8px; border-radius:3px; cursor:pointer;">View</button>
-                    </div>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function verifyAndApprove(id) {
-        if(db) {
-            db.ref('rochini_nivedans/' + id).update({ 
-                status: 'Verified & Approved',
-                paymentType: 'PAID VERIFIED',
-                isVerified: true
-            }).then(() => {
-                alert('सफलतापूर्वक Approve भयो!');
+                openPrintModal(id);
             });
         }
     }
@@ -515,11 +388,32 @@
         const item = allNivedansData[id];
         if(!item) return;
 
+        const addr = item.address || currentAddress;
+
+        // Trace / Payment interface box
+        const container = document.getElementById('traceResult');
+        container.innerHTML = `
+            <div style="border:1px solid #ccc; padding:15px; margin-bottom:15px; border-radius:5px; background:#fff; word-break:break-all;">
+                <h4>निवेदन ID: ${item.id}</h4>
+                <p><strong>निवेदक:</strong> ${item.name} | <strong>फोन:</strong> ${item.phone}</p>
+                <p><strong>स्थिति:</strong> <span style="color:${item.isVerified ? 'green' : 'orange'}">${item.status}</span></p>
+                
+                ${!item.isVerified ? `
+                    <div style="background:#fff3cd; padding:10px; margin:10px 0; border:1px solid #ffeeba; border-radius:4px;">
+                        <p style="margin:0 0 5px 0;"><strong>eSewa भुक्तानी कोड (Rs. 50):</strong></p>
+                        <input type="text" id="esewa_in_${item.id}" placeholder="eSewa Txn Code" value="${item.esewaCode || ''}">
+                        <button onclick="submitPayment('${item.id}')" style="margin-top:5px; padding:6px 12px; background:var(--secondary); color:white; border:none; border-radius:4px; cursor:pointer; width:100%;">भुक्तानी कोड बुझाउनुहोस्</button>
+                    </div>
+                ` : `<p style="color:green;"><b>✓ भुक्तानी प्रमाणित भयो</b> | eSewa Code: ${item.esewaCode}</p>`}
+            </div>
+        `;
+
         document.getElementById('p_today').innerText = item.today || "………………";
-        document.getElementById('p_palika_info').innerText = `${item.palikaName || 'गाउँपालिका'} ${item.localType || ''}, वडा नं. ${item.ward || '१'}`;
-        document.getElementById('p_district_info').innerText = `${item.district || 'जिल्ला'}, ${item.province || ''}, नेपाल`;
+        document.getElementById('p_palika_target').innerText = `${addr.palikaName || 'रोहिणी'} ${addr.localType || 'गाउँपालिका'}, वडा नं. ${addr.ward || '१'}`;
+        document.getElementById('p_district_target').innerText = addr.district || 'रुपन्देही';
+        document.getElementById('p_subject').innerText = "विषय : जन्म दर्ता गरिपाऊँ।";
         
-        let con = `उपरोक्त सम्बन्धमा म निवेदक यस ${item.palikaName || ''} ${item.localType || ''} वडा नं. ${item.ward || ''} मा बसोबास गर्ने <strong>${item.grandpa || "………………"}</strong> को ${item.grandpaRel}, तथा श्री <strong>${item.father || "………………"}</strong> को ${item.fatherRel} <strong>${item.name || "………………"}</strong> हूँ। मिति <strong>${item.marriageDate || "………………"}</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।`;
+        let con = `उपरोक्त सम्बन्धमा म निवेदक यस ${addr.palikaName || 'रोहिणी'} ${addr.localType || 'गाउँपालिका'} वडा नं. ${addr.ward || '१'} (${addr.tole || ''}) मा बसोबास गर्ने <strong>${item.grandpa || "………………"}</strong> को ${item.grandpaRel}, तथा श्री <strong>${item.father || "………………"}</strong> को ${item.fatherRel} <strong>${item.name || "………………"}</strong> हूँ। मिति <strong>${item.marriageDate || "………………"}</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।`;
         document.getElementById('p_content').innerHTML = con;
 
         let tableHtml = `<div style="overflow-x:auto;"><table class="child-table">
@@ -553,7 +447,7 @@
 
         document.getElementById('p_attachment').innerHTML = `<strong>संलग्न कागजातहरू:</strong><br>१. बाबु-आमाको नागरिकता प्रतिलिपि<br>२. अस्पतालको जन्म डिस्चार्ज पुर्जी वा जन्म दर्ता प्रमाणपत्रको प्रतिलिपि<br>३. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि`;
         document.getElementById('p_f_name').innerText = item.name || "………………";
-        document.getElementById('p_applicant_address').innerText = `${item.palikaName || ''}-${item.ward || ''}, ${item.district || ''}`;
+        document.getElementById('p_applicant_address').innerText = `${addr.palikaName}-${addr.ward}, ${addr.district}`;
         document.getElementById('p_phone').innerText = item.phone || "………………";
 
         const watermark = document.getElementById('watermarkOverlay');
@@ -571,17 +465,20 @@
             printBtn.style.background = "#95a5a6";
         }
 
+        document.getElementById('trace-tab').classList.add('active');
         document.getElementById('printView').style.display = 'flex';
         window.scrollTo(0, document.getElementById('printView').offsetTop);
     }
 
-    function triggerPrint() {
-        const printBtn = document.getElementById('mainPrintBtn');
-        if(!printBtn.disabled) window.print();
+    function backToForm() {
+        window.location.href = 'address.html';
     }
 
-    function closePrintView() {
-        document.getElementById('printView').style.display = 'none';
+    function triggerPrint() {
+        const printBtn = document.getElementById('mainPrintBtn');
+        if(!printBtn.disabled) {
+            window.print();
+        }
     }
 </script>
 </body>
