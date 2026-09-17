@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <title>सामाजिक सुरक्षा भत्ता निवेदन फारम - दक्षिणकाली</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        
+        /* सरकारी ढाँचा स्टाइल */
+        .header-top { display: flex; justify-content: space-between; font-weight: bold; }
+        .photo-box { width: 100px; height: 120px; border: 1px solid #000; text-align: center; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+        
+        h3 { text-align: center; margin-bottom: 5px; }
+        .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 20px 0; }
+        
+        .section-title { background: #eee; padding: 8px; margin: 15px 0; font-weight: bold; border-left: 5px solid #2c3e50; }
+        
+        .row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .input-group { flex: 1; min-width: 200px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        input[type="text"], input[type="date"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        
+        .checkbox-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+        .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+
+        .declaration { font-size: 13px; font-style: italic; background: #fffde7; padding: 10px; border: 1px dashed #fbc02d; margin-top: 20px; }
+
+        @media print {
+            .no-print { display: none; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; max-width: 100%; }
+            button { display: none; }
+        }
+
+        button { width: 100%; padding: 15px; background: #2980b9; color: white; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; margin-top: 20px; }
+        button:hover { background: #2471a3; }
+      
+    </style>
+  <!-- Firebase SDK हरू (अनिवार्य) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<!-- तपाईंले बनाएको कमन जाभास्क्रिप्ट फाइल लिङ्क गर्ने -->
+<script src="common.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+    <div class="header-top">
+        <div>अनुसूची - १ [cite: 1]<br>(नियम ५ को उपनियम (१) सँग सम्बन्धित) [cite: 2]</div>
+        <div class="photo-box">लाभग्राहीको हालसालै खिचेको फोटो [cite: 6, 7, 9]</div>
+    </div>
+
+    <div style="margin-top: -50px;">
+        श्री वडा अध्यक्ष ज्यू, [cite: 3]<br>
+        वडा नं. <input type="text" style="width: 40px;" id="wada_no"> [cite: 4]<br>
+        दक्षिणकाली नगरपालिका, [cite: 5]<br>
+        काठमाडौं जिल्ला, बागमती प्रदेश। [cite: 8]
+    </div>
+
+    <div class="subject">विषयः सामाजिक सुरक्षा भत्ता उपलब्ध गराई पाउँ। [cite: 10]</div>
+
+    <p style="font-size: 14px; text-align: justify;">
+        सामाजिक सुरक्षा ऐन, २०७५ तथा सामाजिक सुरक्षा नियमावली, २०७६ बमोजिम मैले सामाजिक सुरक्षा भत्ता पाउने अवस्था रहेकोले देहायको विवरण सहित यो निवेदन दिएको छु। [cite: 11]
+    </p>
+
+    <div class="section-title">१. व्यक्तिगत विवरण [cite: 12]</div>
+    <div class="row">
+        <div class="input-group">
+            <label>नाम/थर (देवनागरी): [cite: 13]</label>
+            <input type="text" id="name_nep">
+        </div>
+        <div class="input-group">
+            <label>Full Name (English): [cite: 14]</label>
+            <input type="text" id="name_eng">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="input-group">
+            <label>जन्म मिति (वि.सं.): [cite: 16]</label>
+            <input type="text" placeholder="२०XX/XX/XX" id="dob">
+        </div>
+        <div class="input-group">
+            <label>नागरिकता नं.: [cite: 31]</label>
+            <input type="text" id="citiz_no">
+        </div>
+        <div class="input-group">
+            <label>लिङ्ग: [cite: 19]</label>
+            <select id="gender">
+                <option value="पुरुष">पुरुष [cite: 20]</option>
+                <option value="महिला">महिला [cite: 24]</option>
+                <option value="अन्य">अन्य [cite: 25]</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="input-group"><label>टोल: [cite: 18]</label><input type="text" id="tol"></div>
+        <div class="input-group"><label>सम्पर्क नं. (अनिवार्य): [cite: 26, 27]</label><input type="text" id="phone"></div>
+        <div class="input-group"><label>जातजाती: [cite: 30]</label><input type="text" id="caste"></div>
+    </div>
+
+    <div class="row">
+        <div class="input-group"><label>बाजेको नाम: [cite: 34]</label><input type="text"></div>
+        <div class="input-group"><label>बाबुको नाम: [cite: 36]</label><input type="text"></div>
+        <div class="input-group"><label>आमाको नाम: [cite: 38]</label><input type="text"></div>
+    </div>
+
+    <div class="section-title">२. सामाजिक सुरक्षा भत्ता पाउने समूह (कुनै एक): [cite: 42]</div>
+    <div class="checkbox-group">
+        <div class="checkbox-item"><input type="checkbox"> जेष्ठ नागरिक [cite: 44]</div>
+        <div class="checkbox-item"><input type="checkbox"> आर्थिक रूपले विपन्न [cite: 46]</div>
+        <div class="checkbox-item"><input type="checkbox"> असहाय एकल महिला [cite: 52]</div>
+        <div class="checkbox-item"><input type="checkbox"> अपाङ्गता भएका व्यक्ति [cite: 49]</div>
+        <div class="checkbox-item"><input type="checkbox"> बालबालिका (अति विपन्न/लोपोन्मुख) [cite: 48]</div>
+        <div class="checkbox-item"><input type="checkbox"> लोपोन्मुख जाती [cite: 53]</div>
+    </div>
+
+    <div class="section-title">३. असहाय एकल महिला/अपाङ्गताको हकमा [cite: 54, 62]</div>
+    <div class="row">
+        <div class="input-group"><label>मृत्यु/सम्बन्ध विच्छेद दर्ता नं.: [cite: 55, 56]</label><input type="text"></div>
+        <div class="input-group"><label>अपाङ्गता वर्ग र प्रकार: [cite: 63, 64]</label><input type="text"></div>
+        <div class="input-group"><label>परिचय पत्र नं.: [cite: 65]</label><input type="text"></div>
+    </div>
+
+    <div class="section-title">४. संरक्षक/स्याहार सुसार गर्ने व्यक्तिको विवरण (आवश्यक भएमा) [cite: 68]</div>
+    <div class="row">
+        <div class="input-group"><label>नाम/थर: [cite: 69]</label><input type="text"></div>
+        <div class="input-group"><label>नाता: [cite: 70]</label><input type="text"></div>
+        <div class="input-group"><label>नागरिकता नं.: [cite: 73]</label><input type="text"></div>
+    </div>
+
+    <div class="declaration">
+        म नेपाल सरकार वा मान्यता प्राप्त संस्थाबाट मासिक रूपमा तलब, भत्ता वा पेन्सन सुविधा लिने व्यक्ति होइन। व्यहोरा झुट्टा ठहरे कानुन बमोजिम सहुँला बुझाउँला। 
+    </div>
+
+    <div style="margin-top: 30px; display: flex; justify-content: space-between;">
+        <div>
+            निवेदन दिएको मिति: [cite: 74]<br>
+            <input type="text" value="२०८३/०१/०४" style="border:none; border-bottom:1px solid #000;">
+        </div>
+        <div style="text-align: center;">
+            ..............................<br>
+            निवेदकको दस्तखत [cite: 87]
+        </div>
+    </div>
+
+    <button onclick="window.print()">निवेदन फारम प्रिन्ट गर्नुहोस्</button>
+</div>
+
+</body>
+</html>
