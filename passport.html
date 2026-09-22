@@ -112,7 +112,10 @@
             storageBucket: "sunil-online-service.appspot.com"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        // Firebase initialize secure check
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.database();
         const storage = firebase.storage();
 
@@ -149,6 +152,7 @@
             }
 
             const uniqueId = 'PASSPORT-' + Date.now();
+            statusMsg.style.color = "#d35400";
             statusMsg.innerText = "⏳ फोटो अपलोड हुँदैछ, कृपया प्रतीक्षा गर्नुहोस्...";
 
             try {
@@ -173,6 +177,7 @@
                     timestamp: new Date().toLocaleString()
                 });
 
+                statusMsg.style.color = "#27ae60";
                 statusMsg.innerText = "✅ फोटो सफलतापूर्वक तयार भयो!";
 
                 // 3. Local Preview देखाउने
@@ -204,8 +209,10 @@
                 directPrintBtn.style.display = 'inline-block';
 
             } catch (error) {
-                statusMsg.innerText = "";
-                alert("समस्या आयो: " + error.message);
+                statusMsg.style.color = "#c0392b";
+                statusMsg.innerText = "❌ त्रुटी: " + error.message;
+                console.error("Firebase Error:", error);
+                alert("अपलोड गर्दा समस्या आयो। कृपया Firebase Storage/Database को Rules चेक गर्नुहोस् वा इन्टरनेट कनेक्सन जाँच्नुहोस्।");
             }
         }
     </script>
