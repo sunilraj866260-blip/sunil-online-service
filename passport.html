@@ -30,9 +30,10 @@
         .print-page { width: 210mm; min-height: 297mm; background: white; margin: 0 auto; padding: 8mm 6mm; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; align-content: flex-start; gap: 2mm; }
         .photo-box { overflow: hidden; background: #fafafa; flex-shrink: 0; box-sizing: border-box; }
         .photo-box img { width: 100%; height: 100%; object-fit: cover; box-sizing: border-box; }
+        #statusMessage { text-align: center; font-weight: bold; font-size: 14px; margin-top: 10px; color: #d35400; }
         @media print {
             body { background: white; padding: 0; }
-            .controls, .btn-direct-print, .top-home-btn { display: none !important; }
+            .controls, .btn-direct-print, .top-home-btn, #statusMessage { display: none !important; }
             .print-page { box-shadow: none; margin: 0; padding: 8mm 6mm; }
         }
     </style>
@@ -89,7 +90,8 @@
         </div>
 
         <button class="btn-add" onclick="addNewUploadField()">+ थप फोटो</button>
-        <button class="btn-generate" onclick="generatePhotos()">फोटो तयार गर्नुहोस् र पठाउनुहोस्</button>
+        <button class="btn-generate" id="generateBtn" onclick="generatePhotos()">फोटो तयार गर्नुहोस् र पठाउनुहोस्</button>
+        <div id="statusMessage"></div>
     </div>
 
     <div style="text-align: center;">
@@ -129,6 +131,7 @@
         async function generatePhotos() {
             const custName = document.getElementById('custName').value.trim();
             const custPhone = document.getElementById('custPhone').value.trim();
+            const statusMsg = document.getElementById('statusMessage');
 
             if (!custName || !custPhone) {
                 alert("कृपया ग्राहकको नाम र मोबाइल नम्बर अनिवार्य भर्नुहोला!");
@@ -146,7 +149,7 @@
             }
 
             const uniqueId = 'PASSPORT-' + Date.now();
-            alert("फोटो अपलोड हुँदैछ, कृपया प्रतीक्षा गर्नुहोस्...");
+            statusMsg.innerText = "⏳ फोटो अपलोड हुँदैछ, कृपया प्रतीक्षा गर्नुहोस्...";
 
             try {
                 // 1. Firebase Storage मा फोटो Upload गर्ने
@@ -154,7 +157,25 @@
                 const uploadTask = await storageRef.put(file);
                 const downloadURL = await uploadTask.ref.getDownloadURL();
 
-                // 2. Local Preview देखाउने
+                statusMsg.innerText = "🔄 डाटा सेभ गरिदैछ...";
+
+                // 2. Firebase Database मा URL सहित सेभ गर्ने
+                await db.ref('rochini_nivedans/' + uniqueId).set({
+                    id: uniqueId,
+                    name: custName,
+                    phone: custPhone,
+                    status: 'Pending',
+                    isVerified: false,
+                    totalPhotos: totalCount,
+                    serviceType: 'Passport',
+                    photoURL: downloadURL,
+                    today: new Date().toLocaleDateString(),
+                    timestamp: new Date().toLocaleString()
+                });
+
+                statusMsg.innerText = "✅ फोटो सफलतापूर्वक तयार भयो!";
+
+                // 3. Local Preview देखाउने
                 const printPage = document.getElementById('printPage');
                 const directPrintBtn = document.getElementById('directPrintBtn');
                 const widthVal = document.getElementById('photoWidth').value;
@@ -180,28 +201,10 @@
                     printPage.appendChild(box);
                 }
 
-                // 3. Firebase Database मा URL सहित सेभ गर्ने
-                db.ref('rochini_nivedans/' + uniqueId).set({
-                    id: uniqueId,
-                    name: custName,
-                    phone: custPhone,
-                    status: 'Pending',
-                    isVerified: false,
-                    totalPhotos: totalCount,
-                    serviceType: 'Passport',
-                    photoURL: downloadURL,
-                    today: new Date().toLocaleDateString(),
-                    timestamp: new Date().toLocaleString()
-                }, (error) => {
-                    if (error) {
-                        alert("डाटा सेभ हुन सकेन: " + error.message);
-                    } else {
-                        alert("सफलतापूर्वक फोटो तयार भयो र एड्मिन प्यानलमा पठाइयो!");
-                    }
-                });
-
                 directPrintBtn.style.display = 'inline-block';
+
             } catch (error) {
+                statusMsg.innerText = "";
                 alert("समस्या आयो: " + error.message);
             }
         }
