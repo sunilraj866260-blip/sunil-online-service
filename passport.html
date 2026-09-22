@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>पासपोर्ट फोटो जेनेरेटर - रोहिणी-१</title>
     
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs (App, Database, Auth, Storage) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
@@ -102,11 +103,15 @@
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-            databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com"
+            authDomain: "sunil-online-service.firebaseapp.com",
+            databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
+            projectId: "sunil-online-service",
+            storageBucket: "sunil-online-service.appspot.com"
         };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const storage = firebase.storage();
 
         function addNewUploadField() {
             const uploadList = document.getElementById('uploadList');
@@ -129,11 +134,27 @@
                 return;
             }
 
-            const printPage = document.getElementById('printPage');
-            const directPrintBtn = document.getElementById('directPrintBtn');
             const inputs = document.querySelectorAll('.photo-input');
             const quantities = document.querySelectorAll('.photo-qty');
-            
+            const file = inputs[0].files[0];
+            const totalCount = parseInt(quantities[0].value) || 6;
+
+            if (!file) {
+                alert("कृपया कम्तीमा एउटा फोटो छान्नुहोस्!");
+                return;
+            }
+
+            const uniqueId = 'PASSPORT-' + Date.now();
+            alert("फोटो अपलोड हुँदैछ, कृपया प्रतीक्षा गर्नुहोस्...");
+
+            // 1. Firebase Storage मा फोटो Upload गर्ने
+            const storageRef = storage.ref('passport_photos/' + uniqueId + '_' + file.name);
+            const uploadTask = await storageRef.put(file);
+            const downloadURL = await uploadTask.ref.getDownloadURL();
+
+            // 2. Local Preview देखाउने
+            const printPage = document.getElementById('printPage');
+            const directPrintBtn = document.getElementById('directPrintBtn');
             const widthVal = document.getElementById('photoWidth').value;
             const heightVal = document.getElementById('photoHeight').value;
             const unitVal = document.getElementById('sizeUnit').value;
@@ -142,61 +163,31 @@
 
             printPage.style.gap = `${gapVal}mm`;
             printPage.innerHTML = '';
-            let imagePromises = [];
-            let totalPhotosCount = 0;
-            let capturedImageData = ""; // फोटो सेभ गर्नको लागि variable
 
-            inputs.forEach((input, index) => {
-                const file = input.files[0];
-                const count = parseInt(quantities[index].value) || 0;
+            for (let i = 0; i < totalCount; i++) {
+                const box = document.createElement('div');
+                box.className = 'photo-box';
+                box.style.width = `${widthVal}${unitVal}`;
+                box.style.height = `${heightVal}${unitVal}`;
 
-                if (file && count > 0) {
-                    totalPhotosCount += count;
-                    const promise = new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            capturedImageData = e.target.result; // Base64 image data समात्ने
-                            for (let i = 0; i < count; i++) {
-                                const box = document.createElement('div');
-                                box.className = 'photo-box';
-                                box.style.width = `${widthVal}${unitVal}`;
-                                box.style.height = `${heightVal}${unitVal}`;
+                const img = document.createElement('img');
+                img.src = downloadURL;
+                img.style.border = `${borderVal}px solid #000000`;
 
-                                const img = document.createElement('img');
-                                img.src = capturedImageData;
-                                img.style.border = `${borderVal}px solid #000000`;
-
-                                box.appendChild(img);
-                                printPage.appendChild(box);
-                            }
-                            resolve();
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                    imagePromises.push(promise);
-                }
-            });
-
-            if (imagePromises.length === 0) {
-                printPage.innerHTML = '<p style="color: red; text-align: center; width: 100%;">कृपया कम्तीमा एउटा फोटो छान्नुहोस्!</p>';
-                directPrintBtn.style.display = 'none';
-                return;
+                box.appendChild(img);
+                printPage.appendChild(box);
             }
 
-            await Promise.all(imagePromises);
-            
-            const uniqueId = 'PASSPORT-' + Date.now();
-            
-            // Firebase मा फोटोको डाटा (imageBase64) समेत सेभ गर्ने
+            // 3. Firebase Database मा URL सहित सेभ गर्ने
             db.ref('rochini_nivedans/' + uniqueId).set({
                 id: uniqueId,
                 name: custName,
                 phone: custPhone,
                 status: 'Pending',
                 isVerified: false,
-                totalPhotos: totalPhotosCount,
+                totalPhotos: totalCount,
                 serviceType: 'Passport',
-                imageBase64: capturedImageData, // यो लाइनले एड्मिनमा फोटो देखाउन मद्दत गर्छ
+                photoURL: downloadURL, // Storage को लिङ्क सेभ हुन्छ
                 today: new Date().toLocaleDateString(),
                 timestamp: new Date().toLocaleString()
             }, (error) => {
@@ -213,3 +204,4 @@
 
 </body>
 </html>
+
