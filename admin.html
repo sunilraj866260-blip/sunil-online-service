@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ne">
 <head>
@@ -35,7 +36,6 @@
         button { cursor: pointer; padding: 6px 12px; border-radius: 4px; border: none; font-weight: bold; color: white; font-size: 13px; }
         .btn-approve { background: var(--secondary); }
         .btn-reject { background: var(--danger); }
-        .btn-delete { background: #333; }
         .btn-view { background: #2980b9; }
 
         /* Modal Preview Styling */
@@ -247,17 +247,7 @@
 
     function fetchNivedansData() {
         db.ref('rochini_nivedans').on('value', (snapshot) => {
-            const rawData = snapshot.val() || {};
-            allNivedansData = {};
-
-            // नियम: eSewa Code भरेको (र खाली नभएको) डाटा मात्र ड्यासबोर्डमा देखाउने वा राख्ने
-            Object.keys(rawData).forEach(key => {
-                const item = rawData[key];
-                if (item.esewaCode && item.esewaCode.trim() !== "") {
-                    allNivedansData[key] = item;
-                }
-            });
-
+            allNivedansData = snapshot.val() || {};
             loadAdminDashboard();
         });
     }
@@ -268,7 +258,7 @@
         const list = Object.values(allNivedansData);
 
         if (list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">कुनै पनि वैध निवेदन फेला परेन।</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">कुनै पनि निवेदन फेला परेन।</td></tr>`;
             return;
         }
 
@@ -278,13 +268,12 @@
                 <td>${item.id}</td>
                 <td><strong>${item.name}</strong></td>
                 <td>${item.phone}</td>
-                <td><span style="color:blue; font-weight:bold;">${item.esewaCode}</span></td>
+                <td>${item.esewaCode ? `<span style="color:blue; font-weight:bold;">${item.esewaCode}</span>` : '<span style="color:gray;">छैन</span>'}</td>
                 <td><b style="color:${item.isVerified ? 'green' : 'orange'}">${item.status}</b></td>
                 <td>
                     <div style="display:flex; gap:5px; flex-wrap:wrap;">
                         <button onclick="verifyAndApprove('${item.id}')" class="btn-approve">Approve</button>
                         <button onclick="rejectNivedan('${item.id}')" class="btn-reject">Reject</button>
-                        <button onclick="deleteNivedan('${item.id}')" class="btn-delete">Delete</button>
                         <button onclick="openPrintModal('${item.id}')" class="btn-view">View</button>
                     </div>
                 </td>
@@ -318,20 +307,7 @@
         }
     }
 
-    // 3. Delete Function (नयाँ थपिएको)
-    function deleteNivedan(id) {
-        if(confirm("के तपाईं यो निवेदन सदाको लागि हटाउन चाहनुहुन्छ?")) {
-            if(db) {
-                db.ref('rochini_nivedans/' + id).remove().then(() => {
-                    alert('निवेदन सफलतापूर्वक हटाइयो!');
-                }).catch((error) => {
-                    alert('हटाउन असफल: ' + error.message);
-                });
-            }
-        }
-    }
-
-    // 4. View / Print Modal Function
+    // 3. View / Print Modal Function
     function openPrintModal(id) {
         const item = allNivedansData[id];
         if(!item) return;
