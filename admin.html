@@ -313,8 +313,8 @@
 
         document.getElementById('p_today').innerText = item.today || "………………";
 
-        // Check if the service is Passport Photo
-        if(item.serviceType === 'Passport') {
+        // Check if service is Passport Photo based on serviceType or ID prefix
+        if(item.serviceType === 'Passport' || (item.id && item.id.includes('PASSPORT'))) {
             document.getElementById('p_subject').innerText = "विषय : पासपोर्ट साइज फोटो प्रिन्ट सम्बन्धमा।";
             
             let con = `उपरोक्त सम्बन्धमा म निवेदक <strong>${item.name || "………………"}</strong> ले यस वडा कार्यालयबाट पासपोर्ट साइज फोटो प्रिन्ट (जम्मा संख्या: <strong>${item.totalPhotos || 0}</strong> वटा) का लागि निवेदन पेश गरेको छु।`;
