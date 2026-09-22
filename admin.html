@@ -84,6 +84,11 @@
         .attachment-part { width: 100%; font-size: 11pt; line-height: 1.6; }
         .applicant-part { width: 100%; line-height: 1.6; }
 
+        /* Passport photo print grid inside admin view */
+        .admin-passport-grid { display: flex; flex-wrap: wrap; gap: 2mm; justify-content: flex-start; margin-top: 15px; background: #fff; }
+        .admin-passport-box { width: 1.2in; height: 1.5in; overflow: hidden; border: 1px solid #000; box-sizing: border-box; }
+        .admin-passport-box img { width: 100%; height: 100%; object-fit: cover; }
+
         @media print {
             body { background: white; margin: 0; padding: 0; }
             body * { visibility: hidden; }
@@ -130,12 +135,11 @@
         <button type="button" class="btn-login" onclick="loginAdmin()">लगइन गर्नुहोस् (Login)</button>
     </div>
 
-    <!-- 2. Main Dashboard (Hidden until login) -->
+    <!-- 2. Main Dashboard -->
     <div id="dashboardSection" style="display: none;">
         <h2>वडा एड्मिन कन्ट्रोल प्यानल (रोहिणी-१)</h2>
         <p class="no-print" style="text-align: center; color: #666;">प्रयोगकर्ताहरूले पेश गरेका निवेदनहरूको सूची, प्रमाणीकरण र अस्वीकार:</p>
 
-        <!-- Admin Dashboard Table -->
         <div class="table-responsive no-print">
             <table>
                 <thead>
@@ -193,9 +197,7 @@
         authDomain: "sunil-online-service.firebaseapp.com",
         databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
         projectId: "sunil-online-service",
-        storageBucket: "sunil-online-service.appspot.com",
-        messagingSenderId: "",
-        appId: ""
+        storageBucket: "sunil-online-service.appspot.com"
     };
 
     let db = null;
@@ -207,7 +209,6 @@
         db = firebase.database();
         auth = firebase.auth();
         
-        // Auth State Listener
         auth.onAuthStateChanged((user) => {
             if (user) {
                 document.getElementById('loginSection').style.display = 'none';
@@ -281,7 +282,6 @@
         });
     }
 
-    // 1. Verify & Approve Function
     function verifyAndApprove(id) {
         if(db) {
             db.ref('rochini_nivedans/' + id).update({ 
@@ -294,7 +294,6 @@
         }
     }
 
-    // 2. Reject Function
     function rejectNivedan(id) {
         if(db) {
             db.ref('rochini_nivedans/' + id).update({ 
@@ -306,31 +305,43 @@
         }
     }
 
-    // 3. View / Print Modal Function
     function openPrintModal(id) {
         const item = allNivedansData[id];
         if(!item) return;
 
         document.getElementById('p_today').innerText = item.today || "………………";
 
-        // Check if service is Passport Photo based on serviceType or ID prefix
         if(item.serviceType === 'Passport' || (item.id && item.id.includes('PASSPORT'))) {
             document.getElementById('p_subject').innerText = "विषय : पासपोर्ट साइज फोटो प्रिन्ट सम्बन्धमा।";
             
             let con = `उपरोक्त सम्बन्धमा म निवेदक <strong>${item.name || "………………"}</strong> ले यस वडा कार्यालयबाट पासपोर्ट साइज फोटो प्रिन्ट (जम्मा संख्या: <strong>${item.totalPhotos || 0}</strong> वटा) का लागि निवेदन पेश गरेको छु।`;
             document.getElementById('p_content').innerHTML = con;
 
+            // Storage को URL बाट फोटो ग्रिड तयार गर्ने
+            let photoGridHtml = `<div class="admin-passport-grid">`;
+            if (item.photoURL) {
+                const totalCount = item.totalPhotos || 6;
+                for (let i = 0; i < totalCount; i++) {
+                    photoGridHtml += `
+                        <div class="admin-passport-box">
+                            <img src="${item.photoURL}" alt="Passport Photo">
+                        </div>
+                    `;
+                }
+            } else {
+                photoGridHtml += `<p style="color:red;">फोटो लिङ्क उपलब्ध छैन वा पुरानो रेकर्ड हो।</p>`;
+            }
+            photoGridHtml += `</div>`;
+
             document.getElementById('p_children_table_wrapper').innerHTML = `
-                <div style="background: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin: 20px 0; text-align: center;">
-                    <p style="font-size: 16px; font-weight: bold; color: #1e3799;">📷 पासपोर्ट फोटो अनुरोध विवरण</p>
-                    <p style="margin-top: 5px;">जम्मा प्रिन्ट गर्ने फोटो संख्या: <strong>${item.totalPhotos || 0} वटा</strong></p>
-                    <p style="color: #666; font-size: 12px; margin-top: 5px;">नोट: ग्राहकले पठाएको फोटो प्रिन्ट गर्न तयार छ।</p>
+                <div style="background: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin: 20px 0;">
+                    <p style="font-size: 15px; font-weight: bold; color: #1e3799; text-align: center; margin-bottom: 10px;">📷 प्रिन्ट हुने फोटोहरूको प्रिभ्यू (जम्मा: ${item.totalPhotos || 0} वटा)</p>
+                    ${photoGridHtml}
                 </div>
             `;
 
             document.getElementById('p_attachment').innerHTML = `<strong>संलग्न कागजातहरू:</strong><br>१. नागरिकता वा परिचय खुल्ने कागजात<br>२. प्रिन्ट गर्नुपर्ने फोटो`;
         } else {
-            // Default Birth Registration View
             document.getElementById('p_subject').innerText = "विषय : जन्म दर्ता गरिपाऊँ।";
             
             let con = `उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने <strong>${item.grandpa || "………………"}</strong> को ${item.grandpaRel}, तथा श्री <strong>${item.father || "………………"}</strong> को ${item.fatherRel} <strong>${item.name || "………………"}</strong> हूँ। मिति <strong>${item.marriageDate || "………………"}</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।`;
