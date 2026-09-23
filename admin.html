@@ -42,52 +42,52 @@
         .btn-view { background: #2980b9; }
         .btn-delete { background: #e74c3c; }
 
-        /* Modal Preview Styling */
+        /* Preview Area Styling */
         #printView { display: none; flex-direction: column; align-items: center; background: #555555; padding: 15px 0; margin-top: 20px; border-radius: 6px; }
         .print-container {
             position: relative;
             width: 210mm;
             min-height: 297mm;
-            padding: 20mm 15mm;
+            padding: 15mm;
             margin: 0 auto;
             background: #ffffff;
             border: 1px solid #d3d3d3;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
             box-sizing: border-box;
-            line-height: 2.1;
-            font-size: 13pt;
-            color: black;
-            text-align: justify;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 2mm;
         }
 
-        .watermark {
-            position: absolute; 
-            top: 38%; 
-            left: 5%; 
-            width: 90%;
-            font-size: 60px;
-            color: rgba(231, 76, 60, 0.25); 
-            transform: rotate(-35deg);
-            font-weight: bold; 
-            text-align: center;
-            pointer-events: none; 
-            user-select: none;
-            border: 8px dashed rgba(231, 76, 60, 0.25);
-            padding: 10px;
+        .photo-box {
+            position: relative;
+            overflow: hidden;
+            background: #fafafa;
+            flex-shrink: 0;
             box-sizing: border-box;
         }
 
-        .child-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
-        .child-table th, .child-table td { border: 1px solid #000; padding: 6px; text-align: left; font-size: 11pt; }
-        .child-table th { background-color: #f2f2f2; }
+        .photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            box-sizing: border-box;
+        }
 
-        .date { text-align: right; margin-bottom: 20px; }
-        .recipient { line-height: 1.4; margin-bottom: 20px; }
-        .subject { text-align: center; font-weight: bold; text-decoration: underline; margin: 25px 0; font-size: 15pt; }
-        .content { text-indent: 40px; margin-bottom: 15px; }
-        .bottom-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; border-top: 1px solid #000; padding-top: 15px; flex-wrap: wrap; gap: 20px; }
-        .attachment-part { width: 100%; font-size: 11pt; line-height: 1.6; }
-        .applicant-part { width: 100%; line-height: 1.6; }
+        .watermark {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: rgba(255, 0, 0, 0.5);
+            font-size: 14px;
+            font-weight: bold;
+            transform: rotate(-30deg);
+            pointer-events: none;
+            text-transform: uppercase;
+        }
 
         @media print {
             body { background: white; margin: 0; padding: 0; }
@@ -104,8 +104,9 @@
                 border: none; 
                 box-shadow: none;
                 margin: 0;
-                padding: 25mm 20mm;
+                padding: 8mm 6mm !important;
             }
+            .watermark { display: none !important; }
         }
     </style>
 </head>
@@ -137,12 +138,12 @@
 
     <!-- 2. Main Dashboard (Hidden until login) -->
     <div id="dashboardSection" style="display: none;">
-        <h2>वडा एड्मिन कन्ट्रोल प्यानल (रोहिणी-१)</h2>
-        <p class="no-print" style="text-align: center; color: #666;">प्रयोगकर्ताहरूले पेश गरेका निवेदनहरूको सूची, प्रमाणीकरण र अस्वीकार:</p>
+        <h2>पासपोर्ट साइज फोटो कन्ट्रोल प्यानल (रोहिणी-१)</h2>
+        <p class="no-print" style="text-align: center; color: #666; margin-bottom: 15px;">प्रयोगकर्ताहरूले पेश गरेका फोटो निवेदनहरूको सूची र प्रमाणीकरण:</p>
 
         <!-- Search Box -->
         <div class="search-box no-print">
-            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="🔍 मोबाइल नम्बर वा eSewa Code बाट खोज्नुहोस्...">
+            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="🔍 निवेदकको नाम वा मोबाइल नम्बरबाट खोज्नुहोस्...">
         </div>
 
         <!-- Admin Dashboard Table -->
@@ -150,16 +151,15 @@
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>निवेदक नाम</th>
                         <th>फोन नं.</th>
-                        <th>eSewa Code</th>
+                        <th>साइज / कति पीस</th>
                         <th>स्थिति (Status)</th>
                         <th>कार्य (Actions)</th>
                     </tr>
                 </thead>
                 <tbody id="adminTableBody">
-                    <tr><td colspan="6" style="text-align: center;">डाटा लोड हुँदैछ...</td></tr>
+                    <tr><td colspan="5" style="text-align: center;">डाटा लोड हुँदैछ...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -167,31 +167,12 @@
         <!-- Print / View Modal Area -->
         <div id="printView" style="display:none;">
             <div class="no-print" style="margin-bottom: 15px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <button id="mainPrintBtn" onclick="window.print()" class="btn-approve" style="padding: 10px 20px;">प्रिन्ट / डाउनलोड गर्नुहोस्</button>
+                <button id="mainPrintBtn" onclick="window.print()" class="btn-approve" style="padding: 10px 20px;">प्रिन्ट गर्नुहोस्</button>
                 <button onclick="closePrintView()" class="btn-reject" style="padding: 10px 20px;">बन्द गर्नुहोस् (Close)</button>
             </div>
 
             <div class="print-container" id="printableArea">
-                <div id="watermarkOverlay" class="watermark">FREE COPY</div>
-
-                <div class="date">मिति: <span id="p_today"></span></div>
-                <div class="recipient">श्रीमान् वडा अध्यक्ष ज्यू,<br>रोहिणी गाउँपालिका, वडा नं. १,<br>रुपन्देही, नेपाल।</div>
-                <div id="p_subject" class="subject"></div>
-                <p>महोदय,</p>
-                <div id="p_content" class="content"></div>
-                
-                <div id="p_children_table_wrapper"></div>
-
-                <div class="bottom-container">
-                    <div class="attachment-part" id="p_attachment"></div>
-                    <div class="applicant-part">
-                        <strong>निवेदक:</strong><br><br>
-                        सही: ...........................<br>
-                        नाम: <strong id="p_f_name">………………</strong><br>
-                        ठेगाना: रोहिणी-१, रुपन्देही<br>
-                        फोन: <span id="p_phone">98244</span>
-                    </div>
-                </div>
+                <!-- फोटोहरू यहाँ JS बाट load हुन्छन् -->
             </div>
         </div>
     </div>
@@ -201,7 +182,7 @@
     const firebaseConfig = {
         apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
         authDomain: "sunil-online-service.firebaseapp.com",
-        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
+        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",[span_1](start_span)[span_1](end_span)
         projectId: "sunil-online-service",
         storageBucket: "sunil-online-service.appspot.com",
         messagingSenderId: "",
@@ -210,21 +191,20 @@
 
     let db = null;
     let auth = null;
-    let allNivedansData = {};
+    let allRequestsData = {};
 
     try {
         firebase.initializeApp(firebaseConfig);
         db = firebase.database();
         auth = firebase.auth();
         
-        // Auth State Listener
         auth.onAuthStateChanged((user) => {
             if (user) {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('dashboardSection').style.display = 'block';
                 document.getElementById('logoutArea').style.display = 'flex';
                 document.getElementById('adminEmailDisplay').innerText = user.email;
-                fetchNivedansData();
+                fetchRequestsData();
             } else {
                 document.getElementById('loginSection').style.display = 'block';
                 document.getElementById('dashboardSection').style.display = 'none';
@@ -254,9 +234,10 @@
         auth.signOut();
     }
 
-    function fetchNivedansData() {
-        db.ref('rochini_nivedans').on('value', (snapshot) => {
-            allNivedansData = snapshot.val() || {};
+    function fetchRequestsData() {
+        // पासपोर्ट फारमको डेटा 'requests' node मा सेभ हुन्छ
+        db.ref('requests').on('value', (snapshot) => {
+            allRequestsData = snapshot.val() || {};
             loadAdminDashboard();
         });
     }
@@ -264,27 +245,27 @@
     function loadAdminDashboard() {
         const tbody = document.getElementById('adminTableBody');
         tbody.innerHTML = '';
-        const list = Object.values(allNivedansData);
+        const keys = Object.keys(allRequestsData);
 
-        if (list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">कुनै पनि निवेदन फेला परेन।</td></tr>`;
+        if (keys.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">कुनै पनि निवेदन फेला परेन।</td></tr>`;
             return;
         }
 
-        list.reverse().forEach(item => {
+        keys.reverse().forEach(key => {
+            const item = allRequestsData[key];
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${item.id}</td>
-                <td><strong>${item.name}</strong></td>
+                <td><strong>${item.name || ''}</strong></td>
                 <td>${item.phone || ''}</td>
-                <td>${item.esewaCode ? `<span style="color:blue; font-weight:bold;">${item.esewaCode}</span>` : '<span style="color:gray;">छैन</span>'}</td>
-                <td><b style="color:${item.isVerified ? 'green' : 'orange'}">${item.status}</b></td>
+                <td>${item.width}x${item.height} ${item.unit} (${item.qty} पीस)</td>
+                <td><b style="color:${item.status === 'approved' ? 'green' : 'orange'}">${item.status}</b></td>
                 <td>
                     <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                        <button onclick="verifyAndApprove('${item.id}')" class="btn-approve">Approve</button>
-                        <button onclick="rejectNivedan('${item.id}')" class="btn-reject">Reject</button>
-                        <button onclick="openPrintModal('${item.id}')" class="btn-view">View</button>
-                        <button onclick="deleteNivedan('${item.id}')" class="btn-delete">Delete</button>
+                        <button onclick="verifyAndApprove('${key}')" class="btn-approve">Approve</button>
+                        <button onclick="rejectNivedan('${key}')" class="btn-reject">Reject</button>
+                        <button onclick="openPrintModal('${key}')" class="btn-view">View</button>
+                        <button onclick="deleteNivedan('${key}')" class="btn-delete">Delete</button>
                     </div>
                 </td>
             `;
@@ -292,21 +273,20 @@
         });
     }
 
-    // Search Filter Function (Mobile Number & eSewa Code)
     function filterTable() {
         const input = document.getElementById('searchInput').value.toLowerCase();
         const tbody = document.getElementById('adminTableBody');
         const trs = tbody.getElementsByTagName('tr');
 
         for (let i = 0; i < trs.length; i++) {
-            const phoneTd = trs[i].getElementsByTagName('td')[2];
-            const esewaTd = trs[i].getElementsByTagName('td')[3];
+            const nameTd = trs[i].getElementsByTagName('td')[0];
+            const phoneTd = trs[i].getElementsByTagName('td')[1];
             
-            if (phoneTd && esewaTd) {
+            if (nameTd && phoneTd) {
+                const nameText = nameTd.textContent || nameTd.innerText;
                 const phoneText = phoneTd.textContent || phoneTd.innerText;
-                const esewaText = esewaTd.textContent || esewaTd.innerText;
 
-                if (phoneText.toLowerCase().indexOf(input) > -1 || esewaText.toLowerCase().indexOf(input) > -1) {
+                if (nameText.toLowerCase().indexOf(input) > -1 || phoneText.toLowerCase().indexOf(input) > -1) {
                     trs[i].style.display = "";
                 } else {
                     trs[i].style.display = "none";
@@ -315,36 +295,30 @@
         }
     }
 
-    // 1. Verify & Approve Function
-    function verifyAndApprove(id) {
+    function verifyAndApprove(key) {
         if(db) {
-            db.ref('rochini_nivedans/' + id).update({ 
-                status: 'Verified & Approved',
-                paymentType: 'PAID VERIFIED',
-                isVerified: true
+            db.ref('requests/' + key).update({ 
+                status: 'approved'
             }).then(() => {
-                alert('सफलतापूर्वक Approve गरियो!');
+                alert('सफलतापूर्वक Approve गरियो! अब युजरले वाटरमार्क बिना प्रिन्ट गर्न सक्नेछन्।');
             });
         }
     }
 
-    // 2. Reject Function
-    function rejectNivedan(id) {
+    function rejectNivedan(key) {
         if(db) {
-            db.ref('rochini_nivedans/' + id).update({ 
-                status: 'Rejected',
-                isVerified: false
+            db.ref('requests/' + key).update({ 
+                status: 'rejected'
             }).then(() => {
                 alert('निवेदन Reject गरियो!');
             });
         }
     }
 
-    // 3. Delete Function
-    function deleteNivedan(id) {
+    function deleteNivedan(key) {
         if (confirm("के तपाईं यो निवेदन पूर्ण रूपमा हटाउन (Delete गर्न) चाहनुहुन्छ?")) {
             if(db) {
-                db.ref('rochini_nivedans/' + id).remove()
+                db.ref('requests/' + key).remove()
                     .then(() => {
                         alert('निवेदन सफलतापूर्वक हटाइयो!');
                         closePrintView();
@@ -356,59 +330,37 @@
         }
     }
 
-    // 4. View / Print Modal Function
-    function openPrintModal(id) {
-        const item = allNivedansData[id];
+    function openPrintModal(key) {
+        const item = allRequestsData[key];
         if(!item) return;
 
-        document.getElementById('p_today').innerText = item.today || "………………";
-        document.getElementById('p_subject').innerText = "विषय : जन्म दर्ता गरिपाऊँ।";
+        const printContainer = document.getElementById('printableArea');
+        printContainer.innerHTML = '';
         
-        let con = `उपरोक्त सम्बन्धमा म निवेदक यस रोहिणी गाउँपालिका वडा नं. १ मा बसोबास गर्ने <strong>${item.grandpa || "………………"}</strong> को ${item.grandpaRel}, तथा श्री <strong>${item.father || "………………"}</strong> को ${item.fatherRel} <strong>${item.name || "………………"}</strong> हूँ। मिति <strong>${item.marriageDate || "………………"}</strong> मा सामाजिक परम्परा अनुसार विवाह भई बसोबास गर्दै आएकोमा तपसिल बमोजिमका हाम्रो बच्चाहरूको जन्म भएको हुदा जन्म दर्ता प्रमाणपत्र बनाउनको लागि यो निवेदन पेश गरेको छु।`;
-        document.getElementById('p_content').innerHTML = con;
+        printContainer.style.gap = `${item.gap || 2}mm`;
+        const qty = parseInt(item.qty) || 6;
+        const isApproved = (item.status === 'approved');
 
-        let tableHtml = `<div style="overflow-x:auto;"><table class="child-table">
-            <thead>
-                <tr>
-                    <th>क्र.सं.</th>
-                    <th>बच्चाको नाम</th>
-                    <th>लिङ्ग</th>
-                    <th>जन्म मिति</th>
-                    <th>जन्मस्थान</th>
-                    <th>टोकन नम्बर</th>
-                </tr>
-            </thead>
-            <tbody>`;
+        for (let i = 0; i < qty; i++) {
+            const box = document.createElement('div');
+            box.className = 'photo-box';
+            box.style.width = `${item.width}${item.unit}`;
+            box.style.height = `${item.height}${item.unit}`;
 
-        if(item.children && item.children.length > 0) {
-            item.children.forEach((c, i) => {
-                tableHtml += `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td><strong>${c.name}</strong></td>
-                        <td>${c.gender}</td>
-                        <td>${c.dob}</td>
-                        <td>${c.birthplace}</td>
-                        <td><strong>${c.token}</strong></td>
-                    </tr>`;
-            });
-        }
-        tableHtml += `</tbody></table></div>`;
-        document.getElementById('p_children_table_wrapper').innerHTML = tableHtml;
+            const img = document.createElement('img');
+            img.src = item.photo;
+            img.style.border = `${item.border || 1.5}px solid #000000`;
+            box.appendChild(img);
 
-        document.getElementById('p_attachment').innerHTML = `<strong>संलग्न कागजातहरू:</strong><br>१. बाबु-आमाको नागरिकता प्रतिलिपि<br>२. अस्पतालको जन्म डिस्चार्ज पुर्जी वा जन्म दर्ता प्रमाणपत्रको प्रतिलिपि<br>३. विवाह दर्ता प्रमाणपत्रको प्रतिलिपि`;
-        document.getElementById('p_f_name').innerText = item.name || "………………";
-        document.getElementById('p_phone').innerText = item.phone || "………………";
+            // यदि approved छैन भने एड्मिन भ्युमा पनि वाटरमार्क देखाउने
+            if(!isApproved) {
+                const wm = document.createElement('div');
+                wm.className = 'watermark';
+                wm.innerText = 'DRAFT';
+                box.appendChild(wm);
+            }
 
-        const watermark = document.getElementById('watermarkOverlay');
-        const printBtn = document.getElementById('mainPrintBtn');
-
-        if(item.isVerified === true) {
-            watermark.style.display = 'none';
-            printBtn.style.display = 'inline-block';
-        } else {
-            watermark.style.display = 'block';
-            printBtn.style.display = 'inline-block';
+            printContainer.appendChild(box);
         }
 
         document.getElementById('printView').style.display = 'flex';
