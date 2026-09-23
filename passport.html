@@ -3,219 +3,434 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>पासपोर्ट फोटो जेनेरेटर - रोहिणी</title>
-    
-    <!-- Firebase SDKs (App, Database, Storage) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-
+    <title>पासपोर्ट साइज फोटो प्रिन्ट र ट्रयाक - रोहिणी-१</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-        body { background-color: #f4f6f9; padding: 15px; }
-        .controls { max-width: 650px; margin: 0 auto 20px auto; background: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .controls h2 { font-size: 18px; margin-bottom: 15px; color: #1e3799; text-align: center; }
-        .top-home-btn { display: inline-block; margin-bottom: 15px; text-decoration: none; background: #1e3799; color: white; padding: 6px 12px; border-radius: 5px; font-size: 13px; font-weight: bold; }
-        .customer-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; background: #fff3cd; padding: 12px; border-radius: 8px; border: 1px solid #ffeeba; }
-        .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 15px; background: #eef2f5; padding: 12px; border-radius: 8px; }
-        .config-item { display: flex; flex-direction: column; }
-        .config-item label, .customer-info label { font-size: 12px; font-weight: bold; color: #555; margin-bottom: 4px; }
-        .config-item input, .config-item select, .customer-info input { padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-        .upload-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; }
-        .upload-item input[type="file"] { flex: 1; font-size: 12px; }
-        .upload-item input[type="number"] { width: 70px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn-add { background-color: #27ae60; color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
-        .btn-generate { width: 100%; padding: 12px; background-color: #1e3799; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .btn-direct-print { background-color: #17a2b8; color: white; padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 15px; display: none; }
-        .print-page { width: 210mm; min-height: 297mm; background: white; margin: 0 auto; padding: 8mm 6mm; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; align-content: flex-start; gap: 2mm; }
-        .photo-box { overflow: hidden; background: #fafafa; flex-shrink: 0; box-sizing: border-box; }
-        .photo-box img { width: 100%; height: 100%; object-fit: cover; box-sizing: border-box; }
-        #statusMessage { text-align: center; font-weight: bold; font-size: 14px; margin-top: 10px; color: #d35400; }
+        :root { --primary: #1e3799; --secondary: #27ae60; --bg-light: #f4f7f6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Arial', sans-serif; background-color: var(--bg-light); padding: 10px; }
+        
+        .container { max-width: 950px; width: 100%; margin: auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 10px; font-size: 20px; margin-bottom: 15px; }
+
+        /* Top Navigation Link Buttons */
+        .top-nav-links { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            justify-content: center; 
+            flex-wrap: wrap; 
+        }
+        .top-nav-links a { 
+            flex: 1; 
+            min-width: 100px; 
+            text-align: center; 
+            text-decoration: none; 
+            background: var(--primary); 
+            color: white; 
+            padding: 10px; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            font-weight: bold; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+
+        .config-section-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 15px 0 8px 0;
+            border-left: 3px solid var(--primary);
+            padding-left: 5px;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+            background: #eef2f5;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .config-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-item label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        .config-item input, .config-item select {
+            padding: 7px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            color: #444;
+            margin-bottom: 4px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+        .btn-submit:hover { opacity: 0.9; }
+        .btn-submit:disabled { background-color: #95a5a6; cursor: not-allowed; }
+
+        .btn-preview {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-direct-print {
+            background-color: #17a2b8;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 15px auto;
+            display: none;
+        }
+
+        /* Trace Section Box */
+        .trace-box {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        /* Printable Area - A4 Setup */
+        .print-page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 20px auto 0 auto;
+            padding: 8mm 6mm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 2mm;
+        }
+
+        .photo-box {
+            position: relative;
+            overflow: hidden;
+            background: #fafafa;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        .photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            box-sizing: border-box;
+        }
+
+        /* Watermark Style for Unapproved/Draft view */
+        .watermark-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: rgba(255, 0, 0, 0.5);
+            font-size: 14px;
+            font-weight: bold;
+            transform: rotate(-30deg);
+            pointer-events: none;
+            text-transform: uppercase;
+        }
+
         @media print {
             body { background: white; padding: 0; }
-            .controls, .btn-direct-print, .top-home-btn, #statusMessage { display: none !important; }
-            .print-page { box-shadow: none; margin: 0; padding: 8mm 6mm; }
+            .container, .top-nav-links, .btn-direct-print { display: none !important; }
+            .print-page { box-shadow: none; margin: 0; padding: 8mm 6mm !important; }
+            .watermark-overlay { display: none !important; } /* Print garda watermark hataune approval paxi */
         }
     </style>
 </head>
 <body>
 
-    <div class="controls">
-        <a href="index.html" class="top-home-btn">← गृह पृष्ठमा जानुहोस्</a>
-        <h2>पासपोर्ट साइज फोटो जेनेरेटर</h2>
+<div class="container">
+    <!-- Top Navigation Links -->
+    <div class="top-nav-links">
+        <a href="index.html">गृह पृष्ठ<br><span style="font-size:11px; font-weight:normal;">(Services)</span></a>
+        <a href="trace.html">स्थिति<br><span style="font-size:11px; font-weight:normal;">(Trace)</span></a>
+        <a href="admin.html">Admin<br><span style="font-size:11px; font-weight:normal;">Login</span></a>
+    </div>
+
+    <h2>📷 अनलाइन पासपोर्ट साइज फोटो प्रिन्ट र ट्र्याक</h2>
+    
+    <div class="form-group">
+        <label>पूरा नाम (Full Name):</label>
+        <input type="text" id="userName" placeholder="तपाईको पूरा नाम लेख्नुहोस्">
+    </div>
+    <div class="form-group">
+        <label>मोबाइल नम्बर (Phone Number):</label>
+        <input type="text" id="userPhone" placeholder="सम्पर्क मोबाइल नम्बर">
+    </div>
+    <div class="form-group">
+        <label>फोटो अपलोड गर्नुहोस् (Upload Photo):</label>
+        <input type="file" id="userPhotoFile" accept="image/*">
+    </div>
+
+    <div class="config-section-title">📏 फोटो साइज र प्रिन्ट सेटिङ</div>
+    <div class="config-grid">
+        <div class="config-item">
+            <label>चौडाइ (Width):</label>
+            <input type="number" id="photoWidth" value="1.2" step="0.1" min="0.5">
+        </div>
+        <div class="config-item">
+            <label>उचाइ (Height):</label>
+            <input type="number" id="photoHeight" value="1.5" step="0.1" min="0.5">
+        </div>
+        <div class="config-item">
+            <label>युनिट (Unit):</label>
+            <select id="sizeUnit">
+                <option value="in" selected>Inches (इन्च)</option>
+                <option value="mm">MM</option>
+            </select>
+        </div>
+        <div class="config-item">
+            <label>संख्या (Qty):</label>
+            <input type="number" id="photoQty" value="6" min="1">
+        </div>
+        <div class="config-item">
+            <label>ग्याप (mm):</label>
+            <input type="number" id="photoGap" value="2" min="0">
+        </div>
+        <div class="config-item">
+            <label>बोर्डर (px):</label>
+            <input type="number" id="borderWidth" value="1.5" min="0">
+        </div>
+    </div>
+
+    <button class="btn-preview" onclick="generatePreviewWithWatermark()">🔍 वाटरमार्कसहित प्रिभ्यू हेर्नुहोस्</button>
+    <button class="btn-submit" id="submitBtn" onclick="submitPhotoRequest()">फारम बुझाउनुहोस् (Submit)</button>
+
+    <!-- Trace Status Section -->
+    <div class="trace-box">
+        <h3 style="font-size:15px; color:#856404; margin-bottom:8px;">🔍 आवेदनको स्थिति ट्रयाक गर्नुहोस् (Trace Status)</h3>
+        <div class="form-group" style="margin-bottom:8px;">
+            <input type="text" id="tracePhone" placeholder="तपाईंको मोबाइल नम्बर राख्नुहोस्">
+        </div>
+        <button class="btn-preview" style="background:#856404; margin-top:0;" onclick="traceStatus()">स्थिति जाँच गर्नुहोस्</button>
+        <p id="traceResult" style="margin-top:10px; font-weight:bold; font-size:13px;"></p>
+    </div>
+</div>
+
+<div style="text-align: center;">
+    <button id="directPrintBtn" class="btn-direct-print" onclick="window.print()">🖨️ सिधै प्रिन्ट गर्नुहोस् (Print Approved)</button>
+</div>
+
+<!-- A4 Paper Layout -->
+<div class="print-page" id="printPage">
+    <p id="placeholderText" style="color: #888; font-size: 14px; text-align: center; width: 100%; margin-top: 20px;">फोटो छान्नुहोस् र प्रिभ्यू हेर्नुहोस्।</p>
+</div>
+
+<script>
+    const FIREBASE_DB_URL = "https://sunil-online-service-default-rtdb.firebaseio.com";[span_0](start_span)[span_0](end_span)
+
+    function getBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    async function generatePreviewWithWatermark() {
+        const fileInput = document.getElementById('userPhotoFile');
+        const printPage = document.getElementById('printPage');
+
+        if(fileInput.files.length === 0) {
+            alert('कृपया पहिले फोटो छान्नुहोस्!');
+            return;
+        }
+
+        const photoData = await getBase64(fileInput.files[0]);
+        renderPhotos(photoData, true); // true means show watermark for preview
+    }
+
+    function renderPhotos(photoSrc, showWatermark) {
+        const printPage = document.getElementById('printPage');
+        const widthVal = document.getElementById('photoWidth').value;
+        const heightVal = document.getElementById('photoHeight').value;
+        const unitVal = document.getElementById('sizeUnit').value;
+        const qtyVal = parseInt(document.getElementById('photoQty').value) || 6;
+        const gapVal = document.getElementById('photoGap').value;
+        const borderVal = document.getElementById('borderWidth').value;
+
+        printPage.style.gap = `${gapVal}mm`;
+        printPage.innerHTML = '';
+
+        for (let i = 0; i < qtyVal; i++) {
+            const box = document.createElement('div');
+            box.className = 'photo-box';
+            box.style.width = `${widthVal}${unitVal}`;
+            box.style.height = `${heightVal}${unitVal}`;
+
+            const img = document.createElement('img');
+            img.src = photoSrc;
+            img.style.border = `${borderVal}px solid #000000`;
+            box.appendChild(img);
+
+            if(showWatermark) {
+                const wm = document.createElement('div');
+                wm.className = 'watermark-overlay';
+                wm.innerText = 'DRAFT';
+                box.appendChild(wm);
+            }
+
+            printPage.appendChild(box);
+        }
+    }
+
+    async function submitPhotoRequest() {
+        const name = document.getElementById('userName').value.trim();
+        const phone = document.getElementById('userPhone').value.trim();
+        const fileInput = document.getElementById('userPhotoFile');
+        const submitBtn = document.getElementById('submitBtn');
+
+        if(!name || !phone || fileInput.files.length === 0) {
+            alert('कृपया सबै विवरण र फोटो अनिवार्य रूपमा भर्नुहोस्!');
+            return;
+        }
+
+        submitBtn.disabled = true; // Disable button after click
+        submitBtn.innerText = 'सबमिट हुँदैछ...';
+
+        const photoData = await getBase64(fileInput.files[0]);
         
-        <div class="customer-info">
-            <div class="config-item">
-                <label>ग्राहकको नाम:</label>
-                <input type="text" id="custName" placeholder="पूरा नाम" required>
-            </div>
-            <div class="config-item">
-                <label>मोबाइल नम्बर:</label>
-                <input type="text" id="custPhone" placeholder="९८XXXXXXXX" required>
-            </div>
-        </div>
-
-        <div class="config-grid">
-            <div class="config-item">
-                <label>चौडाइ (Width):</label>
-                <input type="number" id="photoWidth" value="1.2" step="0.1" min="0.5">
-            </div>
-            <div class="config-item">
-                <label>उचाइ (Height):</label>
-                <input type="number" id="photoHeight" value="1.5" step="0.1" min="0.5">
-            </div>
-            <div class="config-item">
-                <label>युनिट:</label>
-                <select id="sizeUnit">
-                    <option value="in" selected>Inches</option>
-                    <option value="mm">MM</option>
-                </select>
-            </div>
-            <div class="config-item">
-                <label>ग्याप (mm):</label>
-                <input type="number" id="photoGap" value="2" min="0" max="20">
-            </div>
-            <div class="config-item">
-                <label>बोर्डर (px):</label>
-                <input type="number" id="borderWidth" value="1.5" min="0" max="5">
-            </div>
-        </div>
-
-        <div id="uploadList">
-            <div class="upload-item">
-                <input type="file" class="photo-input" accept="image/*">
-                <label>संख्या:</label>
-                <input type="number" class="photo-qty" value="6" min="1">
-            </div>
-        </div>
-
-        <button class="btn-add" onclick="addNewUploadField()">+ थप फोटो</button>
-        <button class="btn-generate" id="generateBtn" onclick="generatePhotos()">फोटो तयार गर्नुहोस् र पठाउनुहोस्</button>
-        <div id="statusMessage"></div>
-    </div>
-
-    <div style="text-align: center;">
-        <button id="directPrintBtn" class="btn-direct-print" onclick="window.print()">🖨️ प्रिन्ट गर्नुहोस्</button>
-    </div>
-
-    <div class="print-page" id="printPage">
-        <p id="placeholderText" style="color: #888; font-size: 14px; text-align: center; width: 100%;">विवरण भरेर फोटो छान्नुहोस् र बटन थिच्नुहोस्।</p>
-    </div>
-
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
-            authDomain: "sunil-online-service.firebaseapp.com",
-            databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
-            projectId: "sunil-online-service",
-            storageBucket: "sunil-online-service.appspot.com"
+        const payload = {
+            name: name,
+            phone: phone,
+            photo: photoData,
+            width: document.getElementById('photoWidth').value,
+            height: document.getElementById('photoHeight').value,
+            unit: document.getElementById('sizeUnit').value,
+            qty: document.getElementById('photoQty').value,
+            gap: document.getElementById('photoGap').value,
+            border: document.getElementById('borderWidth').value,
+            status: 'pending',
+            timestamp: Date.now()
         };
 
-        // Firebase initialize secure check
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+        fetch(`${FIREBASE_DB_URL}/requests.json`, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('तपाईंको आवेदन सफलतापूर्वक सबमिट भयो! अब Admin ले प्रमाणित गरेपछि मात्र clear प्रिन्ट गर्न मिल्नेछ।');
+            submitBtn.innerText = 'सफलतापूर्वक बुझाइयो (Submitted)';
+        })
+        .catch(error => {
+            alert('Error: ' + error);
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'फारम बुझाउनुहोस् (Submit)';
+        });
+    }
+
+    function traceStatus() {
+        const phone = document.getElementById('tracePhone').value.trim();
+        const resultP = document.getElementById('traceResult');
+        const directPrintBtn = document.getElementById('directPrintBtn');
+
+        if(!phone) {
+            alert('कृपया मोबाइल नम्बर राख्नुहोस्!');
+            return;
         }
-        const db = firebase.database();
-        const storage = firebase.storage();
 
-        function addNewUploadField() {
-            const uploadList = document.getElementById('uploadList');
-            const newItem = document.createElement('div');
-            newItem.className = 'upload-item';
-            newItem.innerHTML = `
-                <input type="file" class="photo-input" accept="image/*">
-                <label>संख्या:</label>
-                <input type="number" class="photo-qty" value="6" min="1">
-            `;
-            uploadList.appendChild(newItem);
-        }
+        resultP.style.color = '#333';
+        resultP.innerText = 'खोजी गर्दैछ...';
 
-        async function generatePhotos() {
-            const custName = document.getElementById('custName').value.trim();
-            const custPhone = document.getElementById('custPhone').value.trim();
-            const statusMsg = document.getElementById('statusMessage');
-
-            if (!custName || !custPhone) {
-                alert("कृपया ग्राहकको नाम र मोबाइल नम्बर अनिवार्य भर्नुहोला!");
+        fetch(`${FIREBASE_DB_URL}/requests.json`)
+        .then(res => res.json())
+        .then(data => {
+            if(!data) {
+                resultP.style.color = 'red';
+                resultP.innerText = 'कुनै डेटा फेलाेन परेन।';
                 return;
             }
 
-            const inputs = document.querySelectorAll('.photo-input');
-            const quantities = document.querySelectorAll('.photo-qty');
-            const file = inputs[0].files[0];
-            const totalCount = parseInt(quantities[0].value) || 6;
-
-            if (!file) {
-                alert("कृपया कम्तीमा एउटा फोटो छान्नुहोस्!");
-                return;
-            }
-
-            const uniqueId = 'PASSPORT-' + Date.now();
-            statusMsg.style.color = "#d35400";
-            statusMsg.innerText = "⏳ फोटो अपलोड हुँदैछ, कृपया प्रतीक्षा गर्नुहोस्...";
-
-            try {
-                // 1. Firebase Storage मा फोटो Upload गर्ने
-                const storageRef = storage.ref('passport_photos/' + uniqueId + '_' + file.name);
-                const uploadTask = await storageRef.put(file);
-                const downloadURL = await uploadTask.ref.getDownloadURL();
-
-                statusMsg.innerText = "🔄 डाटा सेभ गरिदैछ...";
-
-                // 2. Firebase Database मा URL सहित सेभ गर्ने
-                await db.ref('rochini_nivedans/' + uniqueId).set({
-                    id: uniqueId,
-                    name: custName,
-                    phone: custPhone,
-                    status: 'Pending',
-                    isVerified: false,
-                    totalPhotos: totalCount,
-                    serviceType: 'Passport',
-                    photoURL: downloadURL,
-                    today: new Date().toLocaleDateString(),
-                    timestamp: new Date().toLocaleString()
-                });
-
-                statusMsg.style.color = "#27ae60";
-                statusMsg.innerText = "✅ फोटो सफलतापूर्वक तयार भयो!";
-
-                // 3. Local Preview देखाउने
-                const printPage = document.getElementById('printPage');
-                const directPrintBtn = document.getElementById('directPrintBtn');
-                const widthVal = document.getElementById('photoWidth').value;
-                const heightVal = document.getElementById('photoHeight').value;
-                const unitVal = document.getElementById('sizeUnit').value;
-                const gapVal = document.getElementById('photoGap').value;
-                const borderVal = document.getElementById('borderWidth').value;
-
-                printPage.style.gap = `${gapVal}mm`;
-                printPage.innerHTML = '';
-
-                for (let i = 0; i < totalCount; i++) {
-                    const box = document.createElement('div');
-                    box.className = 'photo-box';
-                    box.style.width = `${widthVal}${unitVal}`;
-                    box.style.height = `${heightVal}${unitVal}`;
-
-                    const img = document.createElement('img');
-                    img.src = downloadURL;
-                    img.style.border = `${borderVal}px solid #000000`;
-
-                    box.appendChild(img);
-                    printPage.appendChild(box);
+            let found = false;
+            Object.keys(data).forEach(key => {
+                const req = data[key];
+                if(req.phone === phone) {
+                    found = true;
+                    if(req.status === 'approved') {
+                        resultP.style.color = 'green';
+                        resultP.innerText = '✅ बधाई छ! तपाईंको फोटो Admin द्वारा प्रमाणित (Verify) भइसकेको छ। तल प्रिन्ट गर्नुहोस्।';
+                        
+                        // Render clean photos without watermark for approved request
+                        renderPhotos(req.photo, false);
+                        directPrintBtn.style.display = 'inline-block';
+                    } else {
+                        resultP.style.color = 'orange';
+                        resultP.innerText = '⏳ तपाईंको आवेदन विचाराधीन (Pending) छ। कृपया वडा कार्यालयको प्रमाणीकरणको प्रतीक्षा गर्नुहोस्।';
+                        directPrintBtn.style.display = 'none';
+                    }
                 }
+            });
 
-                directPrintBtn.style.display = 'inline-block';
-
-            } catch (error) {
-                statusMsg.style.color = "#c0392b";
-                statusMsg.innerText = "❌ त्रुटी: " + error.message;
-                console.error("Firebase Error:", error);
-                alert("अपलोड गर्दा समस्या आयो। कृपया Firebase Storage/Database को Rules चेक गर्नुहोस् वा इन्टरनेट कनेक्सन जाँच्नुहोस्।");
+            if(!found) {
+                resultP.style.color = 'red';
+                resultP.innerText = 'यो नम्बरबाट कुनै आवेदन भेटिएन।';
             }
-        }
-    </script>
+        })
+        .catch(err => {
+            resultP.style.color = 'red';
+            resultP.innerText = 'त्रुटि भयो: ' + err;
+        });
+    }
+</script>
 
 </body>
 </html>
