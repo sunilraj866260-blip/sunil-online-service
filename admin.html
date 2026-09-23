@@ -18,11 +18,9 @@
         .top-nav { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .top-nav a { text-decoration: none; background: var(--primary); color: white; padding: 8px 15px; border-radius: 5px; font-size: 14px; font-weight: bold; display: inline-block; }
 
-        /* Search Bar Styling */
         .search-box { margin-bottom: 15px; display: flex; gap: 10px; }
         .search-box input { flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
 
-        /* Login Box Styling */
         #loginSection { max-width: 400px; margin: 40px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
         .input-group { margin-bottom: 15px; text-align: left; }
         .input-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
@@ -30,7 +28,6 @@
         .btn-login { width: 100%; background: var(--primary); color: white; padding: 10px; border: none; border-radius: 4px; font-weight: bold; font-size: 15px; cursor: pointer; }
         .btn-logout { background: var(--danger); color: white; padding: 6px 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; }
 
-        /* Admin Table */
         .table-responsive { width: 100%; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 5px; min-width: 600px; }
         table, th, td { border: 1px solid #ddd; padding: 10px; font-size: 14px; text-align: left; }
@@ -42,7 +39,6 @@
         .btn-view { background: #2980b9; }
         .btn-delete { background: #e74c3c; }
 
-        /* Preview Area Styling */
         #printView { display: none; flex-direction: column; align-items: center; background: #555555; padding: 15px 0; margin-top: 20px; border-radius: 6px; }
         .print-container {
             position: relative;
@@ -121,10 +117,10 @@
         </div>
     </div>
 
-    <!-- 1. Admin Login Form -->
+    <!-- Admin Login Section (Firebase Auth) -->
     <div id="loginSection">
         <h2>एड्मिन लगइन</h2>
-        <p style="color: #666; font-size: 13px; margin-bottom: 20px;">डैशबोर्ड हेर्नको लागि इमेल र पासवर्ड लेख्नुहोस्:</p>
+        <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Firebase इमेल र पासवर्ड हाल्नुहोस्:</p>
         <div class="input-group">
             <label>इमेल (Email):</label>
             <input type="email" id="admin_email" placeholder="admin@example.com">
@@ -136,17 +132,15 @@
         <button type="button" class="btn-login" onclick="loginAdmin()">लगइन गर्नुहोस् (Login)</button>
     </div>
 
-    <!-- 2. Main Dashboard (Hidden until login) -->
+    <!-- Main Dashboard -->
     <div id="dashboardSection" style="display: none;">
         <h2>पासपोर्ट साइज फोटो कन्ट्रोल प्यानल (रोहिणी-१)</h2>
-        <p class="no-print" style="text-align: center; color: #666; margin-bottom: 15px;">प्रयोगकर्ताहरूले पेश गरेका फोटो निवेदनहरूको सूची र प्रमाणीकरण:</p>
+        <p class="no-print" style="text-align: center; color: #666; margin-bottom: 15px;">प्रयोगकर्ताहरूले पेश गरेका फोटो निवेदनहरूको सूची:</p>
 
-        <!-- Search Box -->
         <div class="search-box no-print">
             <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="🔍 निवेदकको नाम वा मोबाइल नम्बरबाट खोज्नुहोस्...">
         </div>
 
-        <!-- Admin Dashboard Table -->
         <div class="table-responsive no-print">
             <table>
                 <thead>
@@ -164,16 +158,13 @@
             </table>
         </div>
 
-        <!-- Print / View Modal Area -->
         <div id="printView" style="display:none;">
             <div class="no-print" style="margin-bottom: 15px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                 <button id="mainPrintBtn" onclick="window.print()" class="btn-approve" style="padding: 10px 20px;">प्रिन्ट गर्नुहोस्</button>
                 <button onclick="closePrintView()" class="btn-reject" style="padding: 10px 20px;">बन्द गर्नुहोस् (Close)</button>
             </div>
 
-            <div class="print-container" id="printableArea">
-                <!-- फोटोहरू यहाँ JS बाट load हुन्छन् -->
-            </div>
+            <div class="print-container" id="printableArea"></div>
         </div>
     </div>
 </div>
@@ -182,7 +173,7 @@
     const firebaseConfig = {
         apiKey: "AIzaSyAVKcK8eTv1W0FtJZX_0vRQ5Vvq52f7BIM",
         authDomain: "sunil-online-service.firebaseapp.com",
-        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",[span_1](start_span)[span_1](end_span)
+        databaseURL: "https://sunil-online-service-default-rtdb.firebaseio.com",
         projectId: "sunil-online-service",
         storageBucket: "sunil-online-service.appspot.com",
         messagingSenderId: "",
@@ -198,6 +189,7 @@
         db = firebase.database();
         auth = firebase.auth();
         
+        // Firebase Auth State Listener
         auth.onAuthStateChanged((user) => {
             if (user) {
                 document.getElementById('loginSection').style.display = 'none';
@@ -212,7 +204,7 @@
             }
         });
     } catch(e) {
-        console.error("Firebase connection error:", e);
+        console.error("Firebase error:", e);
     }
 
     function loginAdmin() {
@@ -235,7 +227,6 @@
     }
 
     function fetchRequestsData() {
-        // पासपोर्ट फारमको डेटा 'requests' node मा सेभ हुन्छ
         db.ref('requests').on('value', (snapshot) => {
             allRequestsData = snapshot.val() || {};
             loadAdminDashboard();
@@ -316,15 +307,12 @@
     }
 
     function deleteNivedan(key) {
-        if (confirm("के तपाईं यो निवेदन पूर्ण रूपमा हटाउन (Delete गर्न) चाहनुहुन्छ?")) {
+        if (confirm("के तपाईं यो निवेदन पूर्ण रूपमा हटाउन चाहनुहुन्छ?")) {
             if(db) {
                 db.ref('requests/' + key).remove()
                     .then(() => {
                         alert('निवेदन सफलतापूर्वक हटाइयो!');
                         closePrintView();
-                    })
-                    .catch((error) => {
-                        alert('डिलिट गर्न असफल भयो: ' + error.message);
                     });
             }
         }
@@ -336,7 +324,6 @@
 
         const printContainer = document.getElementById('printableArea');
         printContainer.innerHTML = '';
-        
         printContainer.style.gap = `${item.gap || 2}mm`;
         const qty = parseInt(item.qty) || 6;
         const isApproved = (item.status === 'approved');
@@ -352,7 +339,6 @@
             img.style.border = `${item.border || 1.5}px solid #000000`;
             box.appendChild(img);
 
-            // यदि approved छैन भने एड्मिन भ्युमा पनि वाटरमार्क देखाउने
             if(!isApproved) {
                 const wm = document.createElement('div');
                 wm.className = 'watermark';
