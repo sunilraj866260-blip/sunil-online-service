@@ -40,28 +40,56 @@
         .btn-delete { background: #e74c3c; }
 
         #printView { display: none; flex-direction: column; align-items: center; background: #555555; padding: 15px 0; margin-top: 20px; border-radius: 6px; }
+        
         .print-container {
             position: relative;
             width: 210mm;
             min-height: 297mm;
-            padding: 15mm;
+            padding: 5mm 3mm;
             margin: 0 auto;
             background: #ffffff;
             border: 1px solid #d3d3d3;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
             box-sizing: border-box;
             display: flex;
-            flex-wrap: wrap;
-            align-content: flex-start;
-            gap: 2mm;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .print-row {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 3mm;
+            margin-bottom: 3mm;
+        }
+
+        .print-col-layout {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            gap: 4mm;
+        }
+
+        .print-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 3mm;
+            flex: 1;
+            align-items: center;
         }
 
         .photo-box {
             position: relative;
             overflow: hidden;
-            background: #fafafa;
+            background: #fff;
             flex-shrink: 0;
             box-sizing: border-box;
+            border: 1px solid #000;
         }
 
         .photo-box img {
@@ -78,7 +106,7 @@
             justify-content: center;
             align-items: center;
             color: rgba(255, 0, 0, 0.5);
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
             transform: rotate(-30deg);
             pointer-events: none;
@@ -100,7 +128,7 @@
                 border: none; 
                 box-shadow: none;
                 margin: 0;
-                padding: 8mm 6mm !important;
+                padding: 4mm 3mm !important;
             }
             .watermark { display: none !important; }
         }
@@ -117,7 +145,7 @@
         </div>
     </div>
 
-    <!-- Admin Login Section (Firebase Auth) -->
+    <!-- Admin Login Section -->
     <div id="loginSection">
         <h2>एड्मिन लगइन</h2>
         <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Firebase इमेल र पासवर्ड हाल्नुहोस्:</p>
@@ -134,8 +162,8 @@
 
     <!-- Main Dashboard -->
     <div id="dashboardSection" style="display: none;">
-        <h2>पासपोर्ट साइज फोटो कन्ट्रोल प्यानल (रोहिणी-१)</h2>
-        <p class="no-print" style="text-align: center; color: #666; margin-bottom: 15px;">प्रयोगकर्ताहरूले पेश गरेका फोटो निवेदनहरूको सूची:</p>
+        <h2>सेवा कन्ट्रोल प्यानल (रोहिणी-१)</h2>
+        <p class="no-print" style="text-align: center; color: #666; margin-bottom: 15px;">प्रयोगकर्ताहरूले पेश गरेका निवेदनहरूको सूची:</p>
 
         <div class="search-box no-print">
             <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="🔍 निवेदकको नाम वा मोबाइल नम्बरबाट खोज्नुहोस्...">
@@ -147,7 +175,7 @@
                     <tr>
                         <th>निवेदक नाम</th>
                         <th>फोन नं.</th>
-                        <th>साइज / कति पीस</th>
+                        <th>प्रकार / विवरण</th>
                         <th>स्थिति (Status)</th>
                         <th>कार्य (Actions)</th>
                     </tr>
@@ -189,7 +217,6 @@
         db = firebase.database();
         auth = firebase.auth();
         
-        // Firebase Auth State Listener
         auth.onAuthStateChanged((user) => {
             if (user) {
                 document.getElementById('loginSection').style.display = 'none';
@@ -210,21 +237,13 @@
     function loginAdmin() {
         const email = document.getElementById('admin_email').value.trim();
         const password = document.getElementById('admin_password').value.trim();
-
-        if(!email || !password) {
-            alert("कृपया इमेल र पासवर्ड दुवै भर्नुहोस्!");
-            return;
-        }
-
-        auth.signInWithEmailAndPassword(email, password)
-            .catch((error) => {
-                alert("लगइन असफल भयो: " + error.message);
-            });
+        if(!email || !password) { alert("कृपया इमेल र पासवर्ड दुवै भर्नुहोस्!"); return; }
+        auth.signInWithEmailAndPassword(email, password).catch((error) => {
+            alert("लगइन असफल भयो: " + error.message);
+        });
     }
 
-    function logoutAdmin() {
-        auth.signOut();
-    }
+    function logoutAdmin() { auth.signOut(); }
 
     function fetchRequestsData() {
         db.ref('requests').on('value', (snapshot) => {
@@ -245,11 +264,18 @@
 
         keys.reverse().forEach(key => {
             const item = allRequestsData[key];
+            let detailsText = '';
+            if(item.printType === 'passport') {
+                detailsText = `पासपोर्ट: ${item.width}x${item.height} ${item.unit} (${item.qty} पीस)`;
+            } else {
+                detailsText = `नागरिकता (${item.layout === 'row' ? 'Row' : 'Column'}, सेट: ${item.rows || 2})`;
+            }
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><strong>${item.name || ''}</strong></td>
                 <td>${item.phone || ''}</td>
-                <td>${item.width}x${item.height} ${item.unit} (${item.qty} पीस)</td>
+                <td>${detailsText}</td>
                 <td><b style="color:${item.status === 'approved' ? 'green' : 'orange'}">${item.status}</b></td>
                 <td>
                     <div style="display:flex; gap:5px; flex-wrap:wrap;">
@@ -272,11 +298,9 @@
         for (let i = 0; i < trs.length; i++) {
             const nameTd = trs[i].getElementsByTagName('td')[0];
             const phoneTd = trs[i].getElementsByTagName('td')[1];
-            
             if (nameTd && phoneTd) {
                 const nameText = nameTd.textContent || nameTd.innerText;
                 const phoneText = phoneTd.textContent || phoneTd.innerText;
-
                 if (nameText.toLowerCase().indexOf(input) > -1 || phoneText.toLowerCase().indexOf(input) > -1) {
                     trs[i].style.display = "";
                 } else {
@@ -288,19 +312,15 @@
 
     function verifyAndApprove(key) {
         if(db) {
-            db.ref('requests/' + key).update({ 
-                status: 'approved'
-            }).then(() => {
-                alert('सफलतापूर्वक Approve गरियो! अब युजरले वाटरमार्क बिना प्रिन्ट गर्न सक्नेछन्।');
+            db.ref('requests/' + key).update({ status: 'approved' }).then(() => {
+                alert('सफलतापूर्वक Approve गरियो!');
             });
         }
     }
 
     function rejectNivedan(key) {
         if(db) {
-            db.ref('requests/' + key).update({ 
-                status: 'rejected'
-            }).then(() => {
+            db.ref('requests/' + key).update({ status: 'rejected' }).then(() => {
                 alert('निवेदन Reject गरियो!');
             });
         }
@@ -309,11 +329,10 @@
     function deleteNivedan(key) {
         if (confirm("के तपाईं यो निवेदन पूर्ण रूपमा हटाउन चाहनुहुन्छ?")) {
             if(db) {
-                db.ref('requests/' + key).remove()
-                    .then(() => {
-                        alert('निवेदन सफलतापूर्वक हटाइयो!');
-                        closePrintView();
-                    });
+                db.ref('requests/' + key).remove().then(() => {
+                    alert('निवेदन सफलतापूर्वक हटाइयो!');
+                    closePrintView();
+                });
             }
         }
     }
@@ -324,29 +343,124 @@
 
         const printContainer = document.getElementById('printableArea');
         printContainer.innerHTML = '';
-        printContainer.style.gap = `${item.gap || 2}mm`;
-        const qty = parseInt(item.qty) || 6;
         const isApproved = (item.status === 'approved');
 
-        for (let i = 0; i < qty; i++) {
-            const box = document.createElement('div');
-            box.className = 'photo-box';
-            box.style.width = `${item.width}${item.unit}`;
-            box.style.height = `${item.height}${item.unit}`;
+        if(item.printType === 'passport') {
+            const qty = parseInt(item.qty) || 6;
+            const sideDiv = document.createElement('div');
+            sideDiv.style.display = 'flex';
+            sideDiv.style.flexWrap = 'wrap';
+            sideDiv.style.gap = `${item.gap || 2}mm`;
+            sideDiv.style.width = '100%';
 
-            const img = document.createElement('img');
-            img.src = item.photo;
-            img.style.border = `${item.border || 1.5}px solid #000000`;
-            box.appendChild(img);
+            for (let i = 0; i < qty; i++) {
+                const box = document.createElement('div');
+                box.className = 'photo-box';
+                box.style.width = `${item.width}${item.unit}`;
+                box.style.height = `${item.height}${item.unit}`;
 
-            if(!isApproved) {
-                const wm = document.createElement('div');
-                wm.className = 'watermark';
-                wm.innerText = 'DRAFT';
-                box.appendChild(wm);
+                const img = document.createElement('img');
+                img.src = item.photo;
+                box.appendChild(img);
+
+                if(!isApproved) {
+                    const wm = document.createElement('div');
+                    wm.className = 'watermark';
+                    wm.innerText = 'DRAFT';
+                    box.appendChild(wm);
+                }
+                sideDiv.appendChild(box);
             }
+            printContainer.appendChild(sideDiv);
+        } else {
+            const direction = item.layout || 'column';
+            const setCount = parseInt(item.rows) || 2;
+            const frontSrc = item.frontImage;
+            const backSrc = item.backImage;
 
-            printContainer.appendChild(box);
+            if (direction === 'row') {
+                for (let r = 0; r < setCount; r++) {
+                    const rowContainer = document.createElement('div');
+                    rowContainer.className = 'print-row';
+
+                    const fBox = document.createElement('div');
+                    fBox.className = 'photo-box';
+                    fBox.style.width = '100mm';
+                    fBox.style.height = '70mm';
+                    const fImg = document.createElement('img');
+                    fImg.src = frontSrc;
+                    fBox.appendChild(fImg);
+                    if(!isApproved) {
+                        const wm1 = document.createElement('div');
+                        wm1.className = 'watermark';
+                        wm1.innerText = 'DRAFT';
+                        fBox.appendChild(wm1);
+                    }
+
+                    const bBox = document.createElement('div');
+                    bBox.className = 'photo-box';
+                    bBox.style.width = '100mm';
+                    bBox.style.height = '70mm';
+                    const bImg = document.createElement('img');
+                    bImg.src = backSrc;
+                    bBox.appendChild(bImg);
+                    if(!isApproved) {
+                        const wm2 = document.createElement('div');
+                        wm2.className = 'watermark';
+                        wm2.innerText = 'DRAFT';
+                        bBox.appendChild(wm2);
+                    }
+
+                    rowContainer.appendChild(fBox);
+                    rowContainer.appendChild(bBox);
+                    printContainer.appendChild(rowContainer);
+                }
+            } else {
+                const colContainer = document.createElement('div');
+                colContainer.className = 'print-col-layout';
+
+                function createVerticalSet() {
+                    const col = document.createElement('div');
+                    col.className = 'print-column';
+
+                    for(let i = 0; i < setCount; i++) {
+                        const fBox = document.createElement('div');
+                        fBox.className = 'photo-box';
+                        fBox.style.width = '100mm';
+                        fBox.style.height = '70mm';
+                        const fImg = document.createElement('img');
+                        fImg.src = frontSrc;
+                        fBox.appendChild(fImg);
+                        if(!isApproved) {
+                            const wm1 = document.createElement('div');
+                            wm1.className = 'watermark';
+                            wm1.innerText = 'DRAFT';
+                            fBox.appendChild(wm1);
+                        }
+                        col.appendChild(fBox);
+
+                        const bBox = document.createElement('div');
+                        bBox.className = 'photo-box';
+                        bBox.style.width = '100mm';
+                        bBox.style.height = '70mm';
+                        const bImg = document.createElement('img');
+                        bImg.src = backSrc;
+                        bBox.appendChild(bImg);
+                        if(!isApproved) {
+                            const wm2 = document.createElement('div');
+                            wm2.className = 'watermark';
+                            wm2.innerText = 'DRAFT';
+                            bBox.appendChild(wm2);
+                        }
+                        col.appendChild(bBox);
+                    }
+                    return col;
+                }
+
+                colContainer.appendChild(createVerticalSet());
+                colContainer.appendChild(createVerticalSet());
+                printContainer.appendChild(colContainer);
+            }
         }
 
         document.getElementById('printView').style.display = 'flex';
