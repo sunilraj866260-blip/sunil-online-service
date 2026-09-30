@@ -45,7 +45,7 @@
             position: relative;
             width: 210mm;
             min-height: 297mm;
-            padding: 5mm 3mm;
+            /* मार्जिन युजरले पठाएको भ्यालुअनुसार डाइनामिक हुनेछ */
             margin: 0 auto;
             background: #ffffff;
             border: 1px solid #d3d3d3;
@@ -71,7 +71,7 @@
             height: 100%;
             display: flex;
             justify-content: space-between;
-            gap: 4mm;
+            gap: 3mm;
         }
 
         .print-column {
@@ -128,7 +128,7 @@
                 border: none; 
                 box-shadow: none;
                 margin: 0;
-                padding: 4mm 3mm !important;
+                /* प्रिन्ट हुँदा पनि युजरले सेट गरेको मार्जिन लागू हुनेछ */
             }
             .watermark { display: none !important; }
         }
@@ -343,6 +343,15 @@
 
         const printContainer = document.getElementById('printableArea');
         printContainer.innerHTML = '';
+        
+        // पासपोर्ट पेजले सेभ गरेको मार्जिन यहाँ लागू गरिएको छ (यदि छैन भने बाइरफल्ट ५mm रहनेछ)
+        const mT = item.marginTop !== undefined ? item.marginTop : 5;
+        const mB = item.marginBottom !== undefined ? item.marginBottom : 5;
+        const mL = item.marginLeft !== undefined ? item.marginLeft : 5;
+        const mR = item.marginRight !== undefined ? item.marginRight : 5;
+
+        printContainer.style.padding = `${mT}mm ${mR}mm ${mB}mm ${mL}mm`;
+
         const isApproved = (item.status === 'approved');
 
         if(item.printType === 'passport') {
@@ -350,7 +359,7 @@
             const sideDiv = document.createElement('div');
             sideDiv.style.display = 'flex';
             sideDiv.style.flexWrap = 'wrap';
-            sideDiv.style.gap = `${item.gap || 2}mm`;
+            sideDiv.style.gap = `3mm`;
             sideDiv.style.width = '100%';
 
             for (let i = 0; i < qty; i++) {
