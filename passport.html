@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>पासपोर्ट साइज फोटो प्रिन्ट र ट्रयाक - रोहिणी-१</title>
+    <title>पासपोर्ट साइज/नागरिकता प्रिन्ट र ट्र्याक - रोहिणी-१</title>
+    <!-- html2pdf.js लाइब्रेरी (PDF डाउनलोडका लागि) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Cropper.js CSS & JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    
     <style>
         :root { --primary: #1e3799; --secondary: #27ae60; --bg-light: #f4f7f6; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -12,7 +18,6 @@
         .container { max-width: 950px; width: 100%; margin: auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
         h2 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 10px; font-size: 20px; margin-bottom: 15px; }
 
-        /* Top Navigation Link Buttons */
         .top-nav-links { 
             display: flex; 
             gap: 10px; 
@@ -84,7 +89,7 @@
             margin-bottom: 4px;
         }
 
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 9px;
             border: 1px solid #ccc;
@@ -92,48 +97,77 @@
             font-size: 14px;
         }
 
-        .btn-submit {
+        .btn-submit, .btn-preview, .btn-action, .btn-crop {
             width: 100%;
             padding: 12px;
-            background-color: var(--secondary);
             color: white;
             border: none;
             border-radius: 6px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
             margin-top: 10px;
             transition: 0.2s;
         }
-        .btn-submit:hover { opacity: 0.9; }
+        .btn-submit { background-color: var(--secondary); }
+        .btn-preview { background-color: var(--primary); }
+        .btn-pdf { background-color: #e74c3c; }
+        .btn-print { background-color: #17a2b8; display: none; }
+        
+        .btn-submit:hover, .btn-preview:hover, .btn-pdf:hover { opacity: 0.9; }
         .btn-submit:disabled { background-color: #95a5a6; cursor: not-allowed; }
 
-        .btn-preview {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
+        .slider-container {
+            background: #f1f2f6;
+            padding: 8px;
             border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
+            margin-bottom: 10px;
         }
 
-        .btn-direct-print {
-            background-color: #17a2b8;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            margin: 15px auto;
+        /* Cropper Modal / Container Box */
+        #cropperModal {
             display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 15px;
+        }
+        .cropper-container-box {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .img-container {
+            position: relative;
+            max-height: 280px;
+            width: 100%;
+            margin-bottom: 10px;
+            background: #000;
+        }
+        .img-container img {
+            max-width: 100%;
+            display: block;
         }
 
-        /* Trace Section Box */
+        .preview-thumb {
+            width: 80px;
+            height: 50px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+            display: block;
+        }
+
         .trace-box {
             background: #fff3cd;
             border: 1px solid #ffeeba;
@@ -142,26 +176,55 @@
             margin-top: 20px;
         }
 
-        /* Printable Area - A4 Setup */
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
         .print-page {
             width: 210mm;
-            min-height: 297mm;
+            height: 297mm;
             background: white;
             margin: 20px auto 0 auto;
-            padding: 8mm 6mm;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             display: flex;
-            flex-wrap: wrap;
-            align-content: flex-start;
-            gap: 2mm;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .print-row {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .print-col-layout {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+        .print-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            flex: 1;
+            align-items: center;
+            box-sizing: border-box;
         }
 
         .photo-box {
             position: relative;
             overflow: hidden;
-            background: #fafafa;
+            background: #fff;
             flex-shrink: 0;
             box-sizing: border-box;
+            border: 1px solid #000;
         }
 
         .photo-box img {
@@ -171,15 +234,14 @@
             box-sizing: border-box;
         }
 
-        /* Watermark Style for Unapproved/Draft view */
         .watermark-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: rgba(255, 0, 0, 0.5);
-            font-size: 14px;
+            color: rgba(255, 0, 0, 0.4);
+            font-size: 16px;
             font-weight: bold;
             transform: rotate(-30deg);
             pointer-events: none;
@@ -187,24 +249,23 @@
         }
 
         @media print {
-            body { background: white; padding: 0; }
-            .container, .top-nav-links, .btn-direct-print { display: none !important; }
-            .print-page { box-shadow: none; margin: 0; padding: 8mm 6mm !important; }
-            .watermark-overlay { display: none !important; } /* Print garda watermark hataune approval paxi */
+            body { background: white; padding: 0; margin: 0; }
+            .container, .top-nav-links, .btn-action, .btn-preview, .btn-submit, .trace-box { display: none !important; }
+            .print-page { box-shadow: none; margin: 0; width: 100%; height: 100%; }
+            .watermark-overlay { display: none !important; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Top Navigation Links -->
     <div class="top-nav-links">
         <a href="index.html">गृह पृष्ठ<br><span style="font-size:11px; font-weight:normal;">(Services)</span></a>
         <a href="trace.html">स्थिति<br><span style="font-size:11px; font-weight:normal;">(Trace)</span></a>
         <a href="admin.html">Admin<br><span style="font-size:11px; font-weight:normal;">Login</span></a>
     </div>
 
-    <h2>📷 अनलाइन पासपोर्ट साइज फोटो प्रिन्ट र ट्र्याक</h2>
+    <h2>📷 पासपोर्ट साइज र नागरिकता प्रिन्ट</h2>
     
     <div class="form-group">
         <label>पूरा नाम (Full Name):</label>
@@ -214,46 +275,108 @@
         <label>मोबाइल नम्बर (Phone Number):</label>
         <input type="text" id="userPhone" placeholder="सम्पर्क मोबाइल नम्बर">
     </div>
+
     <div class="form-group">
-        <label>फोटो अपलोड गर्नुहोस् (Upload Photo):</label>
+        <label>प्रिन्ट प्रकार (Print Type):</label>
+        <select id="printTypeScript" onchange="togglePrintInputs()">
+            <option value="passport">पासपोर्ट साइज फोटो (Passport Size Photos)</option>
+            <option value="citizenship" selected>नागरिकता - Front & Back (Row/Column Print)</option>
+        </select>
+    </div>
+
+    <div class="form-group" id="layoutDirectionGroup">
+        <label>प्रिन्ट रूपरेखा (Print Layout Direction):</label>
+        <select id="layoutDirection">
+            <option value="row">Row Wise (तेसो - माथि Front / तल Back)</option>
+            <option value="column" selected>Column Wise (बायाँ र दायाँ स्तम्भमा माथि Front, तल Back)</option>
+        </select>
+    </div>
+
+    <!-- Page Margins Controls -->
+    <div class="config-section-title">📄 प्रिन्ट पेज मार्जिन (Page Margins mm)</div>
+    <div class="config-grid">
+        <div class="config-item">
+            <label>माथि (Top Margin):</label>
+            <input type="number" id="pageMarginTop" value="5" step="0.5" min="0">
+        </div>
+        <div class="config-item">
+            <label>तल (Bottom Margin):</label>
+            <input type="number" id="pageMarginBottom" value="5" step="0.5" min="0">
+        </div>
+        <div class="config-item">
+            <label>बायाँ (Left Margin):</label>
+            <input type="number" id="pageMarginLeft" value="5" step="0.5" min="0">
+        </div>
+        <div class="config-item">
+            <label>दायाँ (Right Margin):</label>
+            <input type="number" id="pageMarginRight" value="5" step="0.5" min="0">
+        </div>
+    </div>
+
+    <div class="form-group" id="singleUploadGroup" style="display: none;">
+        <label>फोटो अपलोड गर्नुहोस् (Passport Photo):</label>
         <input type="file" id="userPhotoFile" accept="image/*">
     </div>
 
-    <div class="config-section-title">📏 फोटो साइज र प्रिन्ट सेटिङ</div>
-    <div class="config-grid">
-        <div class="config-item">
-            <label>चौडाइ (Width):</label>
-            <input type="number" id="photoWidth" value="1.2" step="0.1" min="0.5">
+    <div id="doubleUploadGroup">
+        <div class="form-group">
+            <label>नागरिकता अगाडि भाग (Front):</label>
+            <input type="file" id="frontImageFile" accept="image/*" onchange="openCropperModal(event, 'front')">
+            <img id="frontThumb" class="preview-thumb" style="display:none;" alt="Front Preview">
         </div>
-        <div class="config-item">
-            <label>उचाइ (Height):</label>
-            <input type="number" id="photoHeight" value="1.5" step="0.1" min="0.5">
+        <div class="form-group">
+            <label>नागरिकता पछाडि भाग (Back):</label>
+            <input type="file" id="backImageFile" accept="image/*" onchange="openCropperModal(event, 'back')">
+            <img id="backThumb" class="preview-thumb" style="display:none;" alt="Back Preview">
         </div>
-        <div class="config-item">
-            <label>युनिट (Unit):</label>
-            <select id="sizeUnit">
-                <option value="in" selected>Inches (इन्च)</option>
-                <option value="mm">MM</option>
-            </select>
+        <div class="config-grid" style="margin-top: 10px;">
+            <div class="config-item">
+                <label>सेट संख्या (Sets):</label>
+                <input type="number" id="citizenshipRows" value="2" min="1" max="3">
+            </div>
+            <div class="config-item">
+                <label>बीचको ग्याप (Gap mm):</label>
+                <input type="number" id="citizenshipGap" value="3" min="0" step="0.5">
+            </div>
         </div>
-        <div class="config-item">
-            <label>संख्या (Qty):</label>
-            <input type="number" id="photoQty" value="6" min="1">
-        </div>
-        <div class="config-item">
-            <label>ग्याप (mm):</label>
-            <input type="number" id="photoGap" value="2" min="0">
-        </div>
-        <div class="config-item">
-            <label>बोर्डर (px):</label>
-            <input type="number" id="borderWidth" value="1.5" min="0">
+    </div>
+
+    <div id="passportConfigSection" style="display: none;">
+        <div class="config-section-title">📏 पासपोर्ट फोटो साइज र सेटिङ</div>
+        <div class="config-grid">
+            <div class="config-item">
+                <label>चौडाइ (Width):</label>
+                <input type="number" id="photoWidth" value="1.2" step="0.1" min="0.5">
+            </div>
+            <div class="config-item">
+                <label>उचाइ (Height):</label>
+                <input type="number" id="photoHeight" value="1.5" step="0.1" min="0.5">
+            </div>
+            <div class="config-item">
+                <label>युनिट (Unit):</label>
+                <select id="sizeUnit">
+                    <option value="in" selected>Inches (इन्च)</option>
+                    <option value="mm">MM</option>
+                </select>
+            </div>
+            <div class="config-item">
+                <label>संख्या (Total Qty):</label>
+                <input type="number" id="photoQty" value="6" min="1">
+            </div>
+            <div class="config-item">
+                <label>बीचको ग्याप (mm):</label>
+                <input type="number" id="photoGap" value="2" min="0" step="0.5">
+            </div>
+            <div class="config-item">
+                <label>बोर्डर (px):</label>
+                <input type="number" id="borderWidth" value="1.5" min="0">
+            </div>
         </div>
     </div>
 
     <button class="btn-preview" onclick="generatePreviewWithWatermark()">🔍 वाटरमार्कसहित प्रिभ्यू हेर्नुहोस्</button>
     <button class="btn-submit" id="submitBtn" onclick="submitPhotoRequest()">फारम बुझाउनुहोस् (Submit)</button>
 
-    <!-- Trace Status Section -->
     <div class="trace-box">
         <h3 style="font-size:15px; color:#856404; margin-bottom:8px;">🔍 आवेदनको स्थिति ट्रयाक गर्नुहोस् (Trace Status)</h3>
         <div class="form-group" style="margin-bottom:8px;">
@@ -264,17 +387,121 @@
     </div>
 </div>
 
-<div style="text-align: center;">
-    <button id="directPrintBtn" class="btn-direct-print" onclick="window.print()">🖨️ सिधै प्रिन्ट गर्नुहोस् (Print Approved)</button>
+<!-- Cropper Modal Popup with Slider Only -->
+<div id="cropperModal">
+    <div class="cropper-container-box">
+        <h3 style="color:var(--primary); margin-bottom:6px; font-size:15px; text-align:center;">🔄 फोटो मिलाउने (Rotate Slider)</h3>
+        
+        <div class="slider-container">
+            <label style="font-size:11px; font-weight:bold; color:#333; display:block; margin-bottom:2px;">रोटेसन (Rotate Slider):</label>
+            <input type="range" id="rotateSlider" min="-45" max="45" value="0" step="0.5" style="width: 100%; cursor: pointer;" oninput="fineRotate(this.value)">
+        </div>
+
+        <div class="img-container">
+            <img id="imageToCrop" src="" alt="Source">
+        </div>
+
+        <button class="btn-submit" onclick="getCroppedImage()" style="margin-top:4px;">क्रप गरी सेभ गर्नुहोस् (Crop & Save)</button>
+        <button class="btn-action" style="background:#95a5a6; margin-top:4px;" onclick="closeCropperModal()">रद्द गर्नुहोस्</button>
+    </div>
 </div>
 
-<!-- A4 Paper Layout -->
+<div style="text-align: center; max-width: 950px; margin: auto;">
+    <button id="directPrintBtn" class="btn-action btn-print" onclick="window.print()">🖨️ सिधै प्रिन्ट गर्नुहोस् (Print Approved)</button>
+    <button id="downloadPdfBtn" class="btn-action btn-pdf" style="display:none;" onclick="downloadPDF()">📥 PDF डाउनलोड गर्नुहोस् (Download PDF)</button>
+</div>
+
 <div class="print-page" id="printPage">
-    <p id="placeholderText" style="color: #888; font-size: 14px; text-align: center; width: 100%; margin-top: 20px;">फोटो छान्नुहोस् र प्रिभ्यू हेर्नुहोस्।</p>
+    <p id="placeholderText" style="color: #888; font-size: 14px; text-align: center; width: 100%; margin-top: 50px;">कृपया विवरण भरेर प्रिभ्यू हेर्नुहोस्।</p>
 </div>
 
 <script>
-    const FIREBASE_DB_URL = "https://sunil-online-service-default-rtdb.firebaseio.com";[span_0](start_span)[span_0](end_span)
+    const FIREBASE_DB_URL = "https://sunil-online-service-default-rtdb.firebaseio.com";
+    let cropper = null;
+    let currentCroppingType = "";
+    let processedFrontBase64 = "";
+    let processedBackBase64 = "";
+
+    function togglePrintInputs() {
+        const type = document.getElementById('printTypeScript').value;
+        if(type === 'citizenship') {
+            document.getElementById('singleUploadGroup').style.display = 'none';
+            document.getElementById('doubleUploadGroup').style.display = 'block';
+            document.getElementById('passportConfigSection').style.display = 'none';
+            document.getElementById('layoutDirectionGroup').style.display = 'block';
+        } else {
+            document.getElementById('singleUploadGroup').style.display = 'block';
+            document.getElementById('doubleUploadGroup').style.display = 'none';
+            document.getElementById('passportConfigSection').style.display = 'block';
+            document.getElementById('layoutDirectionGroup').style.display = 'none';
+        }
+    }
+
+    function openCropperModal(event, type) {
+        const file = event.target.files[0];
+        if (!file) return;
+        currentCroppingType = type;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imageToCrop = document.getElementById('imageToCrop');
+            imageToCrop.src = e.target.result;
+            document.getElementById('cropperModal').style.display = 'flex';
+            
+            document.getElementById('rotateSlider').value = 0;
+
+            if (cropper) {
+                cropper.destroy();
+            }
+            cropper = new Cropper(imageToCrop, {
+                aspectRatio: 1.414, 
+                viewMode: 1,
+                autoCropArea: 0.9,
+                responsive: true,
+                checkOrientation: false,
+            });
+        }
+        reader.readAsDataURL(file);
+    }
+
+    function fineRotate(val) {
+        if (cropper) {
+            cropper.rotateTo(parseFloat(val));
+        }
+    }
+
+    function closeCropperModal() {
+        document.getElementById('cropperModal').style.display = 'none';
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+    }
+
+    function getCroppedImage() {
+        if (!cropper) return;
+        const canvas = cropper.getCroppedCanvas({
+            width: 1000,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+
+        const base64Data = canvas.toDataURL('image/jpeg', 0.95);
+
+        if (currentCroppingType === 'front') {
+            processedFrontBase64 = base64Data;
+            const thumb = document.getElementById('frontThumb');
+            thumb.src = base64Data;
+            thumb.style.display = 'block';
+        } else {
+            processedBackBase64 = base64Data;
+            const thumb = document.getElementById('backThumb');
+            thumb.src = base64Data;
+            thumb.style.display = 'block';
+        }
+
+        closeCropperModal();
+    }
 
     function getBase64(file) {
         return new Promise((resolve, reject) => {
@@ -285,21 +512,35 @@
         });
     }
 
-    async function generatePreviewWithWatermark() {
-        const fileInput = document.getElementById('userPhotoFile');
-        const printPage = document.getElementById('printPage');
-
-        if(fileInput.files.length === 0) {
-            alert('कृपया पहिले फोटो छान्नुहोस्!');
-            return;
-        }
-
-        const photoData = await getBase64(fileInput.files[0]);
-        renderPhotos(photoData, true); // true means show watermark for preview
+    function applyPageMargins(element) {
+        const t = document.getElementById('pageMarginTop').value || 0;
+        const b = document.getElementById('pageMarginBottom').value || 0;
+        const l = document.getElementById('pageMarginLeft').value || 0;
+        const r = document.getElementById('pageMarginRight').value || 0;
+        element.style.padding = `${t}mm ${r}mm ${b}mm ${l}mm`;
     }
 
-    function renderPhotos(photoSrc, showWatermark) {
+    async function generatePreviewWithWatermark() {
+        const type = document.getElementById('printTypeScript').value;
+
+        if(type === 'passport') {
+            const fileInput = document.getElementById('userPhotoFile');
+            if(fileInput.files.length === 0) { alert('कृपया फोटो छान्नुहोस्!'); return; }
+            const photoData = await getBase64(fileInput.files[0]);
+            renderPassportPreview(photoData, true);
+        } else {
+            if(!processedFrontBase64 || !processedBackBase64) { 
+                alert('कृपया नागरिकताको अगाडि र पछाडि दुवै भाग क्रप गरी सेभ गर्नुहोस्!'); 
+                return; 
+            }
+            renderCitizenshipPreview(processedFrontBase64, processedBackBase64, true);
+        }
+    }
+
+    function renderPassportPreview(photoSrc, showWatermark) {
         const printPage = document.getElementById('printPage');
+        applyPageMargins(printPage);
+
         const widthVal = document.getElementById('photoWidth').value;
         const heightVal = document.getElementById('photoHeight').value;
         const unitVal = document.getElementById('sizeUnit').value;
@@ -307,18 +548,24 @@
         const gapVal = document.getElementById('photoGap').value;
         const borderVal = document.getElementById('borderWidth').value;
 
-        printPage.style.gap = `${gapVal}mm`;
-        printPage.innerHTML = '';
+        // Clear contents except padding setup
+        const innerContent = document.createElement('div');
+        innerContent.style.display = 'flex';
+        innerContent.style.flexWrap = 'wrap';
+        innerContent.style.gap = `${gapVal}mm`;
+        innerContent.style.width = '100%';
+        innerContent.style.height = '100%';
+        innerContent.style.alignContent = 'flex-start';
 
         for (let i = 0; i < qtyVal; i++) {
             const box = document.createElement('div');
             box.className = 'photo-box';
             box.style.width = `${widthVal}${unitVal}`;
             box.style.height = `${heightVal}${unitVal}`;
+            box.style.border = `${borderVal}px solid #000`;
 
             const img = document.createElement('img');
             img.src = photoSrc;
-            img.style.border = `${borderVal}px solid #000000`;
             box.appendChild(img);
 
             if(showWatermark) {
@@ -327,40 +574,176 @@
                 wm.innerText = 'DRAFT';
                 box.appendChild(wm);
             }
-
-            printPage.appendChild(box);
+            innerContent.appendChild(box);
         }
+
+        printPage.innerHTML = '';
+        printPage.appendChild(innerContent);
+        document.getElementById('downloadPdfBtn').style.display = 'inline-block';
+    }
+
+    function renderCitizenshipPreview(frontSrc, backSrc, showWatermark) {
+        const printPage = document.getElementById('printPage');
+        applyPageMargins(printPage);
+        printPage.innerHTML = '';
+
+        const innerContent = document.createElement('div');
+        innerContent.style.width = '100%';
+        innerContent.style.height = '100%';
+        innerContent.style.display = 'flex';
+        innerContent.style.flexDirection = 'column';
+        innerContent.style.justifyContent = 'space-between';
+
+        const direction = document.getElementById('layoutDirection').value;
+        const setCount = parseInt(document.getElementById('citizenshipRows').value) || 2;
+        const gapVal = parseFloat(document.getElementById('citizenshipGap').value) || 3;
+
+        if (direction === 'row') {
+            const wrapper = document.createElement('div');
+            wrapper.style.display = 'flex';
+            wrapper.style.flexDirection = 'column';
+            wrapper.style.gap = `${gapVal}mm`;
+            wrapper.style.width = '100%';
+
+            for (let r = 0; r < setCount; r++) {
+                const rowContainer = document.createElement('div');
+                rowContainer.className = 'print-row';
+
+                const fBox = document.createElement('div');
+                fBox.className = 'photo-box';
+                fBox.style.width = '100mm';
+                fBox.style.height = '70mm';
+                
+                const fImg = document.createElement('img');
+                fImg.src = frontSrc;
+                fBox.appendChild(fImg);
+                if(showWatermark) {
+                    const wm1 = document.createElement('div');
+                    wm1.className = 'watermark-overlay';
+                    wm1.innerText = 'DRAFT';
+                    fBox.appendChild(wm1);
+                }
+
+                const bBox = document.createElement('div');
+                bBox.className = 'photo-box';
+                bBox.style.width = '100mm';
+                bBox.style.height = '70mm';
+
+                const bImg = document.createElement('img');
+                bImg.src = backSrc;
+                bBox.appendChild(bImg);
+                if(showWatermark) {
+                    const wm2 = document.createElement('div');
+                    wm2.className = 'watermark-overlay';
+                    wm2.innerText = 'DRAFT';
+                    bBox.appendChild(wm2);
+                }
+
+                rowContainer.appendChild(fBox);
+                rowContainer.appendChild(bBox);
+                wrapper.appendChild(rowContainer);
+            }
+            innerContent.appendChild(wrapper);
+        } else {
+            const colContainer = document.createElement('div');
+            colContainer.className = 'print-col-layout';
+            colContainer.style.gap = `${gapVal}mm`;
+
+            function createVerticalSet() {
+                const col = document.createElement('div');
+                col.className = 'print-column';
+                col.style.gap = `${gapVal}mm`;
+
+                for(let i = 0; i < setCount; i++) {
+                    const fBox = document.createElement('div');
+                    fBox.className = 'photo-box';
+                    fBox.style.width = '100mm';
+                    fBox.style.height = '70mm';
+                    
+                    const fImg = document.createElement('img');
+                    fImg.src = frontSrc;
+                    fBox.appendChild(fImg);
+                    if(showWatermark) {
+                        const wm1 = document.createElement('div');
+                        wm1.className = 'watermark-overlay';
+                        wm1.innerText = 'DRAFT';
+                        fBox.appendChild(wm1);
+                    }
+                    col.appendChild(fBox);
+
+                    const bBox = document.createElement('div');
+                    bBox.className = 'photo-box';
+                    bBox.style.width = '100mm';
+                    bBox.style.height = '70mm';
+
+                    const bImg = document.createElement('img');
+                    bImg.src = backSrc;
+                    bBox.appendChild(bImg);
+                    if(showWatermark) {
+                        const wm2 = document.createElement('div');
+                        wm2.className = 'watermark-overlay';
+                        wm2.innerText = 'DRAFT';
+                        bBox.appendChild(wm2);
+                    }
+                    col.appendChild(bBox);
+                }
+                return col;
+            }
+
+            colContainer.appendChild(createVerticalSet());
+            colContainer.appendChild(createVerticalSet());
+            innerContent.appendChild(colContainer);
+        }
+
+        printPage.appendChild(innerContent);
+        document.getElementById('downloadPdfBtn').style.display = 'inline-block';
     }
 
     async function submitPhotoRequest() {
         const name = document.getElementById('userName').value.trim();
         const phone = document.getElementById('userPhone').value.trim();
-        const fileInput = document.getElementById('userPhotoFile');
+        const type = document.getElementById('printTypeScript').value;
         const submitBtn = document.getElementById('submitBtn');
 
-        if(!name || !phone || fileInput.files.length === 0) {
-            alert('कृपया सबै विवरण र फोटो अनिवार्य रूपमा भर्नुहोस्!');
+        if(!name || !phone) {
+            alert('कृपया नाम र मोबाइल नम्बर अनिवार्य भर्नुहोस्!');
             return;
         }
 
-        submitBtn.disabled = true; // Disable button after click
+        submitBtn.disabled = true;
         submitBtn.innerText = 'सबमिट हुँदैछ...';
 
-        const photoData = await getBase64(fileInput.files[0]);
-        
-        const payload = {
+        let payload = {
             name: name,
             phone: phone,
-            photo: photoData,
-            width: document.getElementById('photoWidth').value,
-            height: document.getElementById('photoHeight').value,
-            unit: document.getElementById('sizeUnit').value,
-            qty: document.getElementById('photoQty').value,
-            gap: document.getElementById('photoGap').value,
-            border: document.getElementById('borderWidth').value,
+            printType: type,
             status: 'pending',
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            marginTop: document.getElementById('pageMarginTop').value,
+            marginBottom: document.getElementById('pageMarginBottom').value,
+            marginLeft: document.getElementById('pageMarginLeft').value,
+            marginRight: document.getElementById('pageMarginRight').value
         };
+
+        if(type === 'passport') {
+            const fileInput = document.getElementById('userPhotoFile');
+            if(fileInput.files.length === 0) { alert('फोटो छान्नुहोस्!'); submitBtn.disabled = false; return; }
+            payload.photo = await getBase64(fileInput.files[0]);
+            payload.width = document.getElementById('photoWidth').value;
+            payload.height = document.getElementById('photoHeight').value;
+            payload.unit = document.getElementById('sizeUnit').value;
+            payload.qty = document.getElementById('photoQty').value;
+            payload.gap = document.getElementById('photoGap').value;
+        } else {
+            if(!processedFrontBase64 || !processedBackBase64) {
+                alert('दुवै तस्बिरहरू क्रप गर्नुहोस्!'); submitBtn.disabled = false; return;
+            }
+            payload.frontImage = processedFrontBase64;
+            payload.backImage = processedBackBase64;
+            payload.rows = document.getElementById('citizenshipRows').value;
+            payload.gap = document.getElementById('citizenshipGap').value;
+            payload.layout = document.getElementById('layoutDirection').value;
+        }
 
         fetch(`${FIREBASE_DB_URL}/requests.json`, {
             method: 'POST',
@@ -368,8 +751,8 @@
         })
         .then(res => res.json())
         .then(data => {
-            alert('तपाईंको आवेदन सफलतापूर्वक सबमिट भयो! अब Admin ले प्रमाणित गरेपछि मात्र clear प्रिन्ट गर्न मिल्नेछ।');
-            submitBtn.innerText = 'सफलतापूर्वक बुझाइयो (Submitted)';
+            alert('तपाईंको आवेदन सफलतापूर्वक सबमिट भयो!');
+            submitBtn.innerText = 'सफलतापूर्वक बुझाइयो';
         })
         .catch(error => {
             alert('Error: ' + error);
@@ -383,22 +766,13 @@
         const resultP = document.getElementById('traceResult');
         const directPrintBtn = document.getElementById('directPrintBtn');
 
-        if(!phone) {
-            alert('कृपया मोबाइल नम्बर राख्नुहोस्!');
-            return;
-        }
-
-        resultP.style.color = '#333';
+        if(!phone) { alert('मोबाइल नम्बर राख्नुहोस्!'); return; }
         resultP.innerText = 'खोजी गर्दैछ...';
 
         fetch(`${FIREBASE_DB_URL}/requests.json`)
         .then(res => res.json())
         .then(data => {
-            if(!data) {
-                resultP.style.color = 'red';
-                resultP.innerText = 'कुनै डेटा फेलाेन परेन।';
-                return;
-            }
+            if(!data) { resultP.innerText = 'डेटा फेला परेन।'; return; }
 
             let found = false;
             Object.keys(data).forEach(key => {
@@ -407,28 +781,61 @@
                     found = true;
                     if(req.status === 'approved') {
                         resultP.style.color = 'green';
-                        resultP.innerText = '✅ बधाई छ! तपाईंको फोटो Admin द्वारा प्रमाणित (Verify) भइसकेको छ। तल प्रिन्ट गर्नुहोस्।';
+                        resultP.innerText = '✅ प्रमाणित भयो! अब तपाईं प्रिन्ट या PDF डाउनलोड गर्न सक्नुहुन्छ।';
                         
-                        // Render clean photos without watermark for approved request
-                        renderPhotos(req.photo, false);
+                        // Margin values sync
+                        if(req.marginTop !== undefined) document.getElementById('pageMarginTop').value = req.marginTop;
+                        if(req.marginBottom !== undefined) document.getElementById('pageMarginBottom').value = req.marginBottom;
+                        if(req.marginLeft !== undefined) document.getElementById('pageMarginLeft').value = req.marginLeft;
+                        if(req.marginRight !== undefined) document.getElementById('pageMarginRight').value = req.marginRight;
+
+                        if(req.printType === 'passport') {
+                            document.getElementById('photoQty').value = req.qty || 6;
+                            document.getElementById('photoWidth').value = req.width || 1.2;
+                            document.getElementById('photoHeight').value = req.height || 1.5;
+                            document.getElementById('sizeUnit').value = req.unit || 'in';
+                            if(req.gap) document.getElementById('photoGap').value = req.gap;
+                            renderPassportPreview(req.photo, false);
+                        } else {
+                            if(req.rows) {
+                                document.getElementById('citizenshipRows').value = req.rows;
+                            }
+                            if(req.gap) {
+                                document.getElementById('citizenskey') || (document.getElementById('citizenshipGap').value = req.gap);
+                            }
+                            if(req.layout) {
+                                document.getElementById('layoutDirection').value = req.layout;
+                            }
+                            renderCitizenshipPreview(req.frontImage, req.backImage, false);
+                        }
                         directPrintBtn.style.display = 'inline-block';
+                        document.getElementById('downloadPdfBtn').style.display = 'inline-block';
                     } else {
                         resultP.style.color = 'orange';
-                        resultP.innerText = '⏳ तपाईंको आवेदन विचाराधीन (Pending) छ। कृपया वडा कार्यालयको प्रमाणीकरणको प्रतीक्षा गर्नुहोस्।';
-                        directPrintBtn.style.display = 'none';
+                        resultP.innerText = '⏳ तपाईंको आवेदन विचाराधीन (Pending) छ।';
                     }
                 }
             });
-
-            if(!found) {
-                resultP.style.color = 'red';
-                resultP.innerText = 'यो नम्बरबाट कुनै आवेदन भेटिएन।';
-            }
+            if(!found) { resultP.innerText = 'यो नम्बरबाट कुनै आवेदन भेटिएन।'; }
         })
-        .catch(err => {
-            resultP.style.color = 'red';
-            resultP.innerText = 'त्रुटि भयो: ' + err;
-        });
+        .catch(err => { resultP.innerText = 'त्रुटि भयो: ' + err; });
+    }
+
+    function downloadPDF() {
+        const element = document.getElementById('printPage');
+        const t = parseFloat(document.getElementById('pageMarginTop').value) || 0;
+        const b = parseFloat(document.getElementById('pageMarginBottom').value) || 0;
+        const l = parseFloat(document.getElementById('pageMarginLeft').value) || 0;
+        const r = parseFloat(document.getElementById('pageMarginRight').value) || 0;
+
+        const opt = {
+            margin:       [t, l, b, r],
+            filename:     'print-layout.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().from(element).set(opt).save();
     }
 </script>
 
