@@ -41,10 +41,15 @@
 
         #printView { display: none; flex-direction: column; align-items: center; background: #555555; padding: 15px 0; margin-top: 20px; border-radius: 6px; }
         
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
         .print-container {
             position: relative;
             width: 210mm;
-            min-height: 297mm;
+            height: 297mm;
             margin: 0 auto;
             background: #ffffff;
             border: 1px solid #d3d3d3;
@@ -124,9 +129,9 @@
                 top: 0; 
                 width: 210mm;
                 height: 297mm;
-                border: none; 
-                box-shadow: none;
-                margin: 0;
+                border: none !important; 
+                box-shadow: none !important;
+                margin: 0 !important;
             }
             .watermark { display: none !important; }
         }
@@ -473,7 +478,7 @@
             }
         }
 
-        document.getElementById('printView').style.display = 'flex';
+                    document.getElementById('printView').style.display = 'flex';
         window.scrollTo(0, document.getElementById('printView').offsetTop);
     }
 
