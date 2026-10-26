@@ -45,7 +45,6 @@
             position: relative;
             width: 210mm;
             min-height: 297mm;
-            /* मार्जिन युजरले पठाएको भ्यालुअनुसार डाइनामिक हुनेछ */
             margin: 0 auto;
             background: #ffffff;
             border: 1px solid #d3d3d3;
@@ -128,7 +127,6 @@
                 border: none; 
                 box-shadow: none;
                 margin: 0;
-                /* प्रिन्ट हुँदा पनि युजरले सेट गरेको मार्जिन लागू हुनेछ */
             }
             .watermark { display: none !important; }
         }
@@ -344,7 +342,6 @@
         const printContainer = document.getElementById('printableArea');
         printContainer.innerHTML = '';
         
-        // पासपोर्ट पेजले सेभ गरेको मार्जिन यहाँ लागू गरिएको छ (यदि छैन भने बाइरफल्ट ५mm रहनेछ)
         const mT = item.marginTop !== undefined ? item.marginTop : 5;
         const mB = item.marginBottom !== undefined ? item.marginBottom : 5;
         const mL = item.marginLeft !== undefined ? item.marginLeft : 5;
@@ -359,14 +356,18 @@
             const sideDiv = document.createElement('div');
             sideDiv.style.display = 'flex';
             sideDiv.style.flexWrap = 'wrap';
-            sideDiv.style.gap = `3mm`;
+            const gapVal = item.gap !== undefined ? item.gap : 2;
+            sideDiv.style.gap = `${gapVal}mm`;
             sideDiv.style.width = '100%';
+            sideDiv.style.alignContent = 'flex-start';
 
             for (let i = 0; i < qty; i++) {
                 const box = document.createElement('div');
                 box.className = 'photo-box';
-                box.style.width = `${item.width}${item.unit}`;
-                box.style.height = `${item.height}${item.unit}`;
+                const unit = item.unit || 'in';
+                box.style.width = `${item.width}${unit}`;
+                box.style.height = `${item.height}${unit}`;
+                box.style.border = `${item.borderWidth || 1.5}px solid #000`;
 
                 const img = document.createElement('img');
                 img.src = item.photo;
